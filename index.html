@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.1.1 Patch 5</title>
+    
+    <!-- Google API & PDF.js -->
+    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
+    <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --primary: #4F46E5; 
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6; 
+            --text-color: #1F2937;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        body { font-family: 'Kanit', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+        
+        header { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin: 0;}
+        .logo-sub { font-size: 0.8rem; color: #6B7280; margin: 0;}
+        
+        .controls { display: flex; align-items: center; gap: 15px; }
+        .status-badge { font-size: 0.85rem; padding: 5px 10px; border-radius: 20px; font-weight: 500; display: flex; align-items: center; gap: 5px;}
+        .status-loading { background: #FEF3C7; color: #D97706; }
+        .status-success { background: #D1FAE5; color: #059669; }
+        .status-error { background: #FEE2E2; color: #DC2626; }
+        
+        button.btn-auth { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px;}
+        button.btn-auth:hover { background: var(--primary-hover); }
+        button.btn-logout { background: #EF4444; display: none; }
+        button.btn-logout:hover { background: #DC2626; }
+        
+        .hero { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 3rem 2rem; text-align: center; border-radius: 16px; margin: 20px auto; max-width: 1200px; box-shadow: var(--shadow); }
+        .hero h1 { margin: 0 0 10px 0; font-size: 2.2rem; }
+        .hero p { margin: 0; font-size: 1.1rem; opacity: 0.9; }
+        
+        .main-container { max-width: 1200px; margin: 0 auto 40px auto; padding: 0 20px; }
+        
+        .toolbar { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 5px; background: white; padding: 15px; border-radius: 12px; box-shadow: var(--shadow); align-items: center; justify-content: space-between;}
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #E5E7EB; border-radius: 8px; font-family: 'Kanit', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s; box-sizing: border-box;}
+        .search-box input:focus { border-color: var(--primary); }
+        .sort-box select { padding: 12px 15px; border: 1px solid #E5E7EB; border-radius: 8px; font-family: 'Kanit', sans-serif; font-size: 1rem; outline: none; cursor: pointer; background: white;}
+        
+        #item-count-badge { width: 100%; text-align: right; color: #6B7280; font-size: 0.95rem; font-weight: 500; margin-bottom: 20px; padding-right: 10px; }
+        
+        #breadcrumb { margin-bottom: 20px; font-size: 1.1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .bc-item { cursor: pointer; color: var(--primary); font-weight: 500; padding: 5px 8px; border-radius: 5px; transition: 0.2s;}
+        .bc-item:hover { background: #E0E7FF; }
+        .bc-separator { color: #9CA3AF; margin: 0 2px; font-size: 0.9rem; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; }
+        .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; position: relative;}
+        .card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+        
+        .card-img-container { width: 100%; aspect-ratio: 3/4; background: #E5E7EB; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .card-img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;}
+        .card:hover .card-img-container img { transform: scale(1.05); }
+        
+        .folder-overlay { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px);}
+        .folder-bg { background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%); }
+        .folder-icon { font-size: 4rem; color: #3B82F6; }
+        
+        .card-title { padding: 15px; font-weight: 600; font-size: 1.05rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-top: 1px solid #F3F4F6; }
+        
+        .empty-state, .loader { text-align: center; padding: 60px; font-size: 1.2rem; color: #6B7280; width: 100%; grid-column: 1 / -1; }
+        
+        .reader-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; z-index: 9999; flex-direction: column; }
+        .reader-header { background: #1F2937; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.5); z-index: 100;}
+        .reader-title { font-weight: bold; flex-grow: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 15px; font-size: 1.1rem;}
+        .btn-reader { background: #374151; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; font-family: 'Kanit', sans-serif;}
+        .btn-reader:hover { background: #4B5563; }
+        .btn-back { background: #EF4444; }
+        .btn-back:hover { background: #DC2626; }
+        
+        .reader-content { flex-grow: 1; display: flex; justify-content: center; overflow: auto; position: relative; background: #000; }
+        #pdf-canvas { display: block; margin: 0 auto; box-shadow: 0 0 15px rgba(0,0,0,0.8); max-width: 100%; }
+        .reader-frame { width: 100%; height: 100%; border: none; background: white; display: none; }
+        
+        #toast-message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 25px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); pointer-events: none; backdrop-filter: blur(4px); }
+        
+        .tap-zone { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 50; cursor: pointer; }
+        .tap-zone.left { left: 0; }
+        .tap-zone.right { right: 0; }
+        
+        .pdf-toolbar { background: #1F2937; color: white; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);}
+        .pdf-toolbar button { background: var(--primary); padding: 10px 20px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;}
+        .pdf-toolbar button:hover { background: var(--primary-hover); }
+        .pdf-toolbar button:disabled { background: #4B5563; cursor: not-allowed; color: #9CA3AF;}
+        .page-info { font-size: 1.1rem; font-weight: bold; background: #374151; padding: 8px 15px; border-radius: 8px;}
+        
+        #pdf-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.2rem; display: none; text-align: center; z-index: 90; background: rgba(0,0,0,0.8); padding: 25px 40px; border-radius: 12px;}
+
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .card-title { font-size: 0.9rem; padding: 10px; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .btn-text { display: none; }
+            .reader-title { font-size: 0.95rem; }
+            header { padding: 1rem; }
+            .logo { font-size: 1.2rem; }
+            .pdf-toolbar { padding: 10px; gap: 10px; justify-content: space-between; }
+            .pdf-toolbar button { padding: 10px; font-size: 1rem;}
+            .page-info { font-size: 1rem; padding: 6px 10px;}
+        }
+    </style>
+
+    <script>
+        // ==========================================
+        // ⚙️ ตั้งค่า Google API (ห้ามแก้ไขส่วน Auth/Token)
+        // ==========================================
+        const CLIENT_ID = '437842431692-l7cbh663ukspuem9s1f77d2i4nuifcel.apps.googleusercontent.com'; 
+        const API_KEY = 'AIzaSyBcNDtP533PgpHb9iyRHWnCIQMU0k7VPKE'; 
+        const ROOT_FOLDER_ID = '1puBAVnPh88MgKMEJJDXWsO58mzKV3p0x'; 
+        // ==========================================
+        
+        const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+        let tokenClient;
+        let currentFolderId = ROOT_FOLDER_ID;
+        let folderHistory = []; 
+        let gapiInited = false;
+        let gisInited = false;
+        let domReady = false;
+        let appStarted = false;
+        let currentFolderItems = [];
+
+        let currentViewMode = 'grid'; // 'grid' หรือ 'series-detail'
+        let activeSeriesData = null;  
+
+        const pdfjsLib = window.pdfjsLib;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let canvas, ctx;
+        let currentFileId = null;
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text ?? '';
+            return div.innerHTML;
+        }
+
+        // --- Auth & Init (Stable Baseline - ห้ามแตะ) ---
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: [
+                        'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+                    ]
+                });
+
+                gapiInited = true;
+                console.log('✅ Google API Client พร้อมแล้ว');
+                console.log('Drive API:', !!(gapi.client && gapi.client.drive));
+
+                maybeStartApp();
+
+            } catch (err) {
+                console.error('❌ Google API Client init failed:', err);
+                gapiInited = false;
+                if (domReady) {
+                    updateStatus('เชื่อมต่อ Google API ไม่สำเร็จ', 'error');
+                }
+            }
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: (tokenResponse) => {
+                    if (!tokenResponse || !tokenResponse.access_token) {
+                        updateStatus('เข้าสู่ระบบไม่สำเร็จ', 'error');
+                        return;
+                    }
+
+                    localStorage.setItem('gdrive_token', tokenResponse.access_token);
+                    localStorage.setItem('gdrive_token_expire', new Date().getTime() + (tokenResponse.expires_in * 1000));
+
+                    gapi.client.setToken({
+                        access_token: tokenResponse.access_token
+                    });
+
+                    updateStatus('พร้อมใช้งาน', 'success');
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'flex';
+
+                    if (gapiInited && gapi.client && gapi.client.drive) {
+                        loadDriveContent(ROOT_FOLDER_ID);
+                    } else {
+                        updateStatus('กำลังเตรียม Google Drive...', 'loading');
+                        waitForDriveAPI().then(() => {
+                            loadDriveContent(ROOT_FOLDER_ID);
+                        }).catch(err => {
+                            console.error(err);
+                            updateStatus('Google Drive ยังไม่พร้อม', 'error');
+                        });
+                    }
+                },
+            });
+            gisInited = true; 
+            maybeStartApp();
+        }
+
+        function maybeStartApp() {
+            if (gapiInited && gisInited && domReady && !appStarted) { 
+                appStarted = true;
+                checkExistingToken(); 
+            }
+        }
+
+        function checkExistingToken() {
+            const storedToken = localStorage.getItem('gdrive_token');
+            const expireTime = localStorage.getItem('gdrive_token_expire');
+
+            if (storedToken && expireTime && new Date().getTime() < parseInt(expireTime)) {
+                gapi.client.setToken({
+                    access_token: storedToken
+                });
+
+                updateStatus('พร้อมใช้งาน', 'success');
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'flex';
+
+                if (gapi.client && gapi.client.drive) {
+                    loadDriveContent(ROOT_FOLDER_ID);
+                } else {
+                    updateStatus('กำลังเตรียม Google Drive...', 'loading');
+                    waitForDriveAPI()
+                        .then(() => loadDriveContent(ROOT_FOLDER_ID))
+                        .catch(err => {
+                            console.error(err);
+                            updateStatus('Google Drive ยังไม่พร้อม', 'error');
+                        });
+                }
+            } else {
+                localStorage.removeItem('gdrive_token');
+                localStorage.removeItem('gdrive_token_expire');
+                updateStatus('กรุณาเข้าสู่ระบบ', 'loading');
+            }
+        }
+
+        function handleAuthClick() {
+            tokenClient.requestAccessToken({
+                prompt: 'select_account'
+            });
+        }
+
+        function handleSignoutClick() {
+            const tokenObj = gapi.client.getToken();
+            if (tokenObj && tokenObj.access_token) { google.accounts.oauth2.revoke(tokenObj.access_token); }
+            gapi.client.setToken('');
+            localStorage.removeItem('gdrive_token');
+            localStorage.removeItem('gdrive_token_expire');
+            document.getElementById('content-area').innerHTML = '';
+            document.getElementById('loginBtn').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('breadcrumb').innerHTML = '';
+            document.getElementById('item-count-badge').innerHTML = '';
+            currentFolderItems = [];
+            currentViewMode = 'grid';
+            activeSeriesData = null;
+            
+            appStarted = false;
+            updateStatus('ออกจากระบบแล้ว', 'error');
+        }
+
+        function updateStatus(msg, type) {
+            const statusBadge = document.getElementById('status-badge');
+            let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-spinner fa-spin';
+            statusBadge.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+            statusBadge.className = `status-badge status-${type}`;
+        }
+
+        function waitForDriveAPI(timeout = 10000) {
+            return new Promise((resolve, reject) => {
+                const start = Date.now();
+                const check = () => {
+                    if (gapiInited && gapi && gapi.client && gapi.client.drive) {
+                        console.log('✅ Drive API พร้อมใช้งาน');
+                        resolve();
+                        return;
+                    }
+                    if (Date.now() - start >= timeout) {
+                        reject(new Error('Google Drive API ไม่พร้อมภายในเวลาที่กำหนด'));
+                        return;
+                    }
+                    setTimeout(check, 100);
+                };
+                check();
+            });
+        }
+
+        // --- Drive API Fetch ---
+        async function loadDriveContent(folderId, folderName = 'การ์ตูนครอบครัว') {
+            currentViewMode = 'grid';
+            activeSeriesData = null;
+
+            if (!gapiInited || !gapi || !gapi.client || !gapi.client.drive) {
+                updateStatus('กำลังเตรียม Google Drive...', 'loading');
+                try {
+                    await waitForDriveAPI();
+                } catch (err) {
+                    console.error(err);
+                    updateStatus('Google Drive ยังไม่พร้อม', 'error');
+                    document.getElementById('content-area').innerHTML = `
+                        <div class="empty-state status-error">
+                            ❌ ไม่สามารถเชื่อมต่อ Google Drive ได้<br>
+                            <small>กรุณาลองรีเฟรชหน้าเว็บอีกครั้ง</small>
+                        </div>`;
+                    return;
+                }
+            }
+
+            document.getElementById('content-area').innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>กำลังค้นหาหนังสือ...</div>';
+            document.getElementById('searchInput').value = '';
+            
+            try {
+                if (folderId === ROOT_FOLDER_ID) {
+                    folderHistory = [{ id: ROOT_FOLDER_ID, name: '🏠 หน้าหลัก' }];
+                } else {
+                    if (!folderHistory.find(f => f.id === folderId)) {
+                        folderHistory.push({ id: folderId, name: folderName });
+                    } else {
+                        folderHistory = folderHistory.slice(0, folderHistory.findIndex(f => f.id === folderId) + 1);
+                    }
+                }
+                renderBreadcrumb();
+
+                let response = await gapi.client.drive.files.list({
+                    q: `'${folderId}' in parents and trashed = false`,
+                    fields: 'files(id, name, mimeType, thumbnailLink, modifiedTime)',
+                    pageSize: 1000,
+                    orderBy: 'folder, name'
+                });
+
+                currentFolderItems = response.result.files || [];
+                
+                if (currentFolderItems.length > 0) {
+                    applySearchAndSort();
+                } else {
+                    document.getElementById('item-count-badge').innerHTML = '';
+                    document.getElementById('content-area').innerHTML = '<div class="empty-state"><i class="fas fa-folder-open fa-3x" style="color:#D1D5DB; margin-bottom:15px;"></i><br>โฟลเดอร์นี้ว่างเปล่า</div>';
+                }
+            } catch (err) {
+                console.error(err);
+                if(err.status === 401) { handleSignoutClick(); }
+                else { document.getElementById('content-area').innerHTML = `<div class="empty-state status-error">❌ เกิดข้อผิดพลาด: ${err.message}</div>`; }
+            }
+        }
+
+        // ==========================================
+        // 📚 V7.1.1 Patch 5: Smart Filename Parser & Grouping
+        // ==========================================
+        function normalizeSeriesKey(name) {
+            return String(name || '')
+                .normalize('NFC')
+                .toLowerCase()
+                .replace(/[\s\-_]+/g, '')
+                .trim();
+        }
+
+        function parseVolumeName(fileName) {
+            const lastDotIndex = fileName.lastIndexOf('.');
+            if (lastDotIndex === -1) return null;
+            const nameWithoutExt = fileName.substring(0, lastDotIndex);
+            const ext = fileName.substring(lastDotIndex + 1).toLowerCase();
+
+            // 1. ตรวจสอบ Range File (เช่น เล่ม 1-20, 1-20, _1-20, -1-20)
+            const rangeRegex = /^(.+?)(?:\s+เล่ม\s*|\s*[_-]\s*|\s+)(\d+)\s*-\s*(\d+)$/i;
+            let matchRange = nameWithoutExt.match(rangeRegex);
+            if (matchRange) {
+                let seriesName = matchRange[1].replace(/[-_\s]+$/, '').trim();
+                return {
+                    type: 'collection',
+                    seriesName: seriesName,
+                    volumeStart: parseInt(matchRange[2], 10),
+                    volumeEnd: parseInt(matchRange[3], 10),
+                    extension: ext
+                };
+            }
+
+            // 2. ตรวจสอบเล่มเดี่ยว (เช่น เล่ม 01, _01, -01, เว้นวรรคตามด้วยเลข)
+            const patterns = [
+                /^(.+?)\s+เล่ม\s*(\d+)$/i,       
+                /^(.+?)_(\d+)$/,                 
+                /^(.+?)-(\d+)$/,                 
+                /^(.+?)\s+(\d+)$/                
+            ];
+
+            for (let pat of patterns) {
+                let m = nameWithoutExt.match(pat);
+                if (m) {
+                    let rawSeries = m[1];
+                    let volNum = parseInt(m[2], 10);
+                    let seriesName = rawSeries.replace(/[-_\s]+$/, '').trim();
+                    if (seriesName.length > 0) {
+                        return {
+                            type: 'single',
+                            seriesName: seriesName,
+                            volumeNumber: volNum,
+                            extension: ext
+                        };
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        function isCoverImage(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+        }
+
+        function groupFilesAndFolders(items) {
+            let folders = [];
+            let individualFiles = [];
+            let coverFiles = [];
+            let parsedItems = [];
+
+            items.forEach(item => {
+                let isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+                if (isFolder) {
+                    folders.push(item);
+                } else if (isCoverImage(item.name)) {
+                    coverFiles.push(item);
+                } else {
+                    const parsed = parseVolumeName(item.name);
+                    if (parsed) {
+                        parsedItems.push({ item, parsed });
+                    } else {
+                        individualFiles.push(item);
+                    }
+                }
+            });
+
+            // 📌 [V7.1.1 Patch 5] รวบรวม Normalized Keys ของ Series ที่มี Range File อยู่
+            let seriesKeysWithRange = new Set();
+            parsedItems.forEach(({ parsed }) => {
+                if (parsed.type === 'collection') {
+                    seriesKeysWithRange.add(
+                        normalizeSeriesKey(parsed.seriesName)
+                    );
+                }
+            });
+
+            let seriesMap = {};
+
+            parsedItems.forEach(({ item, parsed }) => {
+                if (parsed.type === 'collection') {
+                    let collectionKey = `${parsed.seriesName} (เล่ม ${parsed.volumeStart}-${parsed.volumeEnd})_${item.id}`;
+                    seriesMap[collectionKey] = {
+                        type: 'collection',
+                        seriesName: parsed.seriesName,
+                        volumeRange: `เล่ม ${parsed.volumeStart}–${parsed.volumeEnd}`,
+                        books: [item],
+                        modifiedTime: item.modifiedTime
+                    };
+                } else if (parsed.type === 'single') {
+                    const seriesKey = normalizeSeriesKey(parsed.seriesName);
+                    
+                    // 📌 [V7.1.1 Patch 5 Rule] ถ้า Series นี้มี Range File อยู่แล้ว Single Volume ต้องถูกแยกเป็น Individual File เสมอ ห้ามรวมกลุ่ม
+                    if (seriesKeysWithRange.has(seriesKey)) {
+                        individualFiles.push({
+                            ...item,
+                            isSingleWithRange: true,
+                            seriesName: parsed.seriesName,
+                            volumeNumber: parsed.volumeNumber
+                        });
+                    } else {
+                        if (!seriesMap[seriesKey]) {
+                            seriesMap[seriesKey] = {
+                                type: 'series',
+                                seriesName: parsed.seriesName,
+                                books: [],
+                                modifiedTime: item.modifiedTime
+                            };
+                        }
+                        seriesMap[seriesKey].books.push({
+                            ...item,
+                            volumeNumber: parsed.volumeNumber
+                        });
+                        if (
+                            new Date(item.modifiedTime) >
+                            new Date(seriesMap[seriesKey].modifiedTime)
+                        ) {
+                            seriesMap[seriesKey].modifiedTime = item.modifiedTime;
+                        }
+                    }
+                }
+            });
+
+            Object.values(seriesMap).forEach(series => {
+                if (series.type === 'series') {
+                    series.books.sort((a, b) => a.volumeNumber - b.volumeNumber);
+                }
+            });
+
+            let seriesList = Object.values(seriesMap);
+            return { folders, seriesList, individualFiles, coverFiles };
+        }
+
+        function findSeriesCover(seriesName, coverFiles) {
+            const cleanTarget = seriesName.toLowerCase().replace(/[\s\-_]/g, '');
+            for (let cover of coverFiles) {
+                const coverBaseName = cover.name.substring(0, cover.name.lastIndexOf('.')).toLowerCase().replace(/[\s\-_]/g, '');
+                if (coverBaseName === cleanTarget) {
+                    if (cover.thumbnailLink) {
+                        return cover.thumbnailLink.split('=')[0] + '=s800';
+                    }
+                }
+            }
+            return null;
+        }
+
+        // --- Search & Sort Logic ---
+        function applySearchAndSort() {
+            if (currentViewMode === 'series-detail' && activeSeriesData) {
+                renderSeriesDetailUI(activeSeriesData);
+                return;
+            }
+
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const sortType = document.getElementById('sortSelect').value;
+
+            const { folders, seriesList, individualFiles, coverFiles } = groupFilesAndFolders(currentFolderItems);
+
+            let filteredFolders = folders.filter(f => f.name.toLowerCase().includes(query));
+            let filteredSeries = seriesList.filter(s => s.seriesName.toLowerCase().includes(query) || (s.volumeRange && s.volumeRange.toLowerCase().includes(query)));
+            let filteredFiles = individualFiles.filter(f => {
+                let displayName = f.isSingleWithRange ? `${f.seriesName} เล่ม ${f.volumeNumber}` : f.name;
+                return displayName.toLowerCase().includes(query);
+            });
+
+            const sortFunc = (a, b) => {
+                let nameA = a.name || a.seriesName;
+                let nameB = b.name || b.seriesName;
+                if (sortType === 'name-asc') return nameA.localeCompare(nameB, 'th');
+                if (sortType === 'name-desc') return nameB.localeCompare(nameA, 'th');
+                if (sortType === 'latest') {
+                    let timeA = new Date(a.modifiedTime || 0);
+                    let timeB = new Date(b.modifiedTime || 0);
+                    return timeB - timeA;
+                }
+                return 0;
+            };
+
+            if (sortType !== 'default') {
+                filteredFolders.sort(sortFunc);
+                filteredSeries.sort(sortFunc);
+                filteredFiles.sort(sortFunc);
+            } else {
+                filteredFolders.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+                filteredSeries.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'th'));
+                filteredFiles.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
+            }
+
+            const totalDisplayCount = filteredFolders.length + filteredSeries.length + filteredFiles.length;
+            document.getElementById('item-count-badge').innerHTML = `📚 พบ ${totalDisplayCount} รายการ`;
+
+            renderMainGridUI(filteredFolders, filteredSeries, filteredFiles, coverFiles);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            domReady = true;
+
+            document.getElementById('searchInput').addEventListener('input', applySearchAndSort);
+            document.getElementById('sortSelect').addEventListener('change', applySearchAndSort);
+            
+            document.addEventListener('keydown', (e) => {
+                const modal = document.getElementById('reader-modal');
+                if (modal.style.display === 'flex') {
+                    if (e.key === 'ArrowLeft') onPrevPage();
+                    if (e.key === 'ArrowRight') onNextPage();
+                }
+            });
+
+            maybeStartApp();
+        });
+
+        // --- Render UI สำหรับหน้าหลัก (Grid View) ---
+        async function renderMainGridUI(folders, seriesList, files, coverFiles) {
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = '';
+            
+            if (folders.length === 0 && seriesList.length === 0 && files.length === 0) {
+                contentArea.innerHTML = '<div class="empty-state"><i class="fas fa-search fa-3x" style="color:#D1D5DB; margin-bottom:15px;"></i><br>ไม่พบรายการที่ตรงกับการค้นหา</div>';
+                return;
+            }
+
+            for (const item of folders) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-img-container folder-bg">
+                        <i class="fas fa-folder-open folder-icon"></i>
+                        <div class="folder-overlay"><i class="fas fa-folder"></i> แฟ้ม</div>
+                    </div>
+                    <div class="card-title">${escapeHtml(item.name)}</div>
+                `;
+                card.onclick = () => loadDriveContent(item.id, item.name);
+                
+                getFolderCover(item.id).then(coverUrl => {
+                    if(coverUrl) { 
+                        card.querySelector('.card-img-container').innerHTML = `
+                            <img src="${coverUrl}" alt="ปกแฟ้ม" loading="lazy" referrerpolicy="no-referrer">
+                            <div class="folder-overlay"><i class="fas fa-folder"></i> แฟ้ม</div>
+                        `; 
+                    }
+                });
+                contentArea.appendChild(card);
+            }
+
+            for (const series of seriesList) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                let coverUrl = findSeriesCover(series.seriesName, coverFiles); // Priority 1: Smart Cover File
+                
+                if (!coverUrl) {
+                    let firstBook = series.books[0];
+                    if (firstBook.thumbnailLink) {
+                        coverUrl = firstBook.thumbnailLink.split('=')[0] + '=s800';
+                    } else {
+                        coverUrl = firstBook.mimeType && firstBook.mimeType.includes('pdf') 
+                            ? 'https://via.placeholder.com/300x400/EF4444/ffffff?text=PDF' 
+                            : 'https://via.placeholder.com/300x400/9CA3AF/ffffff?text=Series';
+                    }
+                }
+
+                let badgeText = series.type === 'collection' ? series.volumeRange : `${series.books.length} เล่ม`;
+                let badgeIcon = series.type === 'collection' ? 'fa-file-pdf' : 'fa-book-open';
+
+                card.innerHTML = `
+                    <div class="card-img-container">
+                        <img src="${coverUrl}" alt="ปกซีรีส์" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/9CA3AF/ffffff?text=Error'">
+                        <div class="folder-overlay" style="background:var(--primary);"><i class="fas ${badgeIcon}"></i> ${badgeText}</div>
+                    </div>
+                    <div class="card-title">${escapeHtml(series.seriesName)}</div>
+                `;
+
+                if (series.type === 'collection') {
+                    let targetBook = series.books[0];
+                    card.onclick = () => openReader(targetBook.id, targetBook.name, targetBook.mimeType);
+                } else {
+                    card.onclick = () => openSeriesDetail(series);
+                }
+                contentArea.appendChild(card);
+            }
+
+            for (const item of files) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                let coverUrl = item.thumbnailLink;
+                if (coverUrl) { coverUrl = coverUrl.split('=')[0] + '=s800'; } 
+                else {
+                    coverUrl = item.mimeType.includes('pdf') 
+                        ? 'https://via.placeholder.com/300x400/EF4444/ffffff?text=PDF' 
+                        : 'https://via.placeholder.com/300x400/9CA3AF/ffffff?text=No+Cover';
+                }
+                
+                let savedPage = getBookmark(item.id);
+                
+                // 📌 [V7.1.1 Patch 5 Badge & Title Logic]
+                let badgeLabel = '';
+                let badgeStyle = '';
+
+                if (item.isSingleWithRange) {
+                    badgeLabel = `เล่ม ${item.volumeNumber}`;
+                    badgeStyle = 'background:#3B82F6;';
+                } else if (savedPage > 1) {
+                    badgeStyle = 'background:#10B981;';
+                    badgeLabel = `<i class="fas fa-bookmark"></i> หน้า ${savedPage}`;
+                }
+
+                let finalOverlay = badgeLabel ? `<div class="folder-overlay" style="${badgeStyle}">${badgeLabel}</div>` : '';
+                
+                // แสดงชื่อการ์ดให้ระบุเล่มชัดเจน เช่น "ยอดนักสืบจิ๋วโคนัน เล่ม 98"
+                let displayCardTitle = item.isSingleWithRange 
+                    ? `${escapeHtml(item.seriesName)} เล่ม ${escapeHtml(String(item.volumeNumber))}` 
+                    : escapeHtml(item.name);
+
+                card.innerHTML = `
+                    <div class="card-img-container">
+                        <img src="${coverUrl}" alt="ปกหนังสือ" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/9CA3AF/ffffff?text=Error'">
+                        ${finalOverlay}
+                    </div>
+                    <div class="card-title">${displayCardTitle}</div>
+                `;
+                card.onclick = () => openReader(item.id, item.name, item.mimeType);
+                contentArea.appendChild(card);
+            }
+        }
+
+        // --- เปิดมุมมองรายละเอียดภายใน Series (Series Detail View) ---
+        function openSeriesDetail(series) {
+            currentViewMode = 'series-detail';
+            activeSeriesData = series;
+
+            document.getElementById('searchInput').value = '';
+            renderSeriesBreadcrumb(series.seriesName);
+            renderSeriesDetailUI(series);
+        }
+
+        function renderSeriesBreadcrumb(seriesName) {
+            const bcDiv = document.getElementById('breadcrumb');
+            bcDiv.innerHTML = '';
+
+            let lastFolder = folderHistory[folderHistory.length - 1];
+
+            const homeSpan = document.createElement('span');
+            homeSpan.className = 'bc-item';
+            homeSpan.innerHTML = `<i class="fas fa-home"></i> ${escapeHtml(lastFolder.name === '🏠 หน้าหลัก' ? 'หน้าหลัก' : lastFolder.name)}`;
+            homeSpan.onclick = () => {
+                loadDriveContent(lastFolder.id, lastFolder.name);
+            };
+            bcDiv.appendChild(homeSpan);
+
+            const sep = document.createElement('span');
+            sep.className = 'bc-separator';
+            sep.innerHTML = ' ❯ ';
+            bcDiv.appendChild(sep);
+
+            const seriesSpan = document.createElement('span');
+            seriesSpan.style.cssText = 'color:var(--text-color); font-weight:bold; padding: 5px 8px;';
+            seriesSpan.textContent = seriesName;
+            bcDiv.appendChild(seriesSpan);
+        }
+
+        function renderSeriesDetailUI(series) {
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = '';
+
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            let booksToDisplay = series.books;
+
+            if (query) {
+                booksToDisplay = series.books.filter(b => b.name.toLowerCase().includes(query));
+            }
+
+            document.getElementById('item-count-badge').innerHTML = `📚 ${escapeHtml(series.seriesName)} — ทั้งหมด ${booksToDisplay.length} เล่ม`;
+
+            if (booksToDisplay.length === 0) {
+                contentArea.innerHTML = '<div class="empty-state"><i class="fas fa-search fa-3x" style="color:#D1D5DB; margin-bottom:15px;"></i><br>ไม่พบเล่มที่ค้นหาในซีรีส์นี้</div>';
+                return;
+            }
+
+            const { coverFiles } = groupFilesAndFolders(currentFolderItems);
+            let seriesCoverFallback = findSeriesCover(series.seriesName, coverFiles);
+
+            booksToDisplay.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                let primaryCover = book.thumbnailLink ? book.thumbnailLink.split('=')[0] + '=s800' : null;
+                let fallbackCover = seriesCoverFallback || (
+                    book.mimeType && book.mimeType.includes('pdf')
+                        ? 'https://via.placeholder.com/300x400/EF4444/ffffff?text=PDF'
+                        : 'https://via.placeholder.com/300x400/9CA3AF/ffffff?text=No+Cover'
+                );
+                let safeCover = primaryCover || fallbackCover;
+                
+                let savedPage = getBookmark(book.id);
+                let bookmarkHtml = savedPage > 1 ? `<div class="folder-overlay" style="background:#10B981;"><i class="fas fa-bookmark"></i> หน้า ${savedPage}</div>` : '';
+
+                card.innerHTML = `
+                    <div class="card-img-container">
+                        <img 
+                            src="${safeCover}" 
+                            alt="ปกหนังสือ" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer"
+                            onerror="this.onerror=null; this.src='${fallbackCover}'"
+                        >
+                        ${bookmarkHtml}
+                    </div>
+                    <div class="card-title">เล่ม ${escapeHtml(String(book.volumeNumber))}</div>
+                `;
+                card.onclick = () => openReader(book.id, book.name, book.mimeType);
+                contentArea.appendChild(card);
+            });
+        }
+
+        async function getFolderCover(folderId) {
+            try {
+                if (!gapi.client || !gapi.client.drive) return null;
+                let res = await gapi.client.drive.files.list({ q: `'${folderId}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'`, fields: 'files(thumbnailLink)', pageSize: 1 });
+                if (res.result.files && res.result.files.length > 0 && res.result.files[0].thumbnailLink) { return res.result.files[0].thumbnailLink.split('=')[0] + '=s800'; }
+            } catch (e) { return null; }
+            return null;
+        }
+
+        function renderBreadcrumb() {
+            const bcDiv = document.getElementById('breadcrumb');
+            bcDiv.innerHTML = '';
+            folderHistory.forEach((folder, index) => {
+                const span = document.createElement('span');
+                span.className = 'bc-item';
+                span.innerHTML = index === 0 ? '<i class="fas fa-home"></i> หน้าหลัก' : `<i class="fas fa-folder"></i> ${escapeHtml(folder.name)}`;
+                span.onclick = () => loadDriveContent(folder.id, folder.name);
+                bcDiv.appendChild(span);
+                if (index < folderHistory.length - 1) {
+                    const sep = document.createElement('span');
+                    sep.className = 'bc-separator';
+                    sep.innerHTML = ' ❯ ';
+                    bcDiv.appendChild(sep);
+                }
+            });
+        }
+
+        // ==========================================
+        // 📖 ระบบจัดการ Bookmark (Stable Baseline - ห้ามแตะ)
+        // ==========================================
+        function saveBookmark(fileId, page) {
+            localStorage.setItem(`familyComic:lastPage:${fileId}`, page);
+        }
+        function getBookmark(fileId) {
+            return parseInt(localStorage.getItem(`familyComic:lastPage:${fileId}`)) || 1;
+        }
+        function showToast(msg) {
+            const toast = document.getElementById('toast-message');
+            toast.innerHTML = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        // ==========================================
+        // 📖 ระบบอ่านหนังสือ PDF.js (Stable Baseline - ห้ามแตะ)
+        // ==========================================
+        function openReader(fileId, fileName, mimeType) {
+            const modal = document.getElementById('reader-modal');
+            const title = document.getElementById('reader-title');
+            const frame = document.getElementById('reader-frame');
+            const pdfCanvas = document.getElementById('pdf-canvas');
+            const pdfToolbar = document.getElementById('pdf-toolbar');
+            
+            currentFileId = fileId; 
+            title.innerText = fileName;
+            modal.style.display = 'flex'; 
+            document.body.style.overflow = 'hidden'; 
+            
+            const isPdf = !!(mimeType && mimeType.includes('pdf'));
+
+            if (isPdf) {
+                frame.style.display = 'none';
+                pdfCanvas.style.display = 'block';
+                pdfToolbar.style.display = 'flex';
+                
+                document.getElementById('tap-zone-left').style.display = 'block';
+                document.getElementById('tap-zone-right').style.display = 'block';
+
+                loadPDF(); 
+            } else {
+                pdfCanvas.style.display = 'none';
+                pdfToolbar.style.display = 'none';
+                document.getElementById('tap-zone-left').style.display = 'none';
+                document.getElementById('tap-zone-right').style.display = 'none';
+                
+                frame.style.display = 'block';
+                frame.src = `https://drive.google.com/file/d/${currentFileId}/preview`;
+            }
+        }
+
+        async function loadPDF() {
+            const loadingUI = document.getElementById('pdf-loading');
+            loadingUI.style.display = 'block';
+            loadingUI.innerHTML = '<i class="fas fa-spinner fa-spin"></i> เตรียมการดาวน์โหลดไฟล์...';
+            
+            canvas = document.getElementById('pdf-canvas');
+            ctx = canvas.getContext('2d');
+            
+            pdfDoc = null;
+            pageRendering = false;
+            pageNumPending = null;
+            
+            let savedPage = getBookmark(currentFileId); 
+            
+            const tokenObj = gapi.client.getToken();
+            if (!tokenObj || !tokenObj.access_token) {
+                loadingUI.innerHTML = '❌ เซสชันหมดอายุ กรุณาโหลดหน้าเว็บและล็อกอินใหม่';
+                return;
+            }
+            const token = tokenObj.access_token;
+            
+            const url = `https://www.googleapis.com/drive/v3/files/${currentFileId}?alt=media`;
+
+            try {
+                const loadingTask = pdfjsLib.getDocument({
+                    url: url,
+                    httpHeaders: { 'Authorization': `Bearer ${token}` },
+                    disableRange: false, 
+                    disableStream: false
+                });
+
+                loadingTask.onProgress = function(progress) {
+                    if (progress.total > 0) {
+                        let percent = Math.round((progress.loaded / progress.total) * 100);
+                        loadingUI.innerHTML = `<i class="fas fa-spinner fa-spin"></i> กำลังโหลดหนังสือ... <b>${percent}%</b>`;
+                    } else {
+                        let loadedMb = (progress.loaded / (1024 * 1024)).toFixed(1);
+                        loadingUI.innerHTML = `<i class="fas fa-spinner fa-spin"></i> โหลดแล้ว... <b>${loadedMb} MB</b>`;
+                    }
+                };
+
+                pdfDoc = await loadingTask.promise;
+
+                document.getElementById('page_count').textContent = pdfDoc.numPages;
+                loadingUI.style.display = 'none';
+                
+                pageNum = Math.min(savedPage, pdfDoc.numPages);
+                
+                if (pageNum > 1) {
+                    showToast(`📌 กำลังอ่านต่อจากหน้า ${pageNum}`);
+                }
+                
+                renderPage(pageNum);
+            } catch (error) {
+                console.error(error);
+                loadingUI.innerHTML = '❌ เกิดข้อผิดพลาดในการโหลดไฟล์ <br><button onclick="closeReader()" style="margin-top:15px; padding:8px 20px; font-weight:bold; border-radius:5px; border:none; cursor:pointer;">ปิดหน้าต่าง</button>';
+            }
+        }
+
+        function renderPage(num) {
+            pageRendering = true;
+            
+            pdfDoc.getPage(num).then(function(page) {
+                const containerWidth = document.querySelector('.reader-content').clientWidth;
+                const unscaledViewport = page.getViewport({scale: 1});
+                const scale = (containerWidth / unscaledViewport.width) * 0.98; 
+                const viewport = page.getViewport({scale: scale});
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = { canvasContext: ctx, viewport: viewport };
+                const renderTask = page.render(renderContext);
+
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page_num').textContent = num;
+            document.getElementById('btn-prev').disabled = num <= 1;
+            document.getElementById('btn-next').disabled = num >= pdfDoc.numPages;
+            
+            document.querySelector('.reader-content').scrollTop = 0; 
+
+            saveBookmark(currentFileId, num);
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function onPrevPage() {
+            if (!pdfDoc || pageNum <= 1) return;
+            let targetPage = pageNum - 1;
+            if (targetPage < 1) targetPage = 1;
+            pageNum = targetPage;
+            queueRenderPage(pageNum);
+        }
+
+        function onNextPage() {
+            if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
+            let targetPage = pageNum + 1;
+            if (targetPage > pdfDoc.numPages) targetPage = pdfDoc.numPages;
+            pageNum = targetPage;
+            queueRenderPage(pageNum);
+        }
+
+        function closeReader() {
+            const modal = document.getElementById('reader-modal');
+            const frame = document.getElementById('reader-frame');
+            
+            modal.style.display = 'none'; 
+            frame.src = ''; 
+            document.body.style.overflow = 'auto'; 
+            
+            if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (document.fullscreenElement) document.exitFullscreen();
+            
+            currentFileId = null; 
+            
+            pageRendering = false;
+            pageNumPending = null;
+            pdfDoc = null;
+            
+            if (currentFolderItems.length > 0) applySearchAndSort();
+        }
+
+        function toggleFullScreen() {
+            const modal = document.getElementById('reader-modal');
+            if (!document.fullscreenElement) modal.requestFullscreen().catch(err => console.log(err));
+            else document.exitFullscreen();
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <div>
+                <h1 class="logo">📚 บ้านการ์ตูนของเรา</h1>
+                <p class="logo-sub">Family Comic Library V7.1.1 Patch 5</p>
+            </div>
+        </div>
+        <div class="controls">
+            <div id="status-badge" class="status-badge status-loading"><i class="fas fa-spinner fa-spin"></i> รอการเชื่อมต่อ...</div>
+            <button id="loginBtn" class="btn-auth" onclick="handleAuthClick()"><i class="fab fa-google"></i> ล็อกอิน</button>
+            <button id="logoutBtn" class="btn-auth btn-logout" onclick="handleSignoutClick()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>📖 ห้องสมุดการ์ตูนของครอบครัว</h1>
+        <p>Smart Grouping & Smart Cover (Patch 5) — ป้องกันการยุบรวมกลุ่มใน Mixed Range Series ด้วย Normalized Key สำเร็จ</p>
+    </div>
+
+    <div class="main-container">
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="ค้นหาชื่อเรื่องหรือหนังสือในหน้านี้...">
+            </div>
+            <div class="sort-box">
+                <select id="sortSelect">
+                    <option value="default">จัดตามชื่อ ก-ฮ</option>
+                    <option value="latest">เพิ่มล่าสุด (ใหม่ไปเก่า)</option>
+                    <option value="name-asc">ชื่อ (ก-ฮ / A-Z)</option>
+                    <option value="name-desc">ชื่อ (ฮ-ก / Z-A)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="item-count-badge"></div>
+        <div id="breadcrumb"></div>
+        <div id="content-area" class="grid-container"></div>
+    </div>
+
+    <div id="reader-modal" class="reader-modal">
+        <div id="toast-message"></div>
+        
+        <div class="reader-header">
+            <button class="btn-reader btn-back" onclick="closeReader()">
+                <i class="fas fa-arrow-left"></i> <span class="btn-text">ปิดหนังสือ</span>
+            </button>
+            <span id="reader-title" class="reader-title">กำลังโหลด...</span>
+            <div class="header-actions">
+                <button class="btn-reader" onclick="toggleFullScreen()" title="เต็มจอ">
+                    <i class="fas fa-expand"></i> <span class="btn-text">เต็มจอ</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="reader-content">
+            <div id="pdf-loading"></div>
+            
+            <div id="tap-zone-left" class="tap-zone left" onclick="onPrevPage()" title="แตะเพื่อดูหน้าก่อนหน้า" style="display: none;"></div>
+            <div id="tap-zone-right" class="tap-zone right" onclick="onNextPage()" title="แต.เพื่อดูหน้าถัดไป" style="display: none;"></div>
+            
+            <canvas id="pdf-canvas"></canvas>
+            <iframe id="reader-frame" class="reader-frame" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+        
+        <div id="pdf-toolbar" class="pdf-toolbar" style="display: none;">
+            <button id="btn-prev" onclick="onPrevPage()"><i class="fas fa-chevron-left"></i> <span class="btn-text">ย้อนกลับ</span></button>
+            <span class="page-info">
+                หน้า <span id="page_num"></span> / <span id="page_count"></span>
+            </span>
+            <button id="btn-next" onclick="onNextPage()"><span class="btn-text">ถัดไป</span> <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+</body>
+</html>
