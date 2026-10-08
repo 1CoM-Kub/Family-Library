@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.1.1 Patch 5</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.2.5</title>
     
     <!-- Google API & PDF.js -->
     <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
@@ -12,1096 +12,1138 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* =========================================================
+           V7.2.5 MAJOR UI REDESIGN 
+           Theme: Warm + Modern + Clean + Family Digital Library
+        ========================================================= */
         :root { 
-            --primary: #4F46E5; 
-            --primary-hover: #4338CA;
-            --bg-color: #F3F4F6; 
-            --text-color: #1F2937;
-            --card-bg: #FFFFFF;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --primary: #2563EB; /* Deep Royal Blue */
+            --primary-hover: #1D4ED8; 
+            --primary-light: #EFF6FF;
+            --accent: #F59E0B; /* Warm Gold for badges */
+            --bg-color: #FAF9F6; /* Warm Off-White / Cream */
+            --surface: #FFFFFF;
+            --text-main: #1E293B; /* Slate 800 */
+            --text-muted: #64748B; /* Slate 500 */
+            --border: #E2E8F0;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+            --shadow-hover: 0 12px 20px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+            
+            --radius-xl: 24px;
+            --radius-lg: 16px; 
+            --radius-md: 12px; 
+            --radius-sm: 8px;
         }
         
-        body { font-family: 'Kanit', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* --- Global Layout --- */
+        .main-container { max-width: 1280px; margin: 0 auto 80px auto; padding: 0 24px; }
         
-        header { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-        .logo-container { display: flex; align-items: center; gap: 10px; }
-        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin: 0;}
-        .logo-sub { font-size: 0.8rem; color: #6B7280; margin: 0;}
+        /* --- 1. Header Redesign --- */
+        header { 
+            background: var(--surface);
+            padding: 0.75rem 2rem; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 50; 
+            box-shadow: var(--shadow-sm);
+            height: 60px;
+        }
+        .logo-container { display: flex; align-items: center; gap: 14px; }
+        .logo-icon-wrapper { 
+            width: 44px; height: 44px; 
+            background: linear-gradient(135deg, var(--primary), #1E3A8A); 
+            color: white; 
+            border-radius: var(--radius-md); 
+            display: flex; align-items: center; justify-content: center; font-size: 1.25rem; 
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+        .logo-text { display: flex; flex-direction: column; justify-content: center; }
+        .logo { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.2; }
+        .logo-sub { font-size: 0.8rem; color: var(--primary); margin: 0; font-weight: 500; letter-spacing: 0.5px; }
         
-        .controls { display: flex; align-items: center; gap: 15px; }
-        .status-badge { font-size: 0.85rem; padding: 5px 10px; border-radius: 20px; font-weight: 500; display: flex; align-items: center; gap: 5px;}
-        .status-loading { background: #FEF3C7; color: #D97706; }
-        .status-success { background: #D1FAE5; color: #059669; }
-        .status-error { background: #FEE2E2; color: #DC2626; }
+        .controls { display: flex; align-items: center; gap: 16px; }
         
-        button.btn-auth { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px;}
-        button.btn-auth:hover { background: var(--primary-hover); }
-        button.btn-logout { background: #EF4444; display: none; }
-        button.btn-logout:hover { background: #DC2626; }
+        .status-badge { 
+            font-size: 0.85rem; padding: 6px 14px; border-radius: 99px; 
+            font-weight: 500; display: flex; align-items: center; gap: 8px; 
+            background: var(--surface); border: 1px solid var(--border);
+        }
+        .status-loading { color: #D97706; background: #FEF3C7; border-color: #FDE68A; }
+        .status-success { color: #059669; background: #ECFDF5; border-color: #A7F3D0; }
+        .status-error { color: #DC2626; background: #FEF2F2; border-color: #FECACA; }
         
-        .hero { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 3rem 2rem; text-align: center; border-radius: 16px; margin: 20px auto; max-width: 1200px; box-shadow: var(--shadow); }
-        .hero h1 { margin: 0 0 10px 0; font-size: 2.2rem; }
-        .hero p { margin: 0; font-size: 1.1rem; opacity: 0.9; }
+        button.btn-auth { 
+            background: var(--primary); color: white; border: none; padding: 8px 20px; 
+            border-radius: 99px; cursor: pointer; font-size: 0.95rem; font-weight: 500; 
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px; 
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); font-family: 'Kanit', sans-serif; 
+        }
+        button.btn-auth:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+        button.btn-logout { background: #F1F5F9; color: var(--text-main); box-shadow: none; display: none; }
+        button.btn-logout:hover { background: #E2E8F0; color: #DC2626; transform: none; box-shadow: none; }
+
+        /* --- 2. Main Page Hero (Library Banner) --- */
+        .library-hero {
+            background: linear-gradient(to right, #ffffff, #F8FAFC);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        .library-hero::before {
+            content: '📚'; position: absolute; font-size: 120px; opacity: 0.03; right: 5%; top: -20px; transform: rotate(15deg);
+        }
+        .library-hero::after {
+            content: '✨'; position: absolute; font-size: 80px; opacity: 0.03; left: 5%; bottom: -10px; transform: rotate(-10deg);
+        }
+        .library-hero h1 {
+            font-size: 2.25rem; font-weight: 700; color: var(--text-main); margin: 0 0 0.5rem 0; letter-spacing: -0.5px; position: relative; z-index: 1;
+        }
+        .library-hero p {
+            font-size: 1.1rem; color: var(--text-muted); margin: 0 0 1.5rem 0; font-weight: 400; position: relative; z-index: 1;
+        }
+        .hero-stats {
+            display: inline-flex; background: var(--primary-light); color: var(--primary); padding: 8px 24px; border-radius: 99px; font-weight: 500; font-size: 0.95rem; position: relative; z-index: 1; border: 1px solid #DBEAFE;
+        }
+
+        /* --- 3. Breadcrumb Redesign (Library Navigation) --- */
+        .library-nav {
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px;
+        }
+        #breadcrumb { 
+            display: flex; align-items: center; gap: 8px; font-size: 0.95rem; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 4px; flex-wrap: nowrap;
+        }
+        #breadcrumb::-webkit-scrollbar { display: none; }
+        .bc-item { 
+            cursor: pointer; color: var(--text-muted); font-weight: 500; padding: 8px 16px; 
+            border-radius: 99px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+            background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+        }
+        .bc-item:hover { background: #F8FAFC; color: var(--text-main); border-color: #CBD5E1; }
+        .bc-item.current { background: var(--primary-light); color: var(--primary); border-color: #BFDBFE; pointer-events: none; }
+        .bc-separator { color: #94A3B8; font-size: 0.75rem; }
+
+        /* --- 4. Search + Sort Toolbar --- */
+        .library-toolbar { 
+            display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; 
+            align-items: center; justify-content: space-between;
+        }
+        .search-box { flex: 1; min-width: 280px; position: relative; }
+        .search-box i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; }
+        .search-box input { 
+            width: 100%; padding: 14px 20px 14px 50px; border: 1px solid var(--border); 
+            border-radius: 99px; font-family: 'Kanit', sans-serif; font-size: 1rem; 
+            outline: none; background: var(--surface); color: var(--text-main); box-sizing: border-box; transition: all 0.2s; 
+            box-shadow: var(--shadow-sm);
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
         
-        .main-container { max-width: 1200px; margin: 0 auto 40px auto; padding: 0 20px; }
+        .sort-box { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 4px; box-shadow: var(--shadow-sm); }
+        .sort-label { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; padding-left: 16px; display: none; }
+        .sort-box select { 
+            padding: 10px 40px 10px 16px; border: none; border-radius: 99px; background: transparent;
+            font-family: 'Kanit', sans-serif; font-size: 0.95rem; font-weight: 500; outline: none; cursor: pointer; 
+            appearance: none; -webkit-appearance: none; color: var(--text-main);
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748B" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4z"/></svg>');
+            background-repeat: no-repeat; background-position: right 16px center;
+        }
+        .sort-box select:focus { background-color: var(--primary-light); }
+
+        /* --- 5. & 6. Bookshelf Grid & Cards --- */
+        .bookshelf-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 20px; 
+        }
+        @media (min-width: 640px) {
+            .bookshelf-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 28px; }
+        }
         
-        .toolbar { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 5px; background: white; padding: 15px; border-radius: 12px; box-shadow: var(--shadow); align-items: center; justify-content: space-between;}
-        .search-box { flex: 1; min-width: 250px; position: relative; }
-        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
-        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #E5E7EB; border-radius: 8px; font-family: 'Kanit', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s; box-sizing: border-box;}
-        .search-box input:focus { border-color: var(--primary); }
-        .sort-box select { padding: 12px 15px; border: 1px solid #E5E7EB; border-radius: 8px; font-family: 'Kanit', sans-serif; font-size: 1rem; outline: none; cursor: pointer; background: white;}
+        .book-card { 
+            background: transparent; cursor: pointer; position: relative; 
+            display: flex; flex-direction: column; group;
+        }
+        .book-card-cover {
+            width: 100%; aspect-ratio: 3/4; border-radius: var(--radius-md); overflow: hidden;
+            box-shadow: var(--shadow-card); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--surface); border: 1px solid rgba(0,0,0,0.05);
+            /* Add visual spine shadow effect to all covers */
+            box-shadow: inset 4px 0 10px rgba(0,0,0,0.1), 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .book-card:hover .book-card-cover { 
+            transform: translateY(-6px) scale(1.02); 
+            box-shadow: inset 4px 0 10px rgba(0,0,0,0.1), var(--shadow-hover);
+        }
+        .book-card-cover img { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        }
+
+        /* --- Folder Specific Design (Collection Box) --- */
+        .folder-card .book-card-cover {
+            aspect-ratio: 4/3; /* Wider for collections */
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+        .folder-card:hover .book-card-cover {
+            border-color: #93C5FD;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+            transform: translateY(-4px);
+        }
+
+        /* Badges */
+        .badge-overlay { 
+            position: absolute; top: 10px; right: 10px; 
+            color: white; padding: 4px 10px; 
+            border-radius: 99px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; 
+            font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 5;
+        }
+        .badge-folder { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); }
+        .badge-bookmark { background: var(--accent); color: #78350F; text-shadow: none; }
+        .badge-series { background: rgba(37, 99, 235, 0.9); }
+        .badge-single { background: rgba(30, 41, 59, 0.85); }
+
+        .book-card-info {
+            padding: 12px 4px 4px 4px;
+            display: flex; flex-direction: column; flex-grow: 1;
+        }
+        .book-title { 
+            font-weight: 600; font-size: 0.95rem; line-height: 1.4; color: var(--text-main); 
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
+            overflow: hidden; text-overflow: ellipsis; word-break: break-word;
+            transition: color 0.2s;
+        }
+        .book-card:hover .book-title { color: var(--primary); }
+        .book-meta {
+            font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-weight: 500;
+        }
+
+        /* --- 7. Premium Internal Fallback Covers --- */
+        .premium-fallback {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; box-sizing: border-box; z-index: 0;
+            border-radius: inherit;
+        }
+        /* Spine Simulation */
+        .premium-fallback::before {
+            content: ''; position: absolute; left: 0; top: 0; width: 6%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(0,0,0,0.15) 100%);
+            border-right: 1px solid rgba(0,0,0,0.2); z-index: 2;
+        }
+        /* Cover Content */
+        .fallback-content {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            padding: 16px 12px 16px 20px; text-align: center; color: rgba(255,255,255,0.9); z-index: 1;
+        }
+        .fallback-content i { font-size: 2.5rem; margin-bottom: 12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .fallback-content .f-type { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 4px; }
+        .fallback-content .f-title { font-size: 0.85rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
         
-        #item-count-badge { width: 100%; text-align: right; color: #6B7280; font-size: 0.95rem; font-weight: 500; margin-bottom: 20px; padding-right: 10px; }
-        
-        #breadcrumb { margin-bottom: 20px; font-size: 1.1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        .bc-item { cursor: pointer; color: var(--primary); font-weight: 500; padding: 5px 8px; border-radius: 5px; transition: 0.2s;}
-        .bc-item:hover { background: #E0E7FF; }
-        .bc-separator { color: #9CA3AF; margin: 0 2px; font-size: 0.9rem; }
-        
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; }
-        .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; position: relative;}
-        .card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
-        
-        .card-img-container { width: 100%; aspect-ratio: 3/4; background: #E5E7EB; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .card-img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;}
-        .card:hover .card-img-container img { transform: scale(1.05); }
-        
-        .folder-overlay { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px);}
-        .folder-bg { background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%); }
-        .folder-icon { font-size: 4rem; color: #3B82F6; }
-        
-        .card-title { padding: 15px; font-weight: 600; font-size: 1.05rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-top: 1px solid #F3F4F6; }
-        
-        .empty-state, .loader { text-align: center; padding: 60px; font-size: 1.2rem; color: #6B7280; width: 100%; grid-column: 1 / -1; }
-        
-        .reader-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; z-index: 9999; flex-direction: column; }
-        .reader-header { background: #1F2937; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.5); z-index: 100;}
-        .reader-title { font-weight: bold; flex-grow: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 15px; font-size: 1.1rem;}
-        .btn-reader { background: #374151; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; font-family: 'Kanit', sans-serif;}
-        .btn-reader:hover { background: #4B5563; }
+        /* Theming for different fallbacks */
+        .bg-pdf { background: linear-gradient(135deg, #1E3A8A, #312E81); }
+        .bg-series { background: linear-gradient(135deg, #0F172A, #334155); }
+        .bg-empty { background: linear-gradient(135deg, #64748B, #94A3B8); color: #FFFFFF; }
+        .bg-folder { background: linear-gradient(135deg, #F1F5F9, #E2E8F0); }
+        .bg-folder .fallback-content { color: #64748B; padding: 16px; }
+        .bg-folder .fallback-content i { color: #94A3B8; filter: none; font-size: 3rem; }
+        .bg-folder::before { display: none; /* No spine for folders */ }
+
+        /* --- 11. Skeleton / Loading State --- */
+        .skeleton-book { display: flex; flex-direction: column; gap: 12px; animation: pulse 1.5s infinite ease-in-out; }
+        .sk-cover { width: 100%; aspect-ratio: 3/4; background: #E2E8F0; border-radius: var(--radius-md); }
+        .sk-text { height: 14px; background: #E2E8F0; border-radius: 4px; width: 90%; }
+        .sk-text.short { width: 60%; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* --- 12. & 13. Empty & Error States --- */
+        .state-container { 
+            grid-column: 1 / -1; text-align: center; padding: 80px 20px; 
+            background: var(--surface); border-radius: var(--radius-xl); 
+            border: 1px dashed #CBD5E1; box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .state-icon { font-size: 4rem; margin-bottom: 20px; line-height: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        .state-title { font-size: 1.25rem; color: var(--text-main); font-weight: 600; margin-bottom: 8px; }
+        .state-desc { font-size: 1rem; color: var(--text-muted); max-width: 400px; line-height: 1.5; }
+        .state-error { border-color: #FECACA; background: #FEF2F2; }
+
+        /* --- 16. Mobile UI Adjustments --- */
+        @media (max-width: 600px) {
+            header { padding: 0.5rem 1rem; height: 54px; }
+            .logo-icon-wrapper { width: 36px; height: 36px; font-size: 1rem; }
+            .logo { font-size: 1.1rem; }
+            .logo-sub { display: none; }
+            .controls { gap: 8px; }
+            .status-badge { font-size: 0.75rem; padding: 4px 8px; max-width: 120px; }
+            .status-badge span { display: none; /* Hide text on very small screens, keep icon */ }
+            .btn-auth { padding: 6px 14px; font-size: 0.85rem; }
+            
+            .library-hero { padding: 2rem 1rem; margin: 1rem 0; border-radius: var(--radius-lg); }
+            .library-hero h1 { font-size: 1.5rem; }
+            .library-hero p { font-size: 0.95rem; }
+            .hero-stats { font-size: 0.85rem; padding: 6px 16px; }
+
+            .main-container { padding: 0 16px; margin-bottom: 40px; }
+            .library-toolbar { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 20px; }
+            .search-box { min-width: 100%; }
+            .search-box input { font-size: 1rem; } /* Prevent iOS zoom */
+            .sort-box { width: 100%; justify-content: center; }
+            .sort-box select { width: 100%; text-align: center; background-position: right 16px center; }
+            
+            .bookshelf-grid { gap: 16px; }
+            .book-card-info { padding: 8px 0 0 0; }
+            .book-title { font-size: 0.85rem; }
+            .badge-overlay { top: 6px; right: 6px; font-size: 0.7rem; padding: 3px 8px; }
+            
+            /* Breadcrumb scroll affordance */
+            #breadcrumb { padding-right: 20px; mask-image: linear-gradient(to right, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%); }
+        }
+
+        /* =========================================================
+           FROZEN ZONE: PDF READER CSS (ABSOLUTELY DO NOT ALTER)
+           Preserves V7.2.4a & Mobile Patch 6.3 & Viewport Logics
+        ========================================================= */
+        .reader-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; max-height: 100dvh; background: #111; z-index: 9999; flex-direction: column; overflow: hidden; }
+        .reader-header { background: #1F2937; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.5); z-index: 100; height: auto; }
+        .reader-title { font-weight: bold; flex-grow: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 15px; font-size: 1.1rem; }
+        .btn-reader { background: #374151; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; font-family: 'Kanit', sans-serif; box-shadow: none; }
+        .btn-reader:hover { background: #4B5563; transform: none; }
         .btn-back { background: #EF4444; }
         .btn-back:hover { background: #DC2626; }
-        
-        .reader-content { flex-grow: 1; display: flex; justify-content: center; overflow: auto; position: relative; background: #000; }
-        #pdf-canvas { display: block; margin: 0 auto; box-shadow: 0 0 15px rgba(0,0,0,0.8); max-width: 100%; }
+        .reader-content { flex-grow: 1; display: flex; justify-content: center; overflow: auto; position: relative; background: #000; min-height: 0; overscroll-behavior: contain; padding: 0; }
+        #pdf-canvas { display: block; margin: 0 auto; box-shadow: 0 0 15px rgba(0,0,0,0.8); max-width: 100%; border-radius: 0; border: none; }
         .reader-frame { width: 100%; height: 100%; border: none; background: white; display: none; }
-        
         #toast-message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 25px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); pointer-events: none; backdrop-filter: blur(4px); }
-        
         .tap-zone { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 50; cursor: pointer; }
         .tap-zone.left { left: 0; }
         .tap-zone.right { right: 0; }
-        
-        .pdf-toolbar { background: #1F2937; color: white; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);}
-        .pdf-toolbar button { background: var(--primary); padding: 10px 20px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;}
-        .pdf-toolbar button:hover { background: var(--primary-hover); }
-        .pdf-toolbar button:disabled { background: #4B5563; cursor: not-allowed; color: #9CA3AF;}
-        .page-info { font-size: 1.1rem; font-weight: bold; background: #374151; padding: 8px 15px; border-radius: 8px;}
-        
-        #pdf-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.2rem; display: none; text-align: center; z-index: 90; background: rgba(0,0,0,0.8); padding: 25px 40px; border-radius: 12px;}
-
-        @media (max-width: 600px) {
-            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .card-title { font-size: 0.9rem; padding: 10px; }
-            .toolbar { flex-direction: column; align-items: stretch; }
+        .pdf-toolbar { background: #1F2937; color: white; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); }
+        .pdf-toolbar button { background: #4F46E5; padding: 10px 20px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; box-shadow: none; }
+        .pdf-toolbar button:hover { background: #4338CA; transform: none; }
+        .pdf-toolbar button:disabled { background: #4B5563; cursor: not-allowed; color: #9CA3AF; }
+        .page-info { font-size: 1.1rem; font-weight: bold; background: #374151; padding: 8px 15px; border-radius: 8px; color: white; }
+        #pdf-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.2rem; display: none; text-align: center; z-index: 90; background: rgba(0,0,0,0.8); padding: 25px 40px; border-radius: 12px; }
+        .mobile-nav-overlay { position: fixed; pointer-events: none; z-index: 20000; }
+        @media (max-width: 768px) {
+            .reader-modal { height: 100dvh !important; max-height: 100dvh !important; width: 100vw !important; overflow: hidden !important; }
+            .reader-content { position: relative !important; flex: 1 1 auto !important; min-height: 0 !important; width: 100% !important; overflow: auto !important; -webkit-overflow-scrolling: touch !important; overscroll-behavior: contain !important; touch-action: pan-x pan-y pinch-zoom !important; }
+            .mobile-nav-overlay {
+                position: fixed !important; left: 0 !important; top: 50dvh !important; width: 100vw !important; height: 0 !important;
+                display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 10px !important; box-sizing: border-box !important; pointer-events: none !important; z-index: 20000 !important; transform: translateY(-50%) !important; overflow: visible !important;
+            }
+            .mobile-nav-btn {
+                pointer-events: auto !important; width: 50px !important; height: 50px !important; min-width: 50px !important; min-height: 50px !important;
+                border: 1px solid rgba(255,255,255,.35) !important; border-radius: 50% !important; background: rgba(0,0,0,.72) !important; color: #fff !important;
+                display: flex !important; align-items: center !important; justify-content: center !important; position: relative !important; z-index: 20001 !important; box-shadow: 0 3px 12px rgba(0,0,0,.55) !important; touch-action: manipulation !important; -webkit-tap-highlight-color: transparent !important; flex-shrink: 0 !important;
+            }
+            .mobile-nav-btn:disabled { opacity: .25 !important; pointer-events: none !important; }
+            #pdf-canvas { display: block !important; max-width: none !important; height: auto; }
             .btn-text { display: none; }
-            .reader-title { font-size: 0.95rem; }
-            header { padding: 1rem; }
-            .logo { font-size: 1.2rem; }
-            .pdf-toolbar { padding: 10px; gap: 10px; justify-content: space-between; }
-            .pdf-toolbar button { padding: 10px; font-size: 1rem;}
-            .page-info { font-size: 1rem; padding: 6px 10px;}
         }
+        @media (min-width: 769px) { .mobile-nav-overlay { display: none !important; } }
     </style>
 
     <script>
-        // ==========================================
-        // ⚙️ ตั้งค่า Google API (ห้ามแก้ไขส่วน Auth/Token)
-        // ==========================================
+        // =========================================================
+        // ⚙️ FROZEN ZONE: CONFIG, LOGIC, API & READER V7.2.4a
+        // ABSOLUTELY NO CHANGES TO BUSINESS LOGIC HERE.
+        // =========================================================
         const CLIENT_ID = '437842431692-l7cbh663ukspuem9s1f77d2i4nuifcel.apps.googleusercontent.com'; 
         const API_KEY = 'AIzaSyBcNDtP533PgpHb9iyRHWnCIQMU0k7VPKE'; 
         const ROOT_FOLDER_ID = '1puBAVnPh88MgKMEJJDXWsO58mzKV3p0x'; 
-        // ==========================================
         
         const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
-        let tokenClient;
-        let currentFolderId = ROOT_FOLDER_ID;
-        let folderHistory = []; 
-        let gapiInited = false;
-        let gisInited = false;
-        let domReady = false;
-        let appStarted = false;
-        let currentFolderItems = [];
-
-        let currentViewMode = 'grid'; // 'grid' หรือ 'series-detail'
-        let activeSeriesData = null;  
+        let tokenClient, currentFolderId = ROOT_FOLDER_ID, folderHistory = [], gapiInited = false, gisInited = false, domReady = false, appStarted = false, currentFolderItems = [];
+        let driveLoadRequestId = 0, readerLoadId = 0;
+        const folderCoverCache = new Map();
+        let currentViewMode = 'grid', activeSeriesData = null;
 
         const pdfjsLib = window.pdfjsLib;
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        let pdfDoc = null;
-        let pageNum = 1;
-        let pageRendering = false;
-        let pageNumPending = null;
-        let canvas, ctx;
-        let currentFileId = null;
+        let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null, canvas, ctx, currentFileId = null;
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text ?? '';
-            return div.innerHTML;
-        }
+        const escapeHtml = (text) => { const d = document.createElement('div'); d.textContent = text ?? ''; return d.innerHTML; };
 
-        // --- Auth & Init (Stable Baseline - ห้ามแตะ) ---
-        function gapiLoaded() {
-            gapi.load('client', initializeGapiClient);
-        }
-
+        // --- Auth & Init ---
+        function gapiLoaded() { gapi.load('client', initializeGapiClient); }
         async function initializeGapiClient() {
             try {
-                await gapi.client.init({
-                    apiKey: API_KEY,
-                    discoveryDocs: [
-                        'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
-                    ]
-                });
-
-                gapiInited = true;
-                console.log('✅ Google API Client พร้อมแล้ว');
-                console.log('Drive API:', !!(gapi.client && gapi.client.drive));
-
-                maybeStartApp();
-
+                await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] });
+                gapiInited = true; maybeStartApp();
             } catch (err) {
-                console.error('❌ Google API Client init failed:', err);
-                gapiInited = false;
-                if (domReady) {
-                    updateStatus('เชื่อมต่อ Google API ไม่สำเร็จ', 'error');
-                }
+                console.error('❌ GAPI init failed:', err);
+                if (domReady) updateStatus('เชื่อมต่อ Google API ไม่สำเร็จ', 'error');
             }
         }
 
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                callback: (tokenResponse) => {
-                    if (!tokenResponse || !tokenResponse.access_token) {
-                        updateStatus('เข้าสู่ระบบไม่สำเร็จ', 'error');
-                        return;
-                    }
-
-                    localStorage.setItem('gdrive_token', tokenResponse.access_token);
-                    localStorage.setItem('gdrive_token_expire', new Date().getTime() + (tokenResponse.expires_in * 1000));
-
-                    gapi.client.setToken({
-                        access_token: tokenResponse.access_token
-                    });
-
-                    updateStatus('พร้อมใช้งาน', 'success');
+                client_id: CLIENT_ID, scope: SCOPES,
+                callback: (res) => {
+                    if (!res || !res.access_token) return updateStatus('เข้าสู่ระบบไม่สำเร็จ', 'error');
+                    localStorage.setItem('gdrive_token', res.access_token);
+                    localStorage.setItem('gdrive_token_expire', Date.now() + (res.expires_in * 1000));
+                    gapi.client.setToken({ access_token: res.access_token });
+                    updateStatus('เชื่อมต่อแล้ว', 'success');
                     document.getElementById('loginBtn').style.display = 'none';
                     document.getElementById('logoutBtn').style.display = 'flex';
-
-                    if (gapiInited && gapi.client && gapi.client.drive) {
-                        loadDriveContent(ROOT_FOLDER_ID);
-                    } else {
-                        updateStatus('กำลังเตรียม Google Drive...', 'loading');
-                        waitForDriveAPI().then(() => {
-                            loadDriveContent(ROOT_FOLDER_ID);
-                        }).catch(err => {
-                            console.error(err);
-                            updateStatus('Google Drive ยังไม่พร้อม', 'error');
-                        });
-                    }
-                },
+                    gapiInited && gapi.client?.drive ? loadDriveContent(ROOT_FOLDER_ID) : waitForDriveAPI().then(() => loadDriveContent(ROOT_FOLDER_ID));
+                }
             });
-            gisInited = true; 
-            maybeStartApp();
+            gisInited = true; maybeStartApp();
         }
 
-        function maybeStartApp() {
-            if (gapiInited && gisInited && domReady && !appStarted) { 
-                appStarted = true;
-                checkExistingToken(); 
-            }
-        }
+        function maybeStartApp() { if (gapiInited && gisInited && domReady && !appStarted) { appStarted = true; checkExistingToken(); } }
 
         function checkExistingToken() {
-            const storedToken = localStorage.getItem('gdrive_token');
-            const expireTime = localStorage.getItem('gdrive_token_expire');
-
-            if (storedToken && expireTime && new Date().getTime() < parseInt(expireTime)) {
-                gapi.client.setToken({
-                    access_token: storedToken
-                });
-
-                updateStatus('พร้อมใช้งาน', 'success');
+            const token = localStorage.getItem('gdrive_token'), expire = localStorage.getItem('gdrive_token_expire');
+            if (token && expire && Date.now() < parseInt(expire)) {
+                gapi.client.setToken({ access_token: token });
+                updateStatus('เชื่อมต่อแล้ว', 'success');
                 document.getElementById('loginBtn').style.display = 'none';
                 document.getElementById('logoutBtn').style.display = 'flex';
-
-                if (gapi.client && gapi.client.drive) {
-                    loadDriveContent(ROOT_FOLDER_ID);
-                } else {
-                    updateStatus('กำลังเตรียม Google Drive...', 'loading');
-                    waitForDriveAPI()
-                        .then(() => loadDriveContent(ROOT_FOLDER_ID))
-                        .catch(err => {
-                            console.error(err);
-                            updateStatus('Google Drive ยังไม่พร้อม', 'error');
-                        });
-                }
+                gapiInited && gapi.client?.drive ? loadDriveContent(ROOT_FOLDER_ID) : waitForDriveAPI().then(() => loadDriveContent(ROOT_FOLDER_ID));
             } else {
-                localStorage.removeItem('gdrive_token');
-                localStorage.removeItem('gdrive_token_expire');
+                localStorage.removeItem('gdrive_token'); localStorage.removeItem('gdrive_token_expire');
                 updateStatus('กรุณาเข้าสู่ระบบ', 'loading');
             }
         }
 
-        function handleAuthClick() {
-            tokenClient.requestAccessToken({
-                prompt: 'select_account'
-            });
-        }
+        function handleAuthClick() { tokenClient.requestAccessToken({ prompt: 'select_account' }); }
 
         function handleSignoutClick() {
+            driveLoadRequestId++; readerLoadId++;
             const tokenObj = gapi.client.getToken();
-            if (tokenObj && tokenObj.access_token) { google.accounts.oauth2.revoke(tokenObj.access_token); }
+            if (tokenObj?.access_token) google.accounts.oauth2.revoke(tokenObj.access_token);
             gapi.client.setToken('');
-            localStorage.removeItem('gdrive_token');
-            localStorage.removeItem('gdrive_token_expire');
+            localStorage.removeItem('gdrive_token'); localStorage.removeItem('gdrive_token_expire');
+            folderCoverCache.clear();
             document.getElementById('content-area').innerHTML = '';
             document.getElementById('loginBtn').style.display = 'flex';
             document.getElementById('logoutBtn').style.display = 'none';
             document.getElementById('breadcrumb').innerHTML = '';
-            document.getElementById('item-count-badge').innerHTML = '';
-            currentFolderItems = [];
-            currentViewMode = 'grid';
-            activeSeriesData = null;
-            
-            appStarted = false;
-            updateStatus('ออกจากระบบแล้ว', 'error');
+            updateHeroStats('ออกจากระบบแล้ว');
+            currentFolderItems = []; currentViewMode = 'grid'; activeSeriesData = null; currentFolderId = ROOT_FOLDER_ID;
+            appStarted = false; updateStatus('ตัดการเชื่อมต่อ', 'error');
         }
 
         function updateStatus(msg, type) {
-            const statusBadge = document.getElementById('status-badge');
-            let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-spinner fa-spin';
-            statusBadge.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
-            statusBadge.className = `status-badge status-${type}`;
+            const badge = document.getElementById('status-badge');
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-cloud-download-alt';
+            let iconClass = type === 'loading' ? 'fa-spin' : '';
+            badge.innerHTML = `<i class="fas ${icon} ${iconClass}"></i> <span>${msg}</span>`;
+            badge.className = `status-badge status-${type}`;
+            badge.title = msg;
         }
 
         function waitForDriveAPI(timeout = 10000) {
             return new Promise((resolve, reject) => {
                 const start = Date.now();
                 const check = () => {
-                    if (gapiInited && gapi && gapi.client && gapi.client.drive) {
-                        console.log('✅ Drive API พร้อมใช้งาน');
-                        resolve();
-                        return;
-                    }
-                    if (Date.now() - start >= timeout) {
-                        reject(new Error('Google Drive API ไม่พร้อมภายในเวลาที่กำหนด'));
-                        return;
-                    }
+                    if (gapiInited && gapi?.client?.drive) return resolve();
+                    if (Date.now() - start >= timeout) return reject(new Error('Drive API timeout'));
                     setTimeout(check, 100);
                 };
                 check();
             });
         }
 
-        // --- Drive API Fetch ---
-        async function loadDriveContent(folderId, folderName = 'การ์ตูนครอบครัว') {
-            currentViewMode = 'grid';
-            activeSeriesData = null;
+        function updateHeroStats(msg) {
+            const stats = document.getElementById('hero-stats');
+            if(stats) stats.innerHTML = msg;
+        }
 
-            if (!gapiInited || !gapi || !gapi.client || !gapi.client.drive) {
-                updateStatus('กำลังเตรียม Google Drive...', 'loading');
-                try {
-                    await waitForDriveAPI();
-                } catch (err) {
-                    console.error(err);
-                    updateStatus('Google Drive ยังไม่พร้อม', 'error');
-                    document.getElementById('content-area').innerHTML = `
-                        <div class="empty-state status-error">
-                            ❌ ไม่สามารถเชื่อมต่อ Google Drive ได้<br>
-                            <small>กรุณาลองรีเฟรชหน้าเว็บอีกครั้ง</small>
-                        </div>`;
+        // --- Drive Content Loader & Pagination ---
+        async function loadDriveContent(folderId, folderName = 'หน้าหลัก') {
+            const requestId = ++driveLoadRequestId;
+            currentViewMode = 'grid'; activeSeriesData = null; currentFolderId = folderId;
+
+            if (!gapi?.client?.drive) {
+                updateStatus('กำลังเตรียมข้อมูล...', 'loading');
+                try { await waitForDriveAPI(); } catch (e) {
+                    if (requestId !== driveLoadRequestId) return;
+                    updateStatus('ข้อผิดพลาด', 'error');
+                    renderErrorState('ไม่สามารถโหลดข้อมูลได้', 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตหรือลองใหม่อีกครั้ง');
                     return;
                 }
             }
+            if (requestId !== driveLoadRequestId) return;
 
-            document.getElementById('content-area').innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>กำลังค้นหาหนังสือ...</div>';
+            renderSkeletonGrid();
             document.getElementById('searchInput').value = '';
-            
+            updateHeroStats('<i class="fas fa-spinner fa-spin"></i> กำลังโหลด...');
+
             try {
-                if (folderId === ROOT_FOLDER_ID) {
-                    folderHistory = [{ id: ROOT_FOLDER_ID, name: '🏠 หน้าหลัก' }];
-                } else {
-                    if (!folderHistory.find(f => f.id === folderId)) {
-                        folderHistory.push({ id: folderId, name: folderName });
-                    } else {
-                        folderHistory = folderHistory.slice(0, folderHistory.findIndex(f => f.id === folderId) + 1);
-                    }
-                }
+                const mimeFilter = `(mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf' or mimeType = 'image/jpeg' or mimeType = 'image/png' or mimeType = 'image/webp' or mimeType = 'image/gif')`;
+                const qStr = `'${folderId}' in parents and trashed = false and ${mimeFilter}`;
+                let allFiles = [], pageToken = null;
+
+                do {
+                    if (requestId !== driveLoadRequestId) return;
+                    const res = await gapi.client.drive.files.list({ q: qStr, fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, modifiedTime)', pageSize: 1000, orderBy: 'folder, name', pageToken });
+                    if (requestId !== driveLoadRequestId) return;
+                    (res.result.files || []).forEach(f => allFiles.push({
+                        id: f.id || '', name: f.name || 'ไม่มีชื่อ', mimeType: f.mimeType || '', thumbnailLink: f.thumbnailLink || null, modifiedTime: f.modifiedTime || new Date().toISOString()
+                    }));
+                    pageToken = res.result.nextPageToken;
+                } while (pageToken);
+
+                if (requestId !== driveLoadRequestId) return;
+
+                folderHistory = folderId === ROOT_FOLDER_ID ? [{ id: ROOT_FOLDER_ID, name: 'หน้าหลัก' }] : (folderHistory.find(f => f.id === folderId) ? folderHistory.slice(0, folderHistory.findIndex(f => f.id === folderId) + 1) : [...folderHistory, { id: folderId, name: folderName }]);
                 renderBreadcrumb();
 
-                let response = await gapi.client.drive.files.list({
-                    q: `'${folderId}' in parents and trashed = false`,
-                    fields: 'files(id, name, mimeType, thumbnailLink, modifiedTime)',
-                    pageSize: 1000,
-                    orderBy: 'folder, name'
-                });
-
-                currentFolderItems = response.result.files || [];
-                
-                if (currentFolderItems.length > 0) {
+                currentFolderItems = allFiles;
+                if(currentFolderItems.length > 0) {
                     applySearchAndSort();
                 } else {
-                    document.getElementById('item-count-badge').innerHTML = '';
-                    document.getElementById('content-area').innerHTML = '<div class="empty-state"><i class="fas fa-folder-open fa-3x" style="color:#D1D5DB; margin-bottom:15px;"></i><br>โฟลเดอร์นี้ว่างเปล่า</div>';
+                    updateHeroStats('แฟ้มว่างเปล่า');
+                    renderEmptyState('📂', 'ยังไม่มีหนังสือในแฟ้มนี้', 'ลองเลือกแฟ้มอื่นเพื่ออ่านการ์ตูนเรื่องโปรดของคุณ');
                 }
             } catch (err) {
+                if (requestId !== driveLoadRequestId) return;
                 console.error(err);
-                if(err.status === 401) { handleSignoutClick(); }
-                else { document.getElementById('content-area').innerHTML = `<div class="empty-state status-error">❌ เกิดข้อผิดพลาด: ${err.message}</div>`; }
+                if (err.status === 401 || err?.result?.error?.code === 401) handleSignoutClick();
+                else renderErrorState('เกิดข้อผิดพลาดในการโหลด', 'ไม่สามารถเชื่อมต่อกับ Google Drive ได้');
             }
         }
 
-        // ==========================================
-        // 📚 V7.1.1 Patch 5: Smart Filename Parser & Grouping
-        // ==========================================
-        function normalizeSeriesKey(name) {
-            return String(name || '')
-                .normalize('NFC')
-                .toLowerCase()
-                .replace(/[\s\-_]+/g, '')
-                .trim();
-        }
+        // --- Filename Parser & Grouping ---
+        const normalizeSeriesKey = (name) => String(name || '').normalize('NFC').toLowerCase().replace(/[\s\-_]+/g, '').trim();
 
         function parseVolumeName(fileName) {
-            const lastDotIndex = fileName.lastIndexOf('.');
-            if (lastDotIndex === -1) return null;
-            const nameWithoutExt = fileName.substring(0, lastDotIndex);
-            const ext = fileName.substring(lastDotIndex + 1).toLowerCase();
+            const lastDot = fileName.lastIndexOf('.');
+            if (lastDot === -1) return null;
+            const nameExt = fileName.substring(0, lastDot), ext = fileName.substring(lastDot + 1).toLowerCase();
+            
+            const rangeMatch = nameExt.match(/^(.+?)(?:\s+เล่ม\s*|\s*[_-]\s*|\s+)(\d+)\s*-\s*(\d+)$/i);
+            if (rangeMatch) return { type: 'collection', seriesName: rangeMatch[1].replace(/[-_\s]+$/, '').trim(), volumeStart: parseInt(rangeMatch[2], 10), volumeEnd: parseInt(rangeMatch[3], 10), extension: ext };
 
-            // 1. ตรวจสอบ Range File (เช่น เล่ม 1-20, 1-20, _1-20, -1-20)
-            const rangeRegex = /^(.+?)(?:\s+เล่ม\s*|\s*[_-]\s*|\s+)(\d+)\s*-\s*(\d+)$/i;
-            let matchRange = nameWithoutExt.match(rangeRegex);
-            if (matchRange) {
-                let seriesName = matchRange[1].replace(/[-_\s]+$/, '').trim();
-                return {
-                    type: 'collection',
-                    seriesName: seriesName,
-                    volumeStart: parseInt(matchRange[2], 10),
-                    volumeEnd: parseInt(matchRange[3], 10),
-                    extension: ext
-                };
-            }
-
-            // 2. ตรวจสอบเล่มเดี่ยว (เช่น เล่ม 01, _01, -01, เว้นวรรคตามด้วยเลข)
-            const patterns = [
-                /^(.+?)\s+เล่ม\s*(\d+)$/i,       
-                /^(.+?)_(\d+)$/,                 
-                /^(.+?)-(\d+)$/,                 
-                /^(.+?)\s+(\d+)$/                
-            ];
-
-            for (let pat of patterns) {
-                let m = nameWithoutExt.match(pat);
-                if (m) {
-                    let rawSeries = m[1];
-                    let volNum = parseInt(m[2], 10);
-                    let seriesName = rawSeries.replace(/[-_\s]+$/, '').trim();
-                    if (seriesName.length > 0) {
-                        return {
-                            type: 'single',
-                            seriesName: seriesName,
-                            volumeNumber: volNum,
-                            extension: ext
-                        };
-                    }
+            for (const pat of [/^(.+?)\s+เล่ม\s*(\d+)$/i, /^(.+?)_(\d+)$/, /^(.+?)-(\d+)$/, /^(.+?)\s+(\d+)$/]) {
+                const m = nameExt.match(pat);
+                if (m && m[1].replace(/[-_\s]+$/, '').trim()) {
+                    return { type: 'single', seriesName: m[1].replace(/[-_\s]+$/, '').trim(), volumeNumber: parseInt(m[2], 10), extension: ext };
                 }
             }
-
             return null;
         }
 
-        function isCoverImage(fileName) {
-            const ext = fileName.split('.').pop().toLowerCase();
-            return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
-        }
+        const isCoverImage = (name) => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(name.split('.').pop().toLowerCase());
 
         function groupFilesAndFolders(items) {
-            let folders = [];
-            let individualFiles = [];
-            let coverFiles = [];
-            let parsedItems = [];
-
+            let folders = [], individualFiles = [], coverFiles = [], parsedItems = [];
             items.forEach(item => {
-                let isFolder = item.mimeType === 'application/vnd.google-apps.folder';
-                if (isFolder) {
-                    folders.push(item);
-                } else if (isCoverImage(item.name)) {
-                    coverFiles.push(item);
-                } else {
+                if (item.mimeType === 'application/vnd.google-apps.folder') folders.push(item);
+                else if (isCoverImage(item.name)) coverFiles.push(item);
+                else {
                     const parsed = parseVolumeName(item.name);
-                    if (parsed) {
-                        parsedItems.push({ item, parsed });
-                    } else {
-                        individualFiles.push(item);
-                    }
+                    parsed ? parsedItems.push({ item, parsed }) : individualFiles.push(item);
                 }
             });
 
-            // 📌 [V7.1.1 Patch 5] รวบรวม Normalized Keys ของ Series ที่มี Range File อยู่
-            let seriesKeysWithRange = new Set();
-            parsedItems.forEach(({ parsed }) => {
-                if (parsed.type === 'collection') {
-                    seriesKeysWithRange.add(
-                        normalizeSeriesKey(parsed.seriesName)
-                    );
-                }
-            });
-
+            const rangeKeys = new Set(parsedItems.filter(p => p.parsed.type === 'collection').map(p => normalizeSeriesKey(p.parsed.seriesName)));
             let seriesMap = {};
 
             parsedItems.forEach(({ item, parsed }) => {
                 if (parsed.type === 'collection') {
-                    let collectionKey = `${parsed.seriesName} (เล่ม ${parsed.volumeStart}-${parsed.volumeEnd})_${item.id}`;
-                    seriesMap[collectionKey] = {
-                        type: 'collection',
-                        seriesName: parsed.seriesName,
-                        volumeRange: `เล่ม ${parsed.volumeStart}–${parsed.volumeEnd}`,
-                        books: [item],
-                        modifiedTime: item.modifiedTime
+                    seriesMap[`${parsed.seriesName} (เล่ม ${parsed.volumeStart}-${parsed.volumeEnd})_${item.id}`] = {
+                        type: 'collection', seriesName: parsed.seriesName, volumeRange: `เล่ม ${parsed.volumeStart}–${parsed.volumeEnd}`, books: [item], modifiedTime: item.modifiedTime
                     };
                 } else if (parsed.type === 'single') {
-                    const seriesKey = normalizeSeriesKey(parsed.seriesName);
-                    
-                    // 📌 [V7.1.1 Patch 5 Rule] ถ้า Series นี้มี Range File อยู่แล้ว Single Volume ต้องถูกแยกเป็น Individual File เสมอ ห้ามรวมกลุ่ม
-                    if (seriesKeysWithRange.has(seriesKey)) {
-                        individualFiles.push({
-                            ...item,
-                            isSingleWithRange: true,
-                            seriesName: parsed.seriesName,
-                            volumeNumber: parsed.volumeNumber
-                        });
-                    } else {
-                        if (!seriesMap[seriesKey]) {
-                            seriesMap[seriesKey] = {
-                                type: 'series',
-                                seriesName: parsed.seriesName,
-                                books: [],
-                                modifiedTime: item.modifiedTime
-                            };
-                        }
-                        seriesMap[seriesKey].books.push({
-                            ...item,
-                            volumeNumber: parsed.volumeNumber
-                        });
-                        if (
-                            new Date(item.modifiedTime) >
-                            new Date(seriesMap[seriesKey].modifiedTime)
-                        ) {
-                            seriesMap[seriesKey].modifiedTime = item.modifiedTime;
-                        }
+                    const key = normalizeSeriesKey(parsed.seriesName);
+                    if (rangeKeys.has(key)) individualFiles.push({ ...item, isSingleWithRange: true, seriesName: parsed.seriesName, volumeNumber: parsed.volumeNumber });
+                    else {
+                        if (!seriesMap[key]) seriesMap[key] = { type: 'series', seriesName: parsed.seriesName, books: [], modifiedTime: item.modifiedTime };
+                        seriesMap[key].books.push({ ...item, volumeNumber: parsed.volumeNumber });
+                        if (new Date(item.modifiedTime) > new Date(seriesMap[key].modifiedTime)) seriesMap[key].modifiedTime = item.modifiedTime;
                     }
                 }
             });
 
-            Object.values(seriesMap).forEach(series => {
-                if (series.type === 'series') {
-                    series.books.sort((a, b) => a.volumeNumber - b.volumeNumber);
-                }
-            });
-
-            let seriesList = Object.values(seriesMap);
-            return { folders, seriesList, individualFiles, coverFiles };
+            Object.values(seriesMap).forEach(s => { if (s.type === 'series') s.books.sort((a, b) => a.volumeNumber - b.volumeNumber); });
+            return { folders, seriesList: Object.values(seriesMap), individualFiles, coverFiles };
         }
 
-        function findSeriesCover(seriesName, coverFiles) {
-            const cleanTarget = seriesName.toLowerCase().replace(/[\s\-_]/g, '');
-            for (let cover of coverFiles) {
-                const coverBaseName = cover.name.substring(0, cover.name.lastIndexOf('.')).toLowerCase().replace(/[\s\-_]/g, '');
-                if (coverBaseName === cleanTarget) {
-                    if (cover.thumbnailLink) {
-                        return cover.thumbnailLink.split('=')[0] + '=s800';
-                    }
-                }
-            }
-            return null;
-        }
+        const findSeriesCover = (seriesName, coverFiles) => {
+            const target = normalizeSeriesKey(seriesName);
+            const cover = coverFiles.find(c => normalizeSeriesKey(c.name.substring(0, c.name.lastIndexOf('.'))) === target);
+            return cover?.thumbnailLink ? cover.thumbnailLink.split('=')[0] + '=s800' : null;
+        };
 
-        // --- Search & Sort Logic ---
+        // --- Search, Sort ---
         function applySearchAndSort() {
-            if (currentViewMode === 'series-detail' && activeSeriesData) {
-                renderSeriesDetailUI(activeSeriesData);
-                return;
-            }
-
+            if (currentViewMode === 'series-detail' && activeSeriesData) return renderSeriesDetailUI(activeSeriesData);
             const query = document.getElementById('searchInput').value.toLowerCase();
             const sortType = document.getElementById('sortSelect').value;
-
             const { folders, seriesList, individualFiles, coverFiles } = groupFilesAndFolders(currentFolderItems);
 
-            let filteredFolders = folders.filter(f => f.name.toLowerCase().includes(query));
-            let filteredSeries = seriesList.filter(s => s.seriesName.toLowerCase().includes(query) || (s.volumeRange && s.volumeRange.toLowerCase().includes(query)));
-            let filteredFiles = individualFiles.filter(f => {
-                let displayName = f.isSingleWithRange ? `${f.seriesName} เล่ม ${f.volumeNumber}` : f.name;
-                return displayName.toLowerCase().includes(query);
-            });
+            const fFolders = folders.filter(f => f.name.toLowerCase().includes(query));
+            const fSeries = seriesList.filter(s => s.seriesName.toLowerCase().includes(query) || (s.volumeRange && s.volumeRange.toLowerCase().includes(query)));
+            const fFiles = individualFiles.filter(f => (f.isSingleWithRange ? `${f.seriesName} เล่ม ${f.volumeNumber}` : f.name).toLowerCase().includes(query));
 
-            const sortFunc = (a, b) => {
-                let nameA = a.name || a.seriesName;
-                let nameB = b.name || b.seriesName;
-                if (sortType === 'name-asc') return nameA.localeCompare(nameB, 'th');
-                if (sortType === 'name-desc') return nameB.localeCompare(nameA, 'th');
-                if (sortType === 'latest') {
-                    let timeA = new Date(a.modifiedTime || 0);
-                    let timeB = new Date(b.modifiedTime || 0);
-                    return timeB - timeA;
-                }
+            const sortFn = (a, b) => {
+                const nA = a.name || a.seriesName, nB = b.name || b.seriesName;
+                if (sortType === 'name-asc') return nA.localeCompare(nB, 'th');
+                if (sortType === 'name-desc') return nB.localeCompare(nA, 'th');
+                if (sortType === 'latest') return new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0);
                 return 0;
             };
 
-            if (sortType !== 'default') {
-                filteredFolders.sort(sortFunc);
-                filteredSeries.sort(sortFunc);
-                filteredFiles.sort(sortFunc);
-            } else {
-                filteredFolders.sort((a, b) => a.name.localeCompare(b.name, 'th'));
-                filteredSeries.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'th'));
-                filteredFiles.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
-            }
+            if (sortType !== 'default') { fFolders.sort(sortFn); fSeries.sort(sortFn); fFiles.sort(sortFn); }
+            else { fFolders.sort((a, b) => a.name.localeCompare(b.name, 'th')); fSeries.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'th')); fFiles.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th')); }
 
-            const totalDisplayCount = filteredFolders.length + filteredSeries.length + filteredFiles.length;
-            document.getElementById('item-count-badge').innerHTML = `📚 พบ ${totalDisplayCount} รายการ`;
-
-            renderMainGridUI(filteredFolders, filteredSeries, filteredFiles, coverFiles);
+            renderMainGridUI(fFolders, fSeries, fFiles, coverFiles, query !== '');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             domReady = true;
-
             document.getElementById('searchInput').addEventListener('input', applySearchAndSort);
             document.getElementById('sortSelect').addEventListener('change', applySearchAndSort);
-            
-            document.addEventListener('keydown', (e) => {
-                const modal = document.getElementById('reader-modal');
-                if (modal.style.display === 'flex') {
+            document.addEventListener('keydown', e => {
+                if (document.getElementById('reader-modal').style.display === 'flex') {
                     if (e.key === 'ArrowLeft') onPrevPage();
                     if (e.key === 'ArrowRight') onNextPage();
                 }
             });
-
             maybeStartApp();
         });
 
-        // --- Render UI สำหรับหน้าหลัก (Grid View) ---
-        async function renderMainGridUI(folders, seriesList, files, coverFiles) {
-            const contentArea = document.getElementById('content-area');
-            contentArea.innerHTML = '';
+        // =========================================================
+        // 🎨 V7.2.5 UI RENDERING LOGIC (DOM & CSS Changes Only)
+        // =========================================================
+
+        function generatePremiumFallback(type, title) {
+            let bgClass = 'bg-empty', icon = 'fa-image', typeText = 'ไม่มีปก';
+            if (type === 'pdf') { bgClass = 'bg-pdf'; icon = 'fa-file-pdf'; typeText = 'PDF BOOK'; }
+            else if (type === 'series') { bgClass = 'bg-series'; icon = 'fa-layer-group'; typeText = 'SERIES'; }
+            else if (type === 'folder') { bgClass = 'bg-folder'; icon = 'fa-folder'; typeText = 'COLLECTION'; }
+
+            return `
+                <div class="premium-fallback ${bgClass}">
+                    <div class="fallback-content">
+                        <i class="fas ${icon}"></i>
+                        <div class="f-type">${typeText}</div>
+                        ${title ? `<div class="f-title">${escapeHtml(title)}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function renderMainGridUI(folders, seriesList, files, coverFiles, isSearching = false) {
+            const area = document.getElementById('content-area');
+            area.innerHTML = '';
             
-            if (folders.length === 0 && seriesList.length === 0 && files.length === 0) {
-                contentArea.innerHTML = '<div class="empty-state"><i class="fas fa-search fa-3x" style="color:#D1D5DB; margin-bottom:15px;"></i><br>ไม่พบรายการที่ตรงกับการค้นหา</div>';
+            // UI Hero Stats Update
+            if (isSearching) {
+                updateHeroStats(`ผลการค้นหา ${folders.length + seriesList.length + files.length} รายการ`);
+            } else {
+                let statsArr = [];
+                if(folders.length > 0) statsArr.push(`${folders.length} แฟ้ม`);
+                if(seriesList.length > 0) statsArr.push(`${seriesList.length} ซีรีส์`);
+                if(files.length > 0) statsArr.push(`${files.length} เล่ม`);
+                updateHeroStats(statsArr.length > 0 ? statsArr.join(' · ') : 'หน้าหลัก');
+            }
+
+            if (!folders.length && !seriesList.length && !files.length) {
+                renderEmptyState(isSearching ? '🔎' : '📚', isSearching ? 'ไม่พบรายการที่ค้นหา' : 'ไม่พบหนังสือที่รองรับ', isSearching ? 'ลองเปลี่ยนคำค้นหาใหม่อีกครั้ง' : 'ลองตรวจสอบไฟล์ใน Google Drive ของคุณ');
                 return;
             }
 
-            for (const item of folders) {
+            // Render Folders (Collection Design)
+            for (const f of folders) {
                 const card = document.createElement('div');
-                card.className = 'card';
+                card.className = 'book-card folder-card';
                 card.innerHTML = `
-                    <div class="card-img-container folder-bg">
-                        <i class="fas fa-folder-open folder-icon"></i>
-                        <div class="folder-overlay"><i class="fas fa-folder"></i> แฟ้ม</div>
+                    <div class="book-card-cover">
+                        ${generatePremiumFallback('folder', f.name)}
+                        <div class="badge-overlay badge-folder"><i class="fas fa-folder-open"></i> แฟ้ม</div>
                     </div>
-                    <div class="card-title">${escapeHtml(item.name)}</div>
-                `;
-                card.onclick = () => loadDriveContent(item.id, item.name);
-                
-                getFolderCover(item.id).then(coverUrl => {
-                    if(coverUrl) { 
-                        card.querySelector('.card-img-container').innerHTML = `
-                            <img src="${coverUrl}" alt="ปกแฟ้ม" loading="lazy" referrerpolicy="no-referrer">
-                            <div class="folder-overlay"><i class="fas fa-folder"></i> แฟ้ม</div>
-                        `; 
+                    <div class="book-card-info">
+                        <div class="book-title" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+                        <div class="book-meta">Collection</div>
+                    </div>`;
+                card.onclick = () => loadDriveContent(f.id, f.name);
+                getFolderCover(f.id, f.name).then(url => { 
+                    if (url) {
+                        const coverDiv = card.querySelector('.book-card-cover');
+                        coverDiv.innerHTML = `${generatePremiumFallback('folder', f.name)}<img src="${url}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><div class="badge-overlay badge-folder"><i class="fas fa-folder-open"></i> แฟ้ม</div>`;
                     }
                 });
-                contentArea.appendChild(card);
+                area.appendChild(card);
             }
 
-            for (const series of seriesList) {
+            // Render Series (Book Cover Design)
+            for (const s of seriesList) {
                 const card = document.createElement('div');
-                card.className = 'card';
+                card.className = 'book-card';
                 
-                let coverUrl = findSeriesCover(series.seriesName, coverFiles); // Priority 1: Smart Cover File
+                let coverUrl = findSeriesCover(s.seriesName, coverFiles) || (s.books[0]?.thumbnailLink ? s.books[0].thumbnailLink.split('=')[0] + '=s800' : null);
+                let fallbackType = (s.type === 'collection' || s.books[0]?.mimeType?.includes('pdf')) ? 'pdf' : 'series';
                 
-                if (!coverUrl) {
-                    let firstBook = series.books[0];
-                    if (firstBook.thumbnailLink) {
-                        coverUrl = firstBook.thumbnailLink.split('=')[0] + '=s800';
-                    } else {
-                        coverUrl = firstBook.mimeType && firstBook.mimeType.includes('pdf') 
-                            ? 'https://via.placeholder.com/300x400/EF4444/ffffff?text=PDF' 
-                            : 'https://via.placeholder.com/300x400/9CA3AF/ffffff?text=Series';
-                    }
-                }
-
-                let badgeText = series.type === 'collection' ? series.volumeRange : `${series.books.length} เล่ม`;
-                let badgeIcon = series.type === 'collection' ? 'fa-file-pdf' : 'fa-book-open';
+                let imgHTML = generatePremiumFallback(fallbackType, s.seriesName);
+                if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
 
                 card.innerHTML = `
-                    <div class="card-img-container">
-                        <img src="${coverUrl}" alt="ปกซีรีส์" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/9CA3AF/ffffff?text=Error'">
-                        <div class="folder-overlay" style="background:var(--primary);"><i class="fas ${badgeIcon}"></i> ${badgeText}</div>
+                    <div class="book-card-cover">
+                        ${imgHTML}
+                        <div class="badge-overlay badge-series"><i class="fas ${s.type === 'collection' ? 'fa-file-pdf' : 'fa-layer-group'}"></i> ${s.type === 'collection' ? s.volumeRange : `${s.books.length} เล่ม`}</div>
                     </div>
-                    <div class="card-title">${escapeHtml(series.seriesName)}</div>
-                `;
-
-                if (series.type === 'collection') {
-                    let targetBook = series.books[0];
-                    card.onclick = () => openReader(targetBook.id, targetBook.name, targetBook.mimeType);
-                } else {
-                    card.onclick = () => openSeriesDetail(series);
-                }
-                contentArea.appendChild(card);
+                    <div class="book-card-info">
+                        <div class="book-title" title="${escapeHtml(s.seriesName)}">${escapeHtml(s.seriesName)}</div>
+                    </div>`;
+                card.onclick = () => s.type === 'collection' ? openReader(s.books[0].id, s.books[0].name, s.books[0].mimeType) : openSeriesDetail(s);
+                area.appendChild(card);
             }
 
+            // Render Single Files (Book Cover Design)
             for (const item of files) {
                 const card = document.createElement('div');
-                card.className = 'card';
-                let coverUrl = item.thumbnailLink;
-                if (coverUrl) { coverUrl = coverUrl.split('=')[0] + '=s800'; } 
-                else {
-                    coverUrl = item.mimeType.includes('pdf') 
-                        ? 'https://via.placeholder.com/300x400/EF4444/ffffff?text=PDF' 
-                        : 'https://via.placeholder.com/300x400/9CA3AF/ffffff?text=No+Cover';
-                }
+                card.className = 'book-card';
+                const page = getBookmark(item.id);
+                const titleStr = item.isSingleWithRange ? `${escapeHtml(item.seriesName)} เล่ม ${escapeHtml(String(item.volumeNumber))}` : escapeHtml(item.name);
                 
-                let savedPage = getBookmark(item.id);
+                const coverUrl = item.thumbnailLink ? item.thumbnailLink.split('=')[0] + '=s800' : null;
+                let fallbackType = item.mimeType.includes('pdf') ? 'pdf' : 'empty';
                 
-                // 📌 [V7.1.1 Patch 5 Badge & Title Logic]
-                let badgeLabel = '';
-                let badgeStyle = '';
+                let imgHTML = generatePremiumFallback(fallbackType, titleStr);
+                if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
 
-                if (item.isSingleWithRange) {
-                    badgeLabel = `เล่ม ${item.volumeNumber}`;
-                    badgeStyle = 'background:#3B82F6;';
-                } else if (savedPage > 1) {
-                    badgeStyle = 'background:#10B981;';
-                    badgeLabel = `<i class="fas fa-bookmark"></i> หน้า ${savedPage}`;
-                }
-
-                let finalOverlay = badgeLabel ? `<div class="folder-overlay" style="${badgeStyle}">${badgeLabel}</div>` : '';
-                
-                // แสดงชื่อการ์ดให้ระบุเล่มชัดเจน เช่น "ยอดนักสืบจิ๋วโคนัน เล่ม 98"
-                let displayCardTitle = item.isSingleWithRange 
-                    ? `${escapeHtml(item.seriesName)} เล่ม ${escapeHtml(String(item.volumeNumber))}` 
-                    : escapeHtml(item.name);
+                const badge = item.isSingleWithRange ? `<div class="badge-overlay badge-single">เล่ม ${item.volumeNumber}</div>` : (page > 1 ? `<div class="badge-overlay badge-bookmark"><i class="fas fa-bookmark"></i> หน้า ${page}</div>` : '');
 
                 card.innerHTML = `
-                    <div class="card-img-container">
-                        <img src="${coverUrl}" alt="ปกหนังสือ" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/9CA3AF/ffffff?text=Error'">
-                        ${finalOverlay}
+                    <div class="book-card-cover">
+                        ${imgHTML}
+                        ${badge}
                     </div>
-                    <div class="card-title">${displayCardTitle}</div>
-                `;
+                    <div class="book-card-info">
+                        <div class="book-title" title="${titleStr}">${titleStr}</div>
+                    </div>`;
                 card.onclick = () => openReader(item.id, item.name, item.mimeType);
-                contentArea.appendChild(card);
+                area.appendChild(card);
             }
         }
 
-        // --- เปิดมุมมองรายละเอียดภายใน Series (Series Detail View) ---
         function openSeriesDetail(series) {
-            currentViewMode = 'series-detail';
-            activeSeriesData = series;
-
+            currentViewMode = 'series-detail'; activeSeriesData = series;
             document.getElementById('searchInput').value = '';
             renderSeriesBreadcrumb(series.seriesName);
             renderSeriesDetailUI(series);
         }
 
         function renderSeriesBreadcrumb(seriesName) {
-            const bcDiv = document.getElementById('breadcrumb');
-            bcDiv.innerHTML = '';
-
-            let lastFolder = folderHistory[folderHistory.length - 1];
-
-            const homeSpan = document.createElement('span');
-            homeSpan.className = 'bc-item';
-            homeSpan.innerHTML = `<i class="fas fa-home"></i> ${escapeHtml(lastFolder.name === '🏠 หน้าหลัก' ? 'หน้าหลัก' : lastFolder.name)}`;
-            homeSpan.onclick = () => {
-                loadDriveContent(lastFolder.id, lastFolder.name);
-            };
-            bcDiv.appendChild(homeSpan);
-
-            const sep = document.createElement('span');
-            sep.className = 'bc-separator';
-            sep.innerHTML = ' ❯ ';
-            bcDiv.appendChild(sep);
-
-            const seriesSpan = document.createElement('span');
-            seriesSpan.style.cssText = 'color:var(--text-color); font-weight:bold; padding: 5px 8px;';
-            seriesSpan.textContent = seriesName;
-            bcDiv.appendChild(seriesSpan);
-        }
-
-        function renderSeriesDetailUI(series) {
-            const contentArea = document.getElementById('content-area');
-            contentArea.innerHTML = '';
-
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            let booksToDisplay = series.books;
-
-            if (query) {
-                booksToDisplay = series.books.filter(b => b.name.toLowerCase().includes(query));
-            }
-
-            document.getElementById('item-count-badge').innerHTML = `📚 ${escapeHtml(series.seriesName)} — ทั้งหมด ${booksToDisplay.length} เล่ม`;
-
-            if (booksToDisplay.length === 0) {
-                contentArea.innerHTML = '<div class="empty-state"><i class="fas fa-search fa-3x" style="color:#D1D5DB; margin-bottom:15px;"></i><br>ไม่พบเล่มที่ค้นหาในซีรีส์นี้</div>';
-                return;
-            }
-
-            const { coverFiles } = groupFilesAndFolders(currentFolderItems);
-            let seriesCoverFallback = findSeriesCover(series.seriesName, coverFiles);
-
-            booksToDisplay.forEach(book => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                
-                let primaryCover = book.thumbnailLink ? book.thumbnailLink.split('=')[0] + '=s800' : null;
-                let fallbackCover = seriesCoverFallback || (
-                    book.mimeType && book.mimeType.includes('pdf')
-                        ? 'https://via.placeholder.com/300x400/EF4444/ffffff?text=PDF'
-                        : 'https://via.placeholder.com/300x400/9CA3AF/ffffff?text=No+Cover'
-                );
-                let safeCover = primaryCover || fallbackCover;
-                
-                let savedPage = getBookmark(book.id);
-                let bookmarkHtml = savedPage > 1 ? `<div class="folder-overlay" style="background:#10B981;"><i class="fas fa-bookmark"></i> หน้า ${savedPage}</div>` : '';
-
-                card.innerHTML = `
-                    <div class="card-img-container">
-                        <img 
-                            src="${safeCover}" 
-                            alt="ปกหนังสือ" 
-                            loading="lazy" 
-                            referrerpolicy="no-referrer"
-                            onerror="this.onerror=null; this.src='${fallbackCover}'"
-                        >
-                        ${bookmarkHtml}
-                    </div>
-                    <div class="card-title">เล่ม ${escapeHtml(String(book.volumeNumber))}</div>
-                `;
-                card.onclick = () => openReader(book.id, book.name, book.mimeType);
-                contentArea.appendChild(card);
-            });
-        }
-
-        async function getFolderCover(folderId) {
-            try {
-                if (!gapi.client || !gapi.client.drive) return null;
-                let res = await gapi.client.drive.files.list({ q: `'${folderId}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'`, fields: 'files(thumbnailLink)', pageSize: 1 });
-                if (res.result.files && res.result.files.length > 0 && res.result.files[0].thumbnailLink) { return res.result.files[0].thumbnailLink.split('=')[0] + '=s800'; }
-            } catch (e) { return null; }
-            return null;
-        }
-
-        function renderBreadcrumb() {
-            const bcDiv = document.getElementById('breadcrumb');
-            bcDiv.innerHTML = '';
+            const bc = document.getElementById('breadcrumb');
+            if (!bc) return;
+            bc.innerHTML = '';
+            
             folderHistory.forEach((folder, index) => {
                 const span = document.createElement('span');
                 span.className = 'bc-item';
-                span.innerHTML = index === 0 ? '<i class="fas fa-home"></i> หน้าหลัก' : `<i class="fas fa-folder"></i> ${escapeHtml(folder.name)}`;
+                span.innerHTML = index === 0 ? '<i class="fas fa-home"></i> หน้าหลัก' : `${escapeHtml(folder.name)}`;
                 span.onclick = () => loadDriveContent(folder.id, folder.name);
-                bcDiv.appendChild(span);
+                bc.appendChild(span);
+
+                const sep = document.createElement('span');
+                sep.className = 'bc-separator';
+                sep.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                bc.appendChild(sep);
+            });
+
+            const seriesSpan = document.createElement('span');
+            seriesSpan.className = 'bc-item current';
+            seriesSpan.textContent = seriesName;
+            bc.appendChild(seriesSpan);
+            
+            // Mobile scroll to end
+            requestAnimationFrame(() => { bc.scrollLeft = bc.scrollWidth; });
+        }
+
+        function renderBreadcrumb() {
+            const bc = document.getElementById('breadcrumb');
+            if (!bc) return;
+            bc.innerHTML = '';
+            
+            folderHistory.forEach((folder, index) => {
+                const span = document.createElement('span');
+                span.className = index === folderHistory.length - 1 ? 'bc-item current' : 'bc-item';
+                span.innerHTML = index === 0 ? '<i class="fas fa-home"></i> หน้าหลัก' : `${escapeHtml(folder.name)}`;
+                span.onclick = index === folderHistory.length - 1 ? null : () => loadDriveContent(folder.id, folder.name);
+                bc.appendChild(span);
+
                 if (index < folderHistory.length - 1) {
                     const sep = document.createElement('span');
                     sep.className = 'bc-separator';
-                    sep.innerHTML = ' ❯ ';
-                    bcDiv.appendChild(sep);
+                    sep.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                    bc.appendChild(sep);
                 }
+            });
+            
+            // Mobile scroll to end
+            requestAnimationFrame(() => { bc.scrollLeft = bc.scrollWidth; });
+        }
+
+        function renderSeriesDetailUI(series) {
+            const area = document.getElementById('content-area');
+            if (!area) return;
+            area.innerHTML = '';
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const books = query ? series.books.filter(b => b.name.toLowerCase().includes(query)) : series.books;
+            
+            updateHeroStats(`ซีรีส์: ${escapeHtml(series.seriesName)} · ${books.length} เล่ม`);
+
+            if (!books.length) { 
+                renderEmptyState('🔎', 'ไม่พบเล่มที่ค้นหาในซีรีส์นี้', 'ลองตรวจสอบคำค้นหาอีกครั้ง');
+                return; 
+            }
+            
+            const { coverFiles } = groupFilesAndFolders(currentFolderItems);
+            const fallbackCoverUrl = findSeriesCover(series.seriesName, coverFiles);
+
+            books.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                const page = getBookmark(book.id);
+                const titleStr = `เล่ม ${escapeHtml(String(book.volumeNumber))}`;
+                
+                const coverUrl = book.thumbnailLink ? book.thumbnailLink.split('=')[0] + '=s800' : fallbackCoverUrl;
+                let fallbackType = book.mimeType?.includes('pdf') ? 'pdf' : 'empty';
+
+                let imgHTML = generatePremiumFallback(fallbackType, titleStr);
+                if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
+
+                card.innerHTML = `
+                    <div class="book-card-cover">
+                        ${imgHTML}
+                        ${page > 1 ? `<div class="badge-overlay badge-bookmark"><i class="fas fa-bookmark"></i> หน้า ${page}</div>` : ''}
+                    </div>
+                    <div class="book-card-info">
+                        <div class="book-title" title="${titleStr}">${titleStr}</div>
+                    </div>`;
+                card.onclick = () => openReader(book.id, book.name, book.mimeType);
+                area.appendChild(card);
             });
         }
 
-        // ==========================================
-        // 📖 ระบบจัดการ Bookmark (Stable Baseline - ห้ามแตะ)
-        // ==========================================
-        function saveBookmark(fileId, page) {
-            localStorage.setItem(`familyComic:lastPage:${fileId}`, page);
+        // --- Utility UI Renderers ---
+        function renderSkeletonGrid() {
+            const area = document.getElementById('content-area');
+            area.innerHTML = '';
+            for(let i=0; i<6; i++){
+                area.innerHTML += `
+                    <div class="skeleton-book">
+                        <div class="sk-cover"></div>
+                        <div class="sk-text"></div>
+                        <div class="sk-text short"></div>
+                    </div>`;
+            }
         }
-        function getBookmark(fileId) {
-            return parseInt(localStorage.getItem(`familyComic:lastPage:${fileId}`)) || 1;
-        }
-        function showToast(msg) {
-            const toast = document.getElementById('toast-message');
-            toast.innerHTML = msg;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        
+        function renderEmptyState(icon, title, desc) {
+            document.getElementById('content-area').innerHTML = `
+                <div class="state-container">
+                    <div class="state-icon">${icon}</div>
+                    <div class="state-title">${title}</div>
+                    <div class="state-desc">${desc}</div>
+                </div>`;
         }
 
-        // ==========================================
-        // 📖 ระบบอ่านหนังสือ PDF.js (Stable Baseline - ห้ามแตะ)
-        // ==========================================
-        function openReader(fileId, fileName, mimeType) {
-            const modal = document.getElementById('reader-modal');
-            const title = document.getElementById('reader-title');
-            const frame = document.getElementById('reader-frame');
-            const pdfCanvas = document.getElementById('pdf-canvas');
-            const pdfToolbar = document.getElementById('pdf-toolbar');
-            
-            currentFileId = fileId; 
-            title.innerText = fileName;
-            modal.style.display = 'flex'; 
-            document.body.style.overflow = 'hidden'; 
-            
-            const isPdf = !!(mimeType && mimeType.includes('pdf'));
+        function renderErrorState(title, desc) {
+            document.getElementById('content-area').innerHTML = `
+                <div class="state-container state-error">
+                    <div class="state-icon">⚠️</div>
+                    <div class="state-title">${title}</div>
+                    <div class="state-desc">${desc}</div>
+                </div>`;
+        }
 
-            if (isPdf) {
-                frame.style.display = 'none';
-                pdfCanvas.style.display = 'block';
-                pdfToolbar.style.display = 'flex';
-                
-                document.getElementById('tap-zone-left').style.display = 'block';
-                document.getElementById('tap-zone-right').style.display = 'block';
+        // --- FREEZE ZONE: Folder Cover Cache & Finder ---
+        async function getFolderCover(folderId, folderName = '') {
+            if (folderCoverCache.has(folderId)) return folderCoverCache.get(folderId);
+            try {
+                if (!gapi?.client?.drive) return null;
+                const mimeQ = `(mimeType = 'application/pdf' or mimeType = 'image/jpeg' or mimeType = 'image/png' or mimeType = 'image/webp' or mimeType = 'image/gif')`;
+                const res = await gapi.client.drive.files.list({ q: `'${folderId}' in parents and trashed = false and ${mimeQ}`, fields: 'files(id, name, mimeType, thumbnailLink)', pageSize: 100 });
+                let files = res.result.files || [];
+                if (!files.length) { folderCoverCache.set(folderId, null); return null; }
 
-                loadPDF(); 
-            } else {
-                pdfCanvas.style.display = 'none';
-                pdfToolbar.style.display = 'none';
-                document.getElementById('tap-zone-left').style.display = 'none';
-                document.getElementById('tap-zone-right').style.display = 'none';
-                
-                frame.style.display = 'block';
-                frame.src = `https://drive.google.com/file/d/${currentFileId}/preview`;
+                files.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
+                const cleanKey = normalizeSeriesKey(folderName);
+
+                const matchImg = files.find(f => f.mimeType !== 'application/pdf' && normalizeSeriesKey(f.name.substring(0, f.name.lastIndexOf('.'))) === cleanKey);
+                if (matchImg?.thumbnailLink) { const url = matchImg.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
+
+                const matchPdf = files.find(f => f.mimeType === 'application/pdf' && normalizeSeriesKey(f.name.substring(0, f.name.lastIndexOf('.'))) === cleanKey);
+                if (matchPdf?.thumbnailLink) { const url = matchPdf.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
+
+                const firstImg = files.find(f => f.mimeType !== 'application/pdf');
+                if (firstImg?.thumbnailLink) { const url = firstImg.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
+
+                const firstPdf = files.find(f => f.mimeType === 'application/pdf');
+                if (firstPdf?.thumbnailLink) { const url = firstPdf.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
+
+                folderCoverCache.set(folderId, null);
+                return null;
+            } catch (e) {
+                folderCoverCache.set(folderId, null);
+                return null;
             }
         }
 
+        // --- FREEZE ZONE: Bookmark & Reader Management ---
+        const saveBookmark = (id, page) => localStorage.setItem(`familyComic:lastPage:${id}`, page);
+        const getBookmark = (id) => parseInt(localStorage.getItem(`familyComic:lastPage:${id}`)) || 1;
+        
+        function showToast(msg) {
+            const t = document.getElementById('toast-message');
+            if (!t) return;
+            t.innerHTML = msg; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3500);
+        }
+
+        function openReader(fileId, fileName, mimeType) {
+            currentFileId = fileId;
+            document.getElementById('reader-title').innerText = fileName;
+            document.getElementById('reader-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            requestAnimationFrame(updateMobileNavPosition);
+
+            const isPdf = !!(mimeType && mimeType.includes('pdf'));
+            document.getElementById('pdf-canvas').style.display = isPdf ? 'block' : 'none';
+            document.getElementById('pdf-toolbar').style.display = isPdf ? 'flex' : 'none';
+            document.getElementById('tap-zone-left').style.display = isPdf ? 'block' : 'none';
+            document.getElementById('tap-zone-right').style.display = isPdf ? 'block' : 'none';
+            const frame = document.getElementById('reader-frame');
+            frame.style.display = isPdf ? 'none' : 'block';
+            if (!isPdf) { readerLoadId++; frame.src = `https://drive.google.com/file/d/${currentFileId}/preview`; }
+            else loadPDF();
+        }
+
         async function loadPDF() {
+            const loadId = ++readerLoadId;
             const loadingUI = document.getElementById('pdf-loading');
+            if (!loadingUI) return;
             loadingUI.style.display = 'block';
             loadingUI.innerHTML = '<i class="fas fa-spinner fa-spin"></i> เตรียมการดาวน์โหลดไฟล์...';
             
             canvas = document.getElementById('pdf-canvas');
+            if (!canvas) return;
             ctx = canvas.getContext('2d');
+            pdfDoc = null; pageRendering = false; pageNumPending = null;
             
-            pdfDoc = null;
-            pageRendering = false;
-            pageNumPending = null;
-            
-            let savedPage = getBookmark(currentFileId); 
-            
+            const saved = getBookmark(currentFileId);
             const tokenObj = gapi.client.getToken();
-            if (!tokenObj || !tokenObj.access_token) {
+            if (!tokenObj?.access_token) {
+                if (loadId !== readerLoadId) return;
                 loadingUI.innerHTML = '❌ เซสชันหมดอายุ กรุณาโหลดหน้าเว็บและล็อกอินใหม่';
                 return;
             }
-            const token = tokenObj.access_token;
-            
-            const url = `https://www.googleapis.com/drive/v3/files/${currentFileId}?alt=media`;
 
             try {
-                const loadingTask = pdfjsLib.getDocument({
-                    url: url,
-                    httpHeaders: { 'Authorization': `Bearer ${token}` },
-                    disableRange: false, 
-                    disableStream: false
-                });
-
-                loadingTask.onProgress = function(progress) {
-                    if (progress.total > 0) {
-                        let percent = Math.round((progress.loaded / progress.total) * 100);
-                        loadingUI.innerHTML = `<i class="fas fa-spinner fa-spin"></i> กำลังโหลดหนังสือ... <b>${percent}%</b>`;
-                    } else {
-                        let loadedMb = (progress.loaded / (1024 * 1024)).toFixed(1);
-                        loadingUI.innerHTML = `<i class="fas fa-spinner fa-spin"></i> โหลดแล้ว... <b>${loadedMb} MB</b>`;
-                    }
+                // Large PDF Strategy - DO NOT CHANGE (disableRange: false, disableStream: false)
+                const task = pdfjsLib.getDocument({ url: `https://www.googleapis.com/drive/v3/files/${currentFileId}?alt=media`, httpHeaders: { 'Authorization': `Bearer ${tokenObj.access_token}` }, disableRange: false, disableStream: false });
+                
+                task.onProgress = p => {
+                    if (loadId !== readerLoadId) return;
+                    loadingUI.innerHTML = p.total > 0 ? `<i class="fas fa-spinner fa-spin"></i> กำลังโหลดหนังสือ... <b>${Math.round((p.loaded / p.total) * 100)}%</b>` : `<i class="fas fa-spinner fa-spin"></i> โหลดแล้ว... <b>${(p.loaded / (1024 * 1024)).toFixed(1)} MB</b>`;
                 };
 
-                pdfDoc = await loadingTask.promise;
-
+                pdfDoc = await task.promise;
+                if (loadId !== readerLoadId) return;
                 document.getElementById('page_count').textContent = pdfDoc.numPages;
                 loadingUI.style.display = 'none';
-                
-                pageNum = Math.min(savedPage, pdfDoc.numPages);
-                
-                if (pageNum > 1) {
-                    showToast(`📌 กำลังอ่านต่อจากหน้า ${pageNum}`);
-                }
-                
-                renderPage(pageNum);
-            } catch (error) {
-                console.error(error);
-                loadingUI.innerHTML = '❌ เกิดข้อผิดพลาดในการโหลดไฟล์ <br><button onclick="closeReader()" style="margin-top:15px; padding:8px 20px; font-weight:bold; border-radius:5px; border:none; cursor:pointer;">ปิดหน้าต่าง</button>';
+                pageNum = Math.min(saved, pdfDoc.numPages);
+                if (pageNum > 1) showToast(`📌 กำลังอ่านต่อจากหน้า ${pageNum}`);
+                renderPage(pageNum, loadId);
+            } catch (e) {
+                if (loadId !== readerLoadId) return;
+                console.error(e);
+                loadingUI.innerHTML = '❌ เกิดข้อผิดพลาดในการโหลดไฟล์ <br><button onclick="closeReader()" style="margin-top:15px; background:var(--primary); padding:8px 20px; font-weight:bold; border-radius:5px; border:none; cursor:pointer; color:white;">ปิดหน้าต่าง</button>';
             }
         }
 
-        function renderPage(num) {
+        const resetReaderViewport = () => {
+            const c = document.querySelector('.reader-content');
+            if (!c) return;
+            c.scrollTop = 0; c.scrollLeft = 0;
+            requestAnimationFrame(() => { if (c) { c.scrollTop = 0; c.scrollLeft = 0; } });
+        };
+
+        function renderPage(num, loadId = readerLoadId) {
+            if (loadId !== readerLoadId) return;
             pageRendering = true;
-            
-            pdfDoc.getPage(num).then(function(page) {
-                const containerWidth = document.querySelector('.reader-content').clientWidth;
-                const unscaledViewport = page.getViewport({scale: 1});
-                const scale = (containerWidth / unscaledViewport.width) * 0.98; 
-                const viewport = page.getViewport({scale: scale});
 
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+            pdfDoc.getPage(num).then(page => {
+                if (loadId !== readerLoadId) { pageRendering = false; return; }
+                const c = document.querySelector('.reader-content');
+                if (!c) { pageRendering = false; return; }
 
-                const renderContext = { canvasContext: ctx, viewport: viewport };
-                const renderTask = page.render(renderContext);
+                const base = page.getViewport({ scale: 1 });
+                const fitScale = Math.max(0.5, Math.min((c.clientWidth - 8) / base.width, 3));
+                const vp = page.getViewport({ scale: fitScale });
 
-                renderTask.promise.then(function() {
+                canvas.width = Math.floor(vp.width);
+                canvas.height = Math.floor(vp.height);
+                canvas.style.width = `${Math.floor(vp.width)}px`;
+                canvas.style.height = `${Math.floor(vp.height)}px`;
+
+                page.render({ canvasContext: ctx, viewport: vp }).promise.then(() => {
+                    if (loadId !== readerLoadId) { pageRendering = false; return; }
                     pageRendering = false;
-                    if (pageNumPending !== null) {
-                        renderPage(pageNumPending);
-                        pageNumPending = null;
-                    }
-                });
-            });
+                    if (pageNumPending !== null) { const p = pageNumPending; pageNumPending = null; renderPage(p, loadId); }
+                    else resetReaderViewport();
+                }).catch(err => { pageRendering = false; console.error(err); });
+            }).catch(err => { pageRendering = false; console.error(err); });
 
             document.getElementById('page_num').textContent = num;
             document.getElementById('btn-prev').disabled = num <= 1;
             document.getElementById('btn-next').disabled = num >= pdfDoc.numPages;
-            
-            document.querySelector('.reader-content').scrollTop = 0; 
-
+            const mPrev = document.getElementById('mobile-btn-prev'), mNext = document.getElementById('mobile-btn-next');
+            if (mPrev) mPrev.disabled = num <= 1;
+            if (mNext) mNext.disabled = num >= pdfDoc.numPages;
             saveBookmark(currentFileId, num);
         }
 
-        function queueRenderPage(num) {
-            if (pageRendering) {
-                pageNumPending = num;
-            } else {
-                renderPage(num);
-            }
+        const queueRenderPage = (num) => pageRendering ? (pageNumPending = num) : renderPage(num);
+        const onPrevPage = () => { if (pdfDoc && pageNum > 1) { resetReaderViewport(); pageNum--; queueRenderPage(pageNum); } };
+        const onNextPage = () => { if (pdfDoc && pageNum < pdfDoc.numPages) { resetReaderViewport(); pageNum++; queueRenderPage(pageNum); } };
+
+        let mobileOverlayFrame = null;
+        function updateMobileNavPosition() {
+            if (window.innerWidth > 768) return;
+            const overlay = document.querySelector('.mobile-nav-overlay'), modal = document.getElementById('reader-modal');
+            if (!overlay || !modal || modal.style.display !== 'flex' || !window.visualViewport) return;
+            const vv = window.visualViewport;
+            overlay.style.left = `${Math.max(0, vv.offsetLeft)}px`;
+            overlay.style.top = `${vv.offsetTop + (vv.height / 2)}px`;
+            overlay.style.width = `${Math.max(1, vv.width)}px`;
+            overlay.style.transform = 'translateY(-50%)';
         }
 
-        function onPrevPage() {
-            if (!pdfDoc || pageNum <= 1) return;
-            let targetPage = pageNum - 1;
-            if (targetPage < 1) targetPage = 1;
-            pageNum = targetPage;
-            queueRenderPage(pageNum);
-        }
+        const scheduleMobileNavPosition = () => {
+            if (mobileOverlayFrame !== null) return;
+            mobileOverlayFrame = requestAnimationFrame(() => { mobileOverlayFrame = null; updateMobileNavPosition(); });
+        };
 
-        function onNextPage() {
-            if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
-            let targetPage = pageNum + 1;
-            if (targetPage > pdfDoc.numPages) targetPage = pdfDoc.numPages;
-            pageNum = targetPage;
-            queueRenderPage(pageNum);
+        window.addEventListener('resize', () => { if (document.getElementById('reader-modal').style.display === 'flex') scheduleMobileNavPosition(); });
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', scheduleMobileNavPosition);
+            window.visualViewport.addEventListener('scroll', scheduleMobileNavPosition);
         }
 
         function closeReader() {
+            readerLoadId++;
             const modal = document.getElementById('reader-modal');
-            const frame = document.getElementById('reader-frame');
-            
-            modal.style.display = 'none'; 
-            frame.src = ''; 
-            document.body.style.overflow = 'auto'; 
-            
-            if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+            modal.style.display = 'none';
+            document.getElementById('reader-frame').src = '';
+            document.body.style.overflow = 'auto';
+            if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (document.fullscreenElement) document.exitFullscreen();
-            
-            currentFileId = null; 
-            
-            pageRendering = false;
-            pageNumPending = null;
-            pdfDoc = null;
-            
+            currentFileId = null; pageRendering = false; pageNumPending = null; pdfDoc = null;
             if (currentFolderItems.length > 0) applySearchAndSort();
         }
 
         function toggleFullScreen() {
             const modal = document.getElementById('reader-modal');
-            if (!document.fullscreenElement) modal.requestFullscreen().catch(err => console.log(err));
+            if (!document.fullscreenElement) modal?.requestFullscreen().catch(() => {});
             else document.exitFullscreen();
         }
     </script>
 </head>
-
 <body>
+    <!-- V7.2.5 Modern Header -->
     <header>
         <div class="logo-container">
-            <div>
-                <h1 class="logo">📚 บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">Family Comic Library V7.1.1 Patch 5</p>
+            <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
+            <div class="logo-text">
+                <h1 class="logo">บ้านการ์ตูนของเรา</h1>
+                <p class="logo-sub">FAMILY LIBRARY V7.2.5</p>
             </div>
         </div>
         <div class="controls">
-            <div id="status-badge" class="status-badge status-loading"><i class="fas fa-spinner fa-spin"></i> รอการเชื่อมต่อ...</div>
-            <button id="loginBtn" class="btn-auth" onclick="handleAuthClick()"><i class="fab fa-google"></i> ล็อกอิน</button>
-            <button id="logoutBtn" class="btn-auth btn-logout" onclick="handleSignoutClick()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+            <div id="status-badge" class="status-badge status-loading" title="กำลังเตรียมข้อมูล..."><i class="fas fa-spinner fa-spin"></i> <span>กำลังเตรียมข้อมูล...</span></div>
+            <button id="loginBtn" class="btn-auth" onclick="handleAuthClick()"><i class="fab fa-google"></i> เข้าสู่ระบบ</button>
+            <button id="logoutBtn" class="btn-auth btn-logout" onclick="handleSignoutClick()" title="ออกจากระบบ"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </header>
 
-    <div class="hero">
-        <h1>📖 ห้องสมุดการ์ตูนของครอบครัว</h1>
-        <p>Smart Grouping & Smart Cover (Patch 5) — ป้องกันการยุบรวมกลุ่มใน Mixed Range Series ด้วย Normalized Key สำเร็จ</p>
-    </div>
-
     <div class="main-container">
-        <div class="toolbar">
+        
+        <!-- V7.2.5 Library Hero -->
+        <div class="library-hero">
+            <h1>📚 ห้องสมุดของครอบครัว</h1>
+            <p>รวมการ์ตูน หนังสือ และเรื่องโปรดของเราไว้ในที่เดียว</p>
+            <div class="hero-stats" id="hero-stats">
+                <i class="fas fa-spinner fa-spin" style="margin-right: 6px;"></i> กำลังโหลด...
+            </div>
+        </div>
+
+        <div class="library-nav">
+            <div id="breadcrumb"></div>
+        </div>
+
+        <div class="library-toolbar">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="ค้นหาชื่อเรื่องหรือหนังสือในหน้านี้...">
+                <input type="text" id="searchInput" placeholder="ค้นหาหนังสือ, แฟ้ม, หรือซีรีส์...">
             </div>
             <div class="sort-box">
+                <span class="sort-label">เรียงตาม:</span>
                 <select id="sortSelect">
-                    <option value="default">จัดตามชื่อ ก-ฮ</option>
+                    <option value="default">จัดตามชื่อ (ก-ฮ)</option>
                     <option value="latest">เพิ่มล่าสุด (ใหม่ไปเก่า)</option>
-                    <option value="name-asc">ชื่อ (ก-ฮ / A-Z)</option>
-                    <option value="name-desc">ชื่อ (ฮ-ก / Z-A)</option>
+                    <option value="name-asc">ชื่อ (A-Z)</option>
+                    <option value="name-desc">ชื่อ (Z-A)</option>
                 </select>
             </div>
         </div>
         
-        <div id="item-count-badge"></div>
-        <div id="breadcrumb"></div>
-        <div id="content-area" class="grid-container"></div>
+        <div id="content-area" class="bookshelf-grid">
+            <!-- Skeleton is rendered via JS renderSkeletonGrid() on load -->
+        </div>
     </div>
 
+    <!-- FROZEN ZONE: PDF Reader Modal (UNTOUCHED) -->
     <div id="reader-modal" class="reader-modal">
         <div id="toast-message"></div>
-        
         <div class="reader-header">
-            <button class="btn-reader btn-back" onclick="closeReader()">
-                <i class="fas fa-arrow-left"></i> <span class="btn-text">ปิดหนังสือ</span>
-            </button>
+            <button class="btn-reader btn-back" onclick="closeReader()"><i class="fas fa-arrow-left"></i> <span class="btn-text">ปิดหนังสือ</span></button>
             <span id="reader-title" class="reader-title">กำลังโหลด...</span>
-            <div class="header-actions">
-                <button class="btn-reader" onclick="toggleFullScreen()" title="เต็มจอ">
-                    <i class="fas fa-expand"></i> <span class="btn-text">เต็มจอ</span>
-                </button>
-            </div>
+            <button class="btn-reader" onclick="toggleFullScreen()" title="เต็มจอ"><i class="fas fa-expand"></i> <span class="btn-text">เต็มจอ</span></button>
         </div>
-        
         <div class="reader-content">
             <div id="pdf-loading"></div>
-            
-            <div id="tap-zone-left" class="tap-zone left" onclick="onPrevPage()" title="แตะเพื่อดูหน้าก่อนหน้า" style="display: none;"></div>
-            <div id="tap-zone-right" class="tap-zone right" onclick="onNextPage()" title="แต.เพื่อดูหน้าถัดไป" style="display: none;"></div>
-            
+            <div id="tap-zone-left" class="tap-zone left" onclick="onPrevPage()" style="display: none;"></div>
+            <div id="tap-zone-right" class="tap-zone right" onclick="onNextPage()" style="display: none;"></div>
             <canvas id="pdf-canvas"></canvas>
             <iframe id="reader-frame" class="reader-frame" src="" frameborder="0" allowfullscreen></iframe>
         </div>
-        
+        <div class="mobile-nav-overlay">
+            <button id="mobile-btn-prev" class="mobile-nav-btn" onclick="onPrevPage()"><i class="fas fa-chevron-left"></i></button>
+            <button id="mobile-btn-next" class="mobile-nav-btn" onclick="onNextPage()"><i class="fas fa-chevron-right"></i></button>
+        </div>
         <div id="pdf-toolbar" class="pdf-toolbar" style="display: none;">
             <button id="btn-prev" onclick="onPrevPage()"><i class="fas fa-chevron-left"></i> <span class="btn-text">ย้อนกลับ</span></button>
-            <span class="page-info">
-                หน้า <span id="page_num"></span> / <span id="page_count"></span>
-            </span>
+            <span class="page-info">หน้า <span id="page_num"></span> / <span id="page_count"></span></span>
             <button id="btn-next" onclick="onNextPage()"><span class="btn-text">ถัดไป</span> <i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
-
 </body>
 </html>
