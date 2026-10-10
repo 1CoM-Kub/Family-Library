@@ -4,7 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.5 Continue Reading</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.6.1 Config Split</title>
+    <script src="config.js?v=1"></script>
+    <script>
+(function () {
+    var problems = [];
+    var bad = function (v) { return typeof v !== 'string' || v === '' || /^YOUR_/i.test(v); };
+    if (typeof CLIENT_ID === 'undefined' && typeof API_KEY === 'undefined' && typeof ROOT_FOLDER_IDS === 'undefined') {
+        problems.push('ไม่พบไฟล์ config.js (ต้องอยู่โฟลเดอร์เดียวกับ index.html และชื่อ config.js ตัวพิมพ์เล็กทั้งหมด) หรือไฟล์ไม่ถูกต้อง');
+    } else {
+        if (typeof CLIENT_ID === 'undefined' || bad(CLIENT_ID) || !/\.apps\.googleusercontent\.com$/.test(CLIENT_ID)) problems.push('CLIENT_ID ยังไม่ได้ใส่ หรือรูปแบบผิด (ต้องลงท้ายด้วย .apps.googleusercontent.com)');
+        if (typeof API_KEY === 'undefined' || bad(API_KEY)) problems.push('API_KEY ยังไม่ได้ใส่');
+        if (typeof ROOT_FOLDER_IDS === 'undefined' || !Array.isArray(ROOT_FOLDER_IDS) || ROOT_FOLDER_IDS.length === 0 || ROOT_FOLDER_IDS.some(function (id) { return bad(id) || !/^[A-Za-z0-9_-]{10,}$/.test(id); })) problems.push("ROOT_FOLDER_IDS ต้องเป็นรายการ id โฟลเดอร์ เช่น ['id1', 'id2'] (id ต้องเป็นตัวอักษร/ตัวเลข ไม่มีช่องว่าง)");
+        if (typeof ADMIN_EMAIL === 'undefined' || typeof ADMIN_EMAIL !== 'string') problems.push("ADMIN_EMAIL ต้องเป็นข้อความ (ใส่ '' ถ้าไม่ต้องการผู้ดูแล)");
+    }
+    if (!problems.length) return;
+    window.__CONFIG_PROBLEMS = problems;
+    var show = function () {
+        var d = document.createElement('div');
+        d.setAttribute('role', 'alert');
+        d.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#FFF8E6;color:#1B1B1B;font-family:Kanit,sans-serif;padding:32px;overflow:auto';
+        var h = document.createElement('h2'); h.textContent = 'ตั้งค่าไฟล์ config.js ให้ครบก่อนใช้งาน'; d.appendChild(h);
+        var ul = document.createElement('ul');
+        problems.forEach(function (p) { var li = document.createElement('li'); li.style.margin = '8px 0'; li.textContent = p; ul.appendChild(li); });
+        d.appendChild(ul);
+        document.body.appendChild(d);
+    };
+    if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+    </script>
     <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
     <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -229,6 +257,16 @@ button.btn-logout:hover { background: var(--surface); color: var(--danger) }
 .continue-bar i { display: block; height: 100%; background: var(--ink); border-radius: 99px }
 .continue-remove { position: absolute; top: 0; right: 0; width: 44px; height: 44px; border: none; background: transparent; color: var(--text-muted); border-radius: 50%; cursor: pointer; font-size: 0.95rem }
 .continue-remove:hover { color: var(--danger) }
+/* ===== V7.6 รายการโปรด ===== */
+.book-card .fav-btn { position: absolute; top: 8px; left: 8px; z-index: 6; width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--surface); color: var(--text-muted); box-shadow: var(--shadow-card); cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; transition: transform 0.15s }
+.book-card .fav-btn:hover { transform: scale(1.08) }
+.book-card .fav-btn.on { color: var(--danger) }
+.book-card .fav-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px }
+.continue-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px }
+.continue-head .continue-title { margin: 0 }
+.fav-more { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); border-radius: 99px; padding: 0 16px; min-height: 36px; font-family: 'Kanit', sans-serif; font-weight: 500; cursor: pointer }
+.continue-thumb.is-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)); color: var(--ink) }
+.continue-remove.is-fav { color: var(--danger) }
 @media (max-width: 639px) { header { padding-left: 14px; padding-right: 14px }
 .main-container { padding-left: 14px; padding-right: 14px }
 .library-toolbar { gap: 12px }
@@ -247,9 +285,10 @@ button.btn-logout:hover { background: var(--surface); color: var(--danger) }
 @media (max-width: 639px) { .category-card:first-child, .category-card:last-child:not(:first-child) { grid-column: auto; grid-row: auto; min-height: 152px } .category-card:first-child .cat-num { font-size: 3.75rem; letter-spacing: -2px } }
 </style>
     <script>
-const CLIENT_ID = '437842431692-l7cbh663ukspuem9s1f77d2i4nuifcel.apps.googleusercontent.com';
-const API_KEY = 'AIzaSyBcNDtP533PgpHb9iyRHWnCIQMU0k7VPKE';
-const ROOT_FOLDER_ID = '1puBAVnPh88MgKMEJJDXWsO58mzKV3p0x';
+// ค่า CLIENT_ID, API_KEY, ROOT_FOLDER_IDS, ADMIN_EMAIL อยู่ในไฟล์ config.js (แก้เฉพาะไฟล์นั้น)
+if (window.__CONFIG_PROBLEMS) throw new Error('config.js ไม่ถูกต้อง: ' + window.__CONFIG_PROBLEMS.join(' | '));
+const ROOT_FOLDER_ID = ROOT_FOLDER_IDS[0];   // ตัวแทน "หน้าหลัก" (ใช้เทียบใน breadcrumb/การนำทาง) อย่าลบ
+// ห้ามเปลี่ยน SCOPES โดยไม่จำเป็น (การเปลี่ยน scope มีผลต่อหน้าขอสิทธิ์ของผู้ใช้ทุกคน)
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 let tokenClient, currentFolderId = ROOT_FOLDER_ID, folderHistory = [], gapiInited = false, gisInited = false, domReady = false, appStarted = false, currentFolderItems = [];
 let driveLoadRequestId = 0, readerLoadId = 0;
@@ -272,7 +311,7 @@ const UNCATEGORIZED = { id: "uncategorized", name: "ยังไม่ได้�
 
 // ===== V7.3.1 Admin Control (ควบคุมฝั่งเบราว์เซอร์เท่านั้น ไม่ใช่ระบบความปลอดภัยจริง) =====
 // ใส่อีเมล Google ของผู้ดูแลเพียงหนึ่งบัญชี เช่น 'admin@gmail.com' (ปล่อยว่าง = ไม่มีผู้ดูแล ทุกคนเป็นสมาชิกทั่วไป)
-const ADMIN_EMAIL = 'ichijet@gmail.com';
+// ADMIN_EMAIL ตั้งค่าใน config.js
 let currentUserEmail = null, userEmailVerified = false, adminCheckId = 0;
 const normalizeEmail = (e) => String(e ?? '').trim().toLowerCase();
 const isAdmin = () => userEmailVerified === true && normalizeEmail(ADMIN_EMAIL) !== '' && normalizeEmail(currentUserEmail) === normalizeEmail(ADMIN_EMAIL);
@@ -389,7 +428,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.5 Continue Reading)");
+    console.group("📚 Category Engine Debug (V7.6.1 Config Split)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -403,11 +442,12 @@ const renderErrorState = (title, desc) => renderStateContent('⚠️', title, de
 const renderSkeletonGrid = () => {
     document.getElementById('content-area').innerHTML = Array(6).fill(0).map(() => `<div class="skeleton-book"><div class="sk-cover"></div><div class="sk-text"></div><div class="sk-text" style="width: 60%;"></div></div>`).join('');
 };
-const createCardElement = (className, coverHTML, badgeHTML, title, onClickHandler) => {
+const createCardElement = (className, coverHTML, badgeHTML, title, onClickHandler, fav = null) => {
     const card = document.createElement('div');
     card.className = className;
     card.innerHTML = `<div class="book-card-cover">${coverHTML}${badgeHTML}</div><div class="book-card-info"><div class="book-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div></div>`;
     card.onclick = onClickHandler;
+    if (fav) attachFavButton(card, fav);
     return card;
 };
 function gapiLoaded() { gapi.load('client', initializeGapiClient); }
@@ -504,7 +544,10 @@ async function loadDriveContent(folderId, folderName = 'หน้าหลัก
     updateHeroStats('<i class="fas fa-spinner fa-spin"></i> กำลังโหลด...');
     try {
         const mimeFilter = `(mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf' or mimeType = 'image/jpeg' or mimeType = 'image/png' or mimeType = 'image/webp' or mimeType = 'image/gif')`;
-        const qStr = `'${folderId}' in parents and trashed = false and ${mimeFilter}`;
+        const parentQ = folderId === ROOT_FOLDER_ID
+            ? '(' + ROOT_FOLDER_IDS.filter(id => /^[A-Za-z0-9_-]+$/.test(id)).map(id => `'${id}' in parents`).join(' or ') + ')'
+            : `'${folderId}' in parents`;
+        const qStr = `${parentQ} and trashed = false and ${mimeFilter}`;
         let allFiles = [], pageToken = null;
         do {
             if (requestId !== driveLoadRequestId) return;
@@ -550,6 +593,7 @@ const createFolderCard = (f, catId) => {
     card.innerHTML = '<div class="book-card-cover">' + generatePremiumFallback('folder', f.name) + FOLDER_BADGE + '</div><div class="book-card-info"><div class="book-title" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</div>' + (isAdmin() ? '<div class="folder-mapping-bar" onclick="event.stopPropagation();"><span>หมวด:</span><select onchange="onFolderCategoryChange(\'' + safeFolderId + '\', this.value)">' +
         [...getCategories(), { id: 'uncategorized', name: 'ยังไม่ได้จัดหมวด' }].map(c => '<option value="' + escapeHtml(c.id) + '" ' + (c.id === catId ? 'selected' : '') + '>' + escapeHtml(c.name) + '</option>').join('') + '</select></div>' : '') + '</div>';
     card.onclick = () => loadDriveContent(f.id, f.name);
+    attachFavButton(card, { id: f.id, name: f.name, kind: 'folder', mime: '' });
     getFolderCover(f.id, f.name).then(url => {
         const box = url && card.querySelector('.book-card-cover');
         if (box) box.innerHTML = generatePremiumFallback('folder', f.name) + '<img src="' + url + '" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'">' + FOLDER_BADGE;
@@ -595,7 +639,7 @@ function renderCategoryDashboard() {
     updateHeroStats(`หมวดหมู่ทั้งหมด ${categories.length + 1} หมวด · ${rootFolders.length} แฟ้ม`);
     const adminBar = isAdmin() ? '<div class="dashboard-action-bar"><button class="btn-manage-cats" onclick="openCategoryManagement()"><i class="fas fa-cog"></i> จัดการหมวดหมู่</button></div>' : '';
     const emptyHTML = rootFolders.length === 0 ? '<div class="state-container"><div class="state-icon">📚</div><div class="state-title">ยังไม่มีแฟ้มในห้องสมุด</div><div class="state-desc">เพิ่มแฟ้มหนังสือไว้ใน Google Drive แล้วรีเฟรชหน้านี้</div></div>' : '';
-    area.innerHTML = adminBar + (emptyHTML || (continueReadingHTML() + '<div class="category-dashboard-grid">' +
+    area.innerHTML = adminBar + (emptyHTML || (continueReadingHTML() + favoritesHTML() + '<div class="category-dashboard-grid">' +
         categories.map(c => catCardHTML(c, counts[c.id] || 0, 'ดู' + escapeHtml(c.name))).join('') +
         catCardHTML(UNCATEGORIZED, getUncategorizedFolderIds(folderIds).length, isAdmin() ? 'จัดหมวดหมู่' : 'ดูแฟ้ม', ' style="color: var(--text-muted);"') + '</div>'));
 }
@@ -854,7 +898,7 @@ async function renderMainGridUI(folders, seriesList, files, coverFiles, isSearch
         let imgHTML = generatePremiumFallback(fallbackType, titleStr);
         if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
         const badgeHTML = item.isSingleWithRange ? `<div class="badge-overlay badge-single">เล่ม ${item.volumeNumber}</div>` : (page > 1 ? `<div class="badge-overlay badge-bookmark"><i class="fas fa-bookmark"></i> หน้า ${page}</div>` : '');
-        const card = createCardElement('book-card', imgHTML, badgeHTML, titleStr, () => openReader(item.id, item.name, item.mimeType));
+        const card = createCardElement('book-card', imgHTML, badgeHTML, titleStr, () => openReader(item.id, item.name, item.mimeType), { id: item.id, name: item.name, kind: 'file', mime: item.mimeType });
         area.appendChild(card);
     }
 }
@@ -942,7 +986,7 @@ function renderSeriesDetailUI(series) {
         let imgHTML = generatePremiumFallback(fallbackType, titleStr);
         if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
         const badgeHTML = page > 1 ? `<div class="badge-overlay badge-bookmark"><i class="fas fa-bookmark"></i> หน้า ${page}</div>` : '';
-        const card = createCardElement('book-card', imgHTML, badgeHTML, titleStr, () => openReader(book.id, book.name, book.mimeType));
+        const card = createCardElement('book-card', imgHTML, badgeHTML, titleStr, () => openReader(book.id, book.name, book.mimeType), { id: book.id, name: book.name, kind: 'file', mime: book.mimeType });
         area.appendChild(card);
     });
 }
@@ -1005,6 +1049,64 @@ const continueReadingHTML = () => {
     return '<div class="continue-section"><h2 class="continue-title">อ่านต่อ</h2><div class="continue-list">' + list.map(r => {
         const pct = Math.max(0, Math.min(100, Math.round(r.page / r.total * 100)));
         return `<div class="continue-card" role="button" tabindex="0" onclick="resumeReading('${r.id}')" onkeydown="if(event.target===event.currentTarget&&(event.key==='Enter'||event.key===' ')){event.preventDefault();resumeReading('${r.id}')}"><div class="continue-thumb"><i class="fas fa-book-open"></i></div><div class="continue-info"><div class="continue-name">${escapeHtml(r.name)}</div><div class="continue-meta">หน้า ${r.page} / ${r.total}</div><div class="continue-bar"><i style="width: ${pct}%"></i></div></div><button class="continue-remove" aria-label="ลบออกจากรายการอ่านต่อ" onclick="removeRecentRead('${r.id}', event)"><i class="fas fa-times"></i></button></div>`;
+    }).join('') + '</div></div>';
+};
+// ===== V7.6 Favorites (key ใหม่ familyComic:favorites_v1 ไม่ชน lastPage:* และ recent_v1) =====
+const FAV_KEY = 'familyComic:favorites_v1', FAV_MAX = 100;
+let favShowAll = false;
+const getFavorites = () => {
+    try {
+        const a = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+        return (Array.isArray(a) ? a : []).filter(f => f && isDriveId(f.id) && (f.kind === 'file' || f.kind === 'folder')).slice(0, FAV_MAX)
+            .map(f => ({ id: f.id, name: String(f.name || 'ไม่มีชื่อ').slice(0, 200), kind: f.kind, mime: String(f.mime || ''), ts: Number(f.ts) || 0 }));
+    } catch (e) { return []; }
+};
+const saveFavorites = (list) => { try { localStorage.setItem(FAV_KEY, JSON.stringify(list.slice(0, FAV_MAX))); } catch (e) {} };
+const isFavorite = (id) => getFavorites().some(f => f.id === id);
+const toggleFavorite = (item) => {
+    if (!item || !isDriveId(item.id)) return false;
+    const list = getFavorites(), i = list.findIndex(f => f.id === item.id);
+    if (i >= 0) list.splice(i, 1);
+    else list.unshift({ id: item.id, name: String(item.name || 'ไม่มีชื่อ'), kind: item.kind === 'folder' ? 'folder' : 'file', mime: String(item.mime || ''), ts: Date.now() });
+    saveFavorites(list);
+    return i < 0;
+};
+const attachFavButton = (card, item) => {
+    if (!card || !item || !isDriveId(item.id)) return;
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'fav-btn';
+    const sync = () => {
+        const on = isFavorite(item.id);
+        btn.classList.toggle('on', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.setAttribute('aria-label', on ? 'เอาออกจากรายการโปรด' : 'เพิ่มในรายการโปรด');
+        btn.innerHTML = on ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
+    };
+    sync();
+    btn.addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item); sync(); });
+    card.appendChild(btn);
+};
+function removeFavorite(id, ev) {
+    if (ev) ev.stopPropagation();
+    saveFavorites(getFavorites().filter(f => f.id !== id));
+    if (activeCategoryFilter === 'dashboard') renderCategoryDashboard();
+}
+function toggleFavShowAll() { favShowAll = !favShowAll; if (activeCategoryFilter === 'dashboard') renderCategoryDashboard(); }
+function openFavorite(id) {
+    const f = getFavorites().find(x => x.id === id);
+    if (!f) return;
+    if (f.kind === 'folder') { loadDriveContent(f.id, f.name); return; }
+    readerFromHome = true;
+    openReader(f.id, f.name, f.mime || 'application/pdf');
+}
+const favoritesHTML = () => {
+    const all = getFavorites();
+    if (!all.length) return '';
+    const list = favShowAll ? all : all.slice(0, 6);
+    const more = all.length > 6 ? `<button class="fav-more" onclick="toggleFavShowAll()">${favShowAll ? 'ย่อรายการ' : 'ดูทั้งหมด (' + all.length + ')'}</button>` : '';
+    return '<div class="continue-section"><div class="continue-head"><h2 class="continue-title">รายการโปรด</h2>' + more + '</div><div class="continue-list">' + list.map(f => {
+        const isFolder = f.kind === 'folder';
+        return `<div class="continue-card" role="button" tabindex="0" onclick="openFavorite('${f.id}')" onkeydown="if(event.target===event.currentTarget&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openFavorite('${f.id}')}"><div class="continue-thumb${isFolder ? ' is-folder' : ''}"><i class="fas ${isFolder ? 'fa-folder' : 'fa-book'}"></i></div><div class="continue-info"><div class="continue-name">${escapeHtml(f.name)}</div><div class="continue-meta">${isFolder ? 'แฟ้ม' : 'หนังสือ'}</div></div><button class="continue-remove is-fav" aria-label="เอาออกจากรายการโปรด" onclick="removeFavorite('${f.id}', event)"><i class="fas fa-heart"></i></button></div>`;
     }).join('') + '</div></div>';
 };
 function openReader(fileId, fileName, mimeType) {
@@ -1114,7 +1216,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.5 Continue Reading</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.6.1 Config Split</p>
             </div>
         </div>
         <div class="controls">
