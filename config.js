@@ -17,6 +17,7 @@ const API_KEY = 'AIzaSyBcNDtP533PgpHb9iyRHWnCIQMU0k7VPKE';
 const ROOT_FOLDER_IDS = [
     '1puBAVnPh88MgKMEJJDXWsO58mzKV3p0x',
 	'1UX3kCdzwRZMS6dkTc6Gr6Cch0mlsninz',
+	'1ljSh0XEplhH5J60bAv3rldQQre3YkB-B',
 ];
 
 // อีเมล Google ของผู้ดูแลระบบ (ได้เพียงบัญชีเดียว) ปล่อยเป็น '' ถ้าไม่ต้องการผู้ดูแล
