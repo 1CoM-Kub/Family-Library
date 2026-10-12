@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.6.2 Reader Sharpness</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.6.3 Shared Categories</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -267,6 +267,15 @@ button.btn-logout:hover { background: var(--surface); color: var(--danger) }
 .fav-more { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); border-radius: 99px; padding: 0 16px; min-height: 36px; font-family: 'Kanit', sans-serif; font-weight: 500; cursor: pointer }
 .continue-thumb.is-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)); color: var(--ink) }
 .continue-remove.is-fav { color: var(--danger) }
+/* ===== V7.6.3 แจ้งสิทธิ์ + แผงแชร์หมวดหมู่ ===== */
+.access-notice { grid-column: 1 / -1; background: var(--warn-bg); border: 1.5px solid var(--warn-border); color: var(--ink); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px; font-size: 0.95rem }
+.sync-panel { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px }
+.sync-title { font-weight: 600; margin-bottom: 8px }
+.sync-status { border-radius: 10px; padding: 8px 12px; font-size: 0.92rem; margin-bottom: 10px }
+.sync-status.ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--ink) }
+.sync-status.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--ink) }
+.sync-actions { display: flex; flex-wrap: wrap; gap: 8px }
+.sync-help { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted) }
 @media (max-width: 639px) { header { padding-left: 14px; padding-right: 14px }
 .main-container { padding-left: 14px; padding-right: 14px }
 .library-toolbar { gap: 12px }
@@ -316,6 +325,9 @@ let currentUserEmail = null, userEmailVerified = false, adminCheckId = 0;
 const normalizeEmail = (e) => String(e ?? '').trim().toLowerCase();
 const isAdmin = () => userEmailVerified === true && normalizeEmail(ADMIN_EMAIL) !== '' && normalizeEmail(currentUserEmail) === normalizeEmail(ADMIN_EMAIL);
 const resetAdminState = () => { adminCheckId++; currentUserEmail = null; userEmailVerified = false; };
+// V7.6.3: ค่าหมวดหมู่ที่อ่านจากไฟล์ family-library-categories.json ใน Drive (สมาชิกใช้ค่านี้ ส่วน admin ใช้ค่าในเครื่องตัวเอง)
+let driveConfig = null, rootAccessReport = null, rootMetaLoaded = false;
+const useDriveConfig = () => driveConfig !== null && !isAdmin();
 const requireAdmin = () => { if (isAdmin()) return true; showToast('ฟังก์ชันนี้สำหรับผู้ดูแลระบบเท่านั้น'); return false; };
 async function verifyAdminAccess() {
     const checkId = ++adminCheckId;
@@ -350,6 +362,7 @@ const isValidCategoryRecord = (item) =>
     typeof item.order === 'number' && Number.isFinite(item.order) &&
     typeof item.visible === 'boolean';
 const getCategories = () => {
+    if (useDriveConfig()) return [...driveConfig.categories];
     try {
         const d = localStorage.getItem(CAT_STORAGE_KEY);
         if (!d) return [...DEFAULT_CATEGORIES];
@@ -367,6 +380,7 @@ const saveCategories = (cats) => {
     localStorage.setItem(CAT_STORAGE_KEY, JSON.stringify(safeCategories.length ? safeCategories : DEFAULT_CATEGORIES));
 };
 const getFolderCategoryMap = () => {
+    if (useDriveConfig()) return { ...driveConfig.folderMap };
     try {
         const d = localStorage.getItem(MAP_STORAGE_KEY);
         const parsed = d ? JSON.parse(d) : {};
@@ -428,7 +442,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.6.2 Reader Sharpness)");
+    console.group("📚 Category Engine Debug (V7.6.3 Shared Categories)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -494,6 +508,7 @@ function checkExistingToken() {
 function handleAuthClick() { tokenClient.requestAccessToken({ prompt: 'select_account' }); }
 function handleSignoutClick() {
     driveLoadRequestId++; readerLoadId++; resetAdminState();
+    driveConfig = null; rootAccessReport = null; rootMetaLoaded = false;
     const tokenObj = gapi.client.getToken();
     if (tokenObj?.access_token) google.accounts.oauth2.revoke(tokenObj.access_token);
     gapi.client.setToken('');
@@ -526,6 +541,105 @@ function waitForDriveAPI(timeout = 10000) {
     });
 }
 const updateHeroStats = (msg) => { const s = document.getElementById('hero-stats'); if(s) s.innerHTML = msg; };
+// ===== V7.6.3 ตรวจสิทธิ์โฟลเดอร์ราก + หมวดหมู่ร่วมกันผ่านไฟล์ JSON ใน Drive (ใช้ scope เดิม drive.readonly) =====
+const SHARED_CONFIG_NAME = 'family-library-categories.json';
+const SHARED_CACHE_KEY = 'familyLibrary_sharedConfig_v1';
+const SHARED_MAX_BYTES = 512 * 1024;
+const validRootIds = () => ROOT_FOLDER_IDS.filter(id => /^[A-Za-z0-9_-]+$/.test(id));
+const sanitizeSharedConfig = (raw) => {
+    if (!raw || typeof raw !== 'object' || raw.app !== 'family-comic-library' || raw.version !== 1) return null;
+    if (!Array.isArray(raw.categories) || raw.categories.length === 0 || raw.categories.length > 50) return null;
+    const seen = new Set(), cats = [];
+    for (const c of raw.categories) {
+        if (!c || typeof c !== 'object') continue;
+        const id = typeof c.id === 'string' ? c.id.trim() : '';
+        const name = typeof c.name === 'string' ? c.name.trim().slice(0, 40) : '';
+        if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || id === 'uncategorized' || seen.has(id) || !name) continue;
+        if (typeof c.icon !== 'string' || !/^fa-[a-z0-9-]{1,40}$/.test(c.icon)) continue;
+        if (typeof c.color !== 'string' || !/^#[0-9A-Fa-f]{3,8}$/.test(c.color)) continue;
+        if (typeof c.order !== 'number' || !Number.isFinite(c.order) || typeof c.visible !== 'boolean') continue;
+        seen.add(id); cats.push({ id, name, icon: c.icon, color: c.color, order: c.order, visible: c.visible });
+    }
+    if (!cats.length) return null;
+    const map = {};
+    if (raw.folderMap && typeof raw.folderMap === 'object' && !Array.isArray(raw.folderMap)) {
+        const entries = Object.entries(raw.folderMap);
+        if (entries.length > 5000) return null;
+        entries.forEach(([fid, cid]) => { if (isDriveId(fid) && typeof cid === 'string' && seen.has(cid)) map[fid] = cid; });
+    }
+    return { categories: cats, folderMap: map };
+};
+const readSharedCache = () => { try { const c = JSON.parse(localStorage.getItem(SHARED_CACHE_KEY) || 'null'); return c && typeof c.id === 'string' && typeof c.modifiedTime === 'string' ? c : null; } catch (e) { return null; } };
+const writeSharedCache = (id, modifiedTime, data) => { try { localStorage.setItem(SHARED_CACHE_KEY, JSON.stringify({ id, modifiedTime, data })); } catch (e) {} };
+async function loadSharedConfig(force = false) {
+    driveConfig = null;
+    try {
+        const ids = validRootIds();
+        if (!ids.length) return;
+        const res = await gapi.client.drive.files.list({ q: `name = '${SHARED_CONFIG_NAME}' and trashed = false and (${ids.map(id => `'${id}' in parents`).join(' or ')})`, fields: 'files(id, name, modifiedTime, size)', pageSize: 5, orderBy: 'modifiedTime desc' });
+        const f = (res.result.files || [])[0];
+        if (!f || !isDriveId(f.id) || Number(f.size) > SHARED_MAX_BYTES) return;
+        const cached = readSharedCache();
+        if (!force && cached && cached.id === f.id && cached.modifiedTime === f.modifiedTime && cached.data) {
+            const d = sanitizeSharedConfig({ app: 'family-comic-library', version: 1, categories: cached.data.categories, folderMap: cached.data.folderMap });
+            if (d) { driveConfig = d; return; }
+        }
+        const tok = gapi.client.getToken();
+        if (!tok?.access_token) return;
+        const r = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, { headers: { Authorization: `Bearer ${tok.access_token}` } });
+        if (!r.ok) return;
+        const text = await r.text();
+        if (text.length > SHARED_MAX_BYTES) return;
+        const data = sanitizeSharedConfig(JSON.parse(text));
+        if (!data) return;
+        driveConfig = data;
+        writeSharedCache(f.id, f.modifiedTime, data);
+    } catch (e) { driveConfig = null; }
+}
+async function checkRootAccess() {
+    const report = { ok: [], denied: [], unknown: [], email: null };
+    await Promise.all(validRootIds().map(async (id) => {
+        try { await gapi.client.drive.files.get({ fileId: id, fields: 'id' }); report.ok.push(id); }
+        catch (e) { const st = Number(e?.status ?? e?.result?.error?.code); (st === 403 || st === 404 ? report.denied : report.unknown).push(id); }
+    }));
+    if (report.denied.length) {
+        try { const r = await gapi.client.drive.about.get({ fields: 'user(emailAddress)' }); report.email = r?.result?.user?.emailAddress || null; } catch (e) {}
+    }
+    rootAccessReport = report;
+}
+const canonicalConfig = (cats, map) => JSON.stringify([
+    [...cats].sort((a, b) => (a.id < b.id ? -1 : 1)).map(c => [c.id, c.name, c.icon, c.color, c.order, c.visible]),
+    Object.keys(map).sort().map(k => [k, map[k]])
+]);
+function exportSharedConfig() {
+    if (!requireAdmin()) return;
+    const payload = { app: 'family-comic-library', version: 1, exportedAt: new Date().toISOString(), categories: sortCategories(getCategories()), folderMap: getFolderCategoryMap() };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = SHARED_CONFIG_NAME; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+async function recheckSharedConfig() {
+    if (!requireAdmin()) return;
+    await loadSharedConfig(true);
+    renderCategoryManagementUI();
+}
+async function importSharedConfigToLocal() {
+    if (!requireAdmin()) return;
+    await loadSharedConfig(true);
+    if (!driveConfig) { alert('ไม่พบไฟล์ ' + SHARED_CONFIG_NAME + ' ในโฟลเดอร์รากบน Drive หรือไฟล์ไม่ถูกต้อง'); renderCategoryManagementUI(); return; }
+    if (!confirm('การนำเข้าจะเขียนทับหมวดหมู่และการจัดแฟ้มที่ตั้งไว้ในเครื่องนี้ ต้องการดำเนินการต่อหรือไม่?')) return;
+    saveCategories(driveConfig.categories);
+    saveFolderCategoryMap(driveConfig.folderMap);
+    renderCategoryManagementUI();
+}
+const sharedStatusHTML = () => {
+    let cls = 'warn', text;
+    if (!driveConfig) text = `ยังไม่พบไฟล์ ${SHARED_CONFIG_NAME} ในโฟลเดอร์รากบน Drive สมาชิกจึงเห็นหมวดเริ่มต้น และแฟ้มทั้งหมดอยู่ใน "ยังไม่ได้จัดหมวด"`;
+    else if (canonicalConfig(driveConfig.categories, driveConfig.folderMap) === canonicalConfig(getCategories(), getFolderCategoryMap())) { cls = 'ok'; text = 'ไฟล์ใน Drive ตรงกับที่ตั้งไว้ในเครื่องนี้ สมาชิกเห็นหมวดหมู่ตรงกับคุณแล้ว'; }
+    else text = 'ไฟล์ใน Drive ไม่ตรงกับที่ตั้งไว้ในเครื่องนี้ กด "ส่งออก" แล้วอัปโหลดทับไฟล์เดิมใน Drive (ชื่อไฟล์ต้องเหมือนเดิม)';
+    return `<div class="sync-panel"><div class="sync-title">แชร์หมวดหมู่ให้สมาชิก</div><div class="sync-status ${cls}">${escapeHtml(text)}</div><div class="sync-actions"><button class="btn-action" onclick="exportSharedConfig()"><i class="fas fa-download"></i> ส่งออกไฟล์หมวดหมู่</button><button class="btn-action" onclick="recheckSharedConfig()"><i class="fas fa-sync"></i> ตรวจไฟล์ใน Drive อีกครั้ง</button><button class="btn-action" onclick="importSharedConfigToLocal()"><i class="fas fa-cloud-download-alt"></i> นำเข้าจากไฟล์ใน Drive</button></div><div class="sync-help">วิธีใช้: ส่งออกไฟล์ แล้วอัปโหลดไว้ในโฟลเดอร์รากบน Google Drive (ชื่อต้องเป็น ${SHARED_CONFIG_NAME}) ถ้ามีไฟล์เดิมให้ทับ จากนั้นให้สมาชิกรีเฟรชหน้าเว็บ</div></div>`;
+};
 async function loadDriveContent(folderId, folderName = 'หน้าหลัก') {
     const requestId = ++driveLoadRequestId;
     currentViewMode = 'grid'; activeSeriesData = null; currentFolderId = folderId;
@@ -543,6 +657,11 @@ async function loadDriveContent(folderId, folderName = 'หน้าหลัก
     document.getElementById('searchInput').value = '';
     updateHeroStats('<i class="fas fa-spinner fa-spin"></i> กำลังโหลด...');
     try {
+        if (folderId === ROOT_FOLDER_ID && !rootMetaLoaded) {
+            await Promise.all([loadSharedConfig(), checkRootAccess()]);
+            rootMetaLoaded = true;
+            if (requestId !== driveLoadRequestId) return;
+        }
         const mimeFilter = `(mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf' or mimeType = 'image/jpeg' or mimeType = 'image/png' or mimeType = 'image/webp' or mimeType = 'image/gif')`;
         const parentQ = folderId === ROOT_FOLDER_ID
             ? '(' + ROOT_FOLDER_IDS.filter(id => /^[A-Za-z0-9_-]+$/.test(id)).map(id => `'${id}' in parents`).join(' or ') + ')'
@@ -638,8 +757,15 @@ function renderCategoryDashboard() {
     folderIds.forEach(id => { const c = folderMap[id]; if (c && counts[c] !== undefined) counts[c]++; });
     updateHeroStats(`หมวดหมู่ทั้งหมด ${categories.length + 1} หมวด · ${rootFolders.length} แฟ้ม`);
     const adminBar = isAdmin() ? '<div class="dashboard-action-bar"><button class="btn-manage-cats" onclick="openCategoryManagement()"><i class="fas fa-cog"></i> จัดการหมวดหมู่</button></div>' : '';
-    const emptyHTML = rootFolders.length === 0 ? '<div class="state-container"><div class="state-icon">📚</div><div class="state-title">ยังไม่มีแฟ้มในห้องสมุด</div><div class="state-desc">เพิ่มแฟ้มหนังสือไว้ใน Google Drive แล้วรีเฟรชหน้านี้</div></div>' : '';
-    area.innerHTML = adminBar + (emptyHTML || (continueReadingHTML() + favoritesHTML() + '<div class="category-dashboard-grid">' +
+    const denied = rootAccessReport?.denied || [], okCount = rootAccessReport?.ok?.length || 0;
+    const noAccess = denied.length > 0 && okCount === 0;
+    const emptyHTML = rootFolders.length === 0
+        ? (noAccess
+            ? `<div class="state-container"><div class="state-icon">🔒</div><div class="state-title">บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าถึงห้องสมุด</div><div class="state-desc">${rootAccessReport.email ? 'บัญชี ' + escapeHtml(rootAccessReport.email) + ' ' : 'บัญชีนี้ '}ยังไม่ได้รับการแชร์โฟลเดอร์ใน Google Drive โปรดแจ้งผู้ดูแลให้แชร์ให้ในสิทธิ์ "ผู้ดู" แล้วรีเฟรชหน้านี้ (ถ้าเลือกบัญชีผิด ให้ออกจากระบบแล้วเข้าใหม่ด้วยบัญชีที่ถูกต้อง)</div></div>`
+            : '<div class="state-container"><div class="state-icon">📚</div><div class="state-title">ยังไม่มีแฟ้มในห้องสมุด</div><div class="state-desc">เพิ่มแฟ้มหนังสือไว้ใน Google Drive แล้วรีเฟรชหน้านี้</div></div>')
+        : '';
+    const partialHTML = (denied.length > 0 && okCount > 0) ? `<div class="access-notice">บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าถึง ${denied.length} จาก ${denied.length + okCount} โฟลเดอร์ของห้องสมุด บางเรื่องอาจไม่แสดง โปรดแจ้งผู้ดูแลให้แชร์ให้ในสิทธิ์ "ผู้ดู"</div>` : '';
+    area.innerHTML = adminBar + partialHTML + (emptyHTML || (continueReadingHTML() + favoritesHTML() + '<div class="category-dashboard-grid">' +
         categories.map(c => catCardHTML(c, counts[c.id] || 0, 'ดู' + escapeHtml(c.name))).join('') +
         catCardHTML(UNCATEGORIZED, getUncategorizedFolderIds(folderIds).length, isAdmin() ? 'จัดหมวดหมู่' : 'ดูแฟ้ม', ' style="color: var(--text-muted);"') + '</div>'));
 }
@@ -663,7 +789,7 @@ function renderCategoryManagementUI() {
     const system = catRow(catRowLeft('<div style="width: 64px;"></div>', UNCATEGORIZED, '<span class="cat-item-badge">System Category</span>'),
         '<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; padding: 6px 14px; background: var(--surface-sunken); border-radius: 8px;">ระบบ</span>',
         ' style="border-style: dashed; background: var(--surface-hover);"');
-    area.innerHTML = `<div class="cat-manage-container"><div class="cat-manage-header"><h2>📚 จัดการหมวดหมู่</h2><button class="btn-add-cat" onclick="openCategoryModal('create')"><i class="fas fa-plus"></i> เพิ่มหมวดหมู่</button></div><div class="cat-list-table">${rows}${system}</div></div>`;
+    area.innerHTML = `<div class="cat-manage-container"><div class="cat-manage-header"><h2>📚 จัดการหมวดหมู่</h2><button class="btn-add-cat" onclick="openCategoryModal('create')"><i class="fas fa-plus"></i> เพิ่มหมวดหมู่</button></div>${sharedStatusHTML()}<div class="cat-list-table">${rows}${system}</div></div>`;
 }
 let currentModalMode = 'create';
 let editingCatId = null;
@@ -1221,7 +1347,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.6.2 Reader Sharpness</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.6.3 Shared Categories</p>
             </div>
         </div>
         <div class="controls">
