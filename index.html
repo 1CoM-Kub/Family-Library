@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.6.1 Config Split</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.6.2 Reader Sharpness</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -428,7 +428,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.6.1 Config Split)");
+    console.group("📚 Category Engine Debug (V7.6.2 Reader Sharpness)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1152,6 +1152,7 @@ async function loadPDF() {
     } catch (e) { if (loadId === readerLoadId) loadingUI.innerHTML = '❌ เกิดข้อผิดพลาด'; }
 }
 const resetReaderViewport = () => { const c = document.querySelector('.reader-content'); if(c) c.scrollTop = c.scrollLeft = 0; };
+const MAX_OUTPUT_SCALE = 3, MAX_CANVAS_PIXELS = 16000000;
 function renderPage(num, loadId = readerLoadId) {
     if (loadId !== readerLoadId) return;
     pageRendering = true;
@@ -1160,13 +1161,17 @@ function renderPage(num, loadId = readerLoadId) {
         const c = document.querySelector('.reader-content');
         if (!c) { pageRendering = false; return; }
         const base = page.getViewport({ scale: 1 });
-        const fitScale = Math.max(0.5, Math.min((c.clientWidth - 8) / base.width, 3));
+        // V7.6.2: ขนาดที่แสดง (CSS) พอดีความกว้างจอเสมอ ไม่ใช้ขีดล่าง 0.5 เดิม (ทำให้ภาพบนมือถือถูกบีบแคบเมื่อหน้ากว้างมาก)
+        const fitScale = Math.min(Math.max(1, c.clientWidth - 8) / base.width, 3);
         const vp = page.getViewport({ scale: fitScale });
-        canvas.width = Math.floor(vp.width);
-        canvas.height = Math.floor(vp.height);
-        canvas.style.width = `${Math.floor(vp.width)}px`;
-        canvas.style.height = `${Math.floor(vp.height)}px`;
-        page.render({ canvasContext: ctx, viewport: vp }).promise.then(() => {
+        const cssW = Math.max(1, Math.floor(vp.width)), cssH = Math.max(1, Math.floor(vp.height));
+        // วาดตามความหนาแน่นพิกเซลของจอ (devicePixelRatio) แต่จำกัดเพดานกันแรมเต็มบนมือถือ
+        const outputScale = Math.max(1, Math.min(window.devicePixelRatio || 1, MAX_OUTPUT_SCALE, Math.sqrt(MAX_CANVAS_PIXELS / (cssW * cssH))));
+        canvas.width = Math.floor(cssW * outputScale);
+        canvas.height = Math.floor(cssH * outputScale);
+        canvas.style.width = `${cssW}px`;
+        canvas.style.height = `${cssH}px`;
+        page.render({ canvasContext: ctx, viewport: vp, transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null }).promise.then(() => {
             pageRendering = false;
             if (pageNumPending !== null) { const p = pageNumPending; pageNumPending = null; renderPage(p, loadId); }
             else resetReaderViewport();
@@ -1216,7 +1221,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.6.1 Config Split</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.6.2 Reader Sharpness</p>
             </div>
         </div>
         <div class="controls">
