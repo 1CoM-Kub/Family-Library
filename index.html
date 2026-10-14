@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.6.3 Shared Categories</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.7 Global Search</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -276,6 +276,23 @@ button.btn-logout:hover { background: var(--surface); color: var(--danger) }
 .sync-status.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--ink) }
 .sync-actions { display: flex; flex-wrap: wrap; gap: 8px }
 .sync-help { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted) }
+/* ===== V7.7 Global Search ===== */
+.scope-toggle { display: flex; background: var(--surface); border: 1.5px solid var(--ink); border-radius: 99px; padding: 4px; gap: 2px }
+.scope-toggle button { font-family: 'Kanit', sans-serif; font-size: 0.9rem; font-weight: 500; border: none; background: transparent; color: var(--ink); border-radius: 99px; padding: 8px 14px; min-height: 36px; cursor: pointer }
+.scope-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--on-dark) }
+.search-results { grid-column: 1 / -1 }
+.search-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted) }
+.search-list { display: grid; gap: 8px }
+.search-row { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 10px 14px; cursor: pointer; min-height: 56px }
+.search-row:hover { border-color: var(--ink) }
+.search-row:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px }
+.search-ico { flex: 0 0 36px; height: 44px; border-radius: 6px 10px 10px 6px; background: linear-gradient(135deg, var(--cover-pdf-a), var(--cover-pdf-b)); color: var(--on-dark); display: flex; align-items: center; justify-content: center }
+.search-ico.is-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)); color: var(--ink) }
+.search-info { min-width: 0; flex: 1 }
+.search-name { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.search-name mark { background: var(--yellow); color: var(--ink); border-radius: 3px; padding: 0 2px }
+.search-path { font-size: 0.82rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.search-tag { flex: 0 0 auto; font-size: 0.78rem; color: var(--text-muted); border: 1px solid var(--border); border-radius: 99px; padding: 2px 10px }
 @media (max-width: 639px) { header { padding-left: 14px; padding-right: 14px }
 .main-container { padding-left: 14px; padding-right: 14px }
 .library-toolbar { gap: 12px }
@@ -327,6 +344,8 @@ const isAdmin = () => userEmailVerified === true && normalizeEmail(ADMIN_EMAIL) 
 const resetAdminState = () => { adminCheckId++; currentUserEmail = null; userEmailVerified = false; };
 // V7.6.3: ค่าหมวดหมู่ที่อ่านจากไฟล์ family-library-categories.json ใน Drive (สมาชิกใช้ค่านี้ ส่วน admin ใช้ค่าในเครื่องตัวเอง)
 let driveConfig = null, rootAccessReport = null, rootMetaLoaded = false;
+// V7.7 Global Search state
+let searchIdx = null, searchOwner = null, searchBuildId = 0, searchRunId = 0, searchBuildPromise = null, searchProgress = null, searchScopeOverride = null, readerFromSearch = false;
 const useDriveConfig = () => driveConfig !== null && !isAdmin();
 const requireAdmin = () => { if (isAdmin()) return true; showToast('ฟังก์ชันนี้สำหรับผู้ดูแลระบบเท่านั้น'); return false; };
 async function verifyAdminAccess() {
@@ -442,7 +461,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.6.3 Shared Categories)");
+    console.group("📚 Category Engine Debug (V7.7 Global Search)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -509,6 +528,7 @@ function handleAuthClick() { tokenClient.requestAccessToken({ prompt: 'select_ac
 function handleSignoutClick() {
     driveLoadRequestId++; readerLoadId++; resetAdminState();
     driveConfig = null; rootAccessReport = null; rootMetaLoaded = false;
+    searchBuildId++; searchRunId++; searchIdx = null; searchOwner = null; searchBuildPromise = null; searchProgress = null; searchScopeOverride = null;
     const tokenObj = gapi.client.getToken();
     if (tokenObj?.access_token) google.accounts.oauth2.revoke(tokenObj.access_token);
     gapi.client.setToken('');
@@ -748,6 +768,7 @@ function selectCategoryFilter(catId) {
     renderCategoryFolderView(catId);
 }
 function renderCategoryDashboard() {
+    syncScopeChips();
     const area = document.getElementById('content-area');
     if (!area) return;
     document.getElementById('searchInput').value = '';
@@ -948,7 +969,203 @@ const findSeriesCover = (seriesName, coverFiles) => {
     const cover = coverFiles.find(c => normalizeSeriesKey(c.name.substring(0, c.name.lastIndexOf('.'))) === target);
     return cover?.thumbnailLink ? cover.thumbnailLink.split('=')[0] + '=s800' : null;
 };
+// ===== V7.7 Global Search: ดัชนีชื่อฝั่งเบราว์เซอร์ (ไล่อ่านโฟลเดอร์จาก ROOT_FOLDER_IDS ด้วย files.list เดิม ไม่แก้ OAuth/SCOPES) =====
+const SEARCH_DB = 'familyComic_searchIndex_v1', SEARCH_TTL_MS = 24 * 3600 * 1000;
+const SEARCH_MAX_ENTRIES = 50000, SEARCH_MAX_FOLDERS = 5000, SEARCH_MAX_DEPTH = 12, SEARCH_CONCURRENCY = 4, SEARCH_PAGE = 100;
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const escapeRegExp = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const normQ = (t) => String(t ?? '').normalize('NFC').toLowerCase().trim();
+const agoText = (ms) => { const m = Math.floor(ms / 60000); if (m < 1) return 'เมื่อสักครู่'; if (m < 60) return m + ' นาทีที่แล้ว'; const h = Math.floor(m / 60); return h < 24 ? h + ' ชั่วโมงที่แล้ว' : Math.floor(h / 24) + ' วันที่แล้ว'; };
+const idbOpen = () => new Promise((res, rej) => { const r = indexedDB.open(SEARCH_DB, 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const idbGet = async (k) => { const db = await idbOpen(); return new Promise((res, rej) => { const t = db.transaction('kv').objectStore('kv').get(k); t.onsuccess = () => res(t.result); t.onerror = () => rej(t.error); }); };
+const idbSet = async (k, v) => { const db = await idbOpen(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); };
+const rootsSig = () => validRootIds().slice().sort().join(',');
+const onDashboardView = () => currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter === 'dashboard';
+const isGlobalSearch = () => onDashboardView() || searchScopeOverride === 'global';
+function syncScopeChips() {
+    const box = document.getElementById('scope-toggle');
+    if (!box) return;
+    box.style.display = onDashboardView() ? 'none' : 'flex';
+    const g = isGlobalSearch();
+    document.getElementById('scope-global')?.setAttribute('aria-pressed', g ? 'true' : 'false');
+    document.getElementById('scope-local')?.setAttribute('aria-pressed', g ? 'false' : 'true');
+}
+function setSearchScope(mode) {
+    searchScopeOverride = mode === 'global' ? 'global' : 'local';
+    syncScopeChips();
+    if (document.getElementById('searchInput').value.trim()) onSearchInput(true);
+    else if (!onDashboardView()) applySearchAndSort();
+}
+const buildIndexView = (rows) => {
+    const entries = [], byId = new Map();
+    rows.forEach(r => { if (!Array.isArray(r) || !isDriveId(r[0]) || typeof r[1] !== 'string' || !isDriveId(r[3])) return; const e = { id: r[0], name: r[1].slice(0, 300), n: normQ(r[1]), k: r[2] === 0 ? 'folder' : 'pdf', p: r[3], mt: String(r[4] || '') }; entries.push(e); byId.set(e.id, e); });
+    return { entries, byId };
+};
+async function getSearchOwner() {
+    if (searchOwner) return searchOwner;
+    try { const r = await gapi.client.drive.about.get({ fields: 'user(permissionId)' }); searchOwner = r?.result?.user?.permissionId || null; } catch (e) { searchOwner = null; }
+    return searchOwner;
+}
+async function loadStoredIndex() {
+    try {
+        const owner = await getSearchOwner();
+        if (!owner) return null;
+        const rec = await idbGet('main');
+        if (!rec || rec.v !== 1 || rec.owner !== owner || rec.roots !== rootsSig() || !Array.isArray(rec.rows) || !Number.isFinite(rec.builtAt)) return null;
+        const view = buildIndexView(rec.rows);
+        return { ...view, builtAt: rec.builtAt, truncated: !!rec.truncated };
+    } catch (e) { return null; }
+}
+async function listFolderPage(folderId, pageToken) {
+    const q = `'${folderId}' in parents and trashed = false and (mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf')`;
+    for (let attempt = 0; ; attempt++) {
+        try {
+            const res = await gapi.client.drive.files.list({ q, fields: 'nextPageToken, files(id, name, mimeType, modifiedTime)', pageSize: 1000, pageToken });
+            return res.result;
+        } catch (e) {
+            const st = Number(e?.status ?? e?.result?.error?.code);
+            const reason = String(e?.result?.error?.errors?.[0]?.reason || '');
+            const retriable = !st || st === 429 || st >= 500 || (st === 403 && /rate|quota/i.test(reason));
+            if (!retriable || attempt >= 3) return st === 401 ? Promise.reject(e) : { files: [], skipped: true };
+            await sleep(400 * Math.pow(2, attempt) + Math.random() * 200);
+        }
+    }
+}
+function buildSearchIndex() {
+    if (searchBuildPromise) return searchBuildPromise;
+    const myBuild = ++searchBuildId;
+    const rows = [], seen = new Set(validRootIds()), queue = validRootIds().map(id => ({ id, depth: 0 }));
+    let active = 0, foldersDone = 0, truncated = false, skipped = 0;
+    searchProgress = { folders: 0, items: 0 };
+    const worker = async () => {
+        for (;;) {
+            if (myBuild !== searchBuildId) return;
+            const job = queue.shift();
+            if (!job) { if (active === 0) return; await sleep(25); continue; }
+            active++;
+            try {
+                let token = null;
+                do {
+                    const res = await listFolderPage(job.id, token);
+                    if (myBuild !== searchBuildId) return;
+                    if (res.skipped) skipped++;
+                    for (const f of (res.files || [])) {
+                        if (!isDriveId(f.id) || rows.length >= SEARCH_MAX_ENTRIES) { if (rows.length >= SEARCH_MAX_ENTRIES) truncated = true; continue; }
+                        const isFolder = f.mimeType === 'application/vnd.google-apps.folder';
+                        rows.push([f.id, f.name || 'ไม่มีชื่อ', isFolder ? 0 : 1, job.id, f.modifiedTime || '']);
+                        if (isFolder && !seen.has(f.id)) {
+                            if (job.depth + 1 > SEARCH_MAX_DEPTH || seen.size >= SEARCH_MAX_FOLDERS) truncated = true;
+                            else { seen.add(f.id); queue.push({ id: f.id, depth: job.depth + 1 }); }
+                        }
+                    }
+                    token = res.nextPageToken || null;
+                } while (token);
+                foldersDone++;
+                searchProgress = { folders: foldersDone, items: rows.length };
+                if (searchRunId && document.getElementById('search-progress')) renderSearchProgress();
+            } finally { active--; }
+        }
+    };
+    searchBuildPromise = (async () => {
+        try {
+            await Promise.all(Array.from({ length: SEARCH_CONCURRENCY }, worker));
+            if (myBuild !== searchBuildId) return searchIdx;
+            const view = buildIndexView(rows);
+            searchIdx = { ...view, builtAt: Date.now(), truncated, skipped };
+            const owner = await getSearchOwner();
+            if (owner) { try { await idbSet('main', { v: 1, owner, roots: rootsSig(), builtAt: searchIdx.builtAt, truncated, rows }); } catch (e) {} }
+            return searchIdx;
+        } finally { if (myBuild === searchBuildId) { searchBuildPromise = null; searchProgress = null; } }
+    })();
+    return searchBuildPromise;
+}
+async function ensureSearchIndex() {
+    if (searchIdx && Date.now() - searchIdx.builtAt < SEARCH_TTL_MS) return searchIdx;
+    if (!searchIdx) searchIdx = await loadStoredIndex();
+    if (searchIdx && Date.now() - searchIdx.builtAt < SEARCH_TTL_MS) return searchIdx;
+    if (searchIdx) { buildSearchIndex().catch(() => {}); return searchIdx; }   // ดัชนีเก่า: ใช้ไปก่อน แล้วอัปเดตเบื้องหลัง
+    return buildSearchIndex();
+}
+function rebuildSearchIndex() {
+    searchBuildPromise = null;
+    searchBuildId++;
+    const p = buildSearchIndex();
+    if (document.getElementById('searchInput').value.trim()) onSearchInput(true);
+    return p;
+}
+function searchIndexQuery(query) {
+    const terms = normQ(query).split(/\s+/).filter(Boolean).slice(0, 6);
+    if (!terms.length || !searchIdx) return { terms, hits: [] };
+    const hits = [];
+    for (const e of searchIdx.entries) {
+        let score = 0, ok = true;
+        for (const t of terms) { const p = e.n.indexOf(t); if (p < 0) { ok = false; break; } score += p === 0 ? 0 : (/[\s\-_.()\[\]]/.test(e.n[p - 1]) ? 1 : 2); }
+        if (ok) hits.push([score, e]);
+    }
+    hits.sort((a, b) => a[0] - b[0] || (a[1].k === b[1].k ? 0 : (a[1].k === 'folder' ? -1 : 1)) || a[1].name.localeCompare(b[1].name, 'th', { numeric: true }));
+    return { terms, hits: hits.map(h => h[1]) };
+}
+const searchPathOf = (e) => { const names = []; let cur = searchIdx.byId.get(e.p), g = 0; while (cur && g++ < 20) { names.unshift(cur.name); cur = searchIdx.byId.get(cur.p); } return names.join(' › '); };
+const highlightName = (name, terms) => {
+    if (!terms.length) return escapeHtml(name);
+    const re = new RegExp(terms.map(escapeRegExp).join('|'), 'gi');
+    let out = '', last = 0, m;
+    while ((m = re.exec(name)) !== null) { if (m[0] === '') { re.lastIndex++; continue; } out += escapeHtml(name.slice(last, m.index)) + '<mark>' + escapeHtml(m[0]) + '</mark>'; last = m.index + m[0].length; }
+    return out + escapeHtml(name.slice(last));
+};
+function renderSearchProgress() {
+    const area = document.getElementById('content-area');
+    if (!area) return;
+    const p = searchProgress || { folders: 0, items: 0 };
+    area.innerHTML = `<div class="state-container" id="search-progress"><div class="state-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="state-title">กำลังสร้างดัชนีห้องสมุดเพื่อค้นหา</div><div class="state-desc">อ่านแล้ว ${p.folders} โฟลเดอร์ พบ ${p.items} รายการ (ทำครั้งแรกครั้งเดียว แล้วจะจำไว้ในเครื่องนี้)</div></div>`;
+}
+let searchShown = SEARCH_PAGE, searchLastQuery = '';
+function renderGlobalResults(query, more = false) {
+    const area = document.getElementById('content-area');
+    if (!area || !searchIdx) return;
+    if (!more) searchShown = SEARCH_PAGE;
+    searchLastQuery = query;
+    const { terms, hits } = searchIndexQuery(query);
+    const shown = hits.slice(0, searchShown);
+    const meta = `พบ ${hits.length} รายการ · ดัชนีอัปเดต ${agoText(Date.now() - searchIdx.builtAt)}${searchProgress ? ' (กำลังอัปเดตเบื้องหลัง)' : ''}${searchIdx.truncated ? ' · ห้องสมุดใหญ่เกินเพดาน อาจแสดงไม่ครบ' : ''}`;
+    const rows = shown.map(e => {
+        const folder = e.k === 'folder', path = searchPathOf(e);
+        return `<div class="search-row" role="button" tabindex="0" onclick="openSearchResult('${e.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSearchResult('${e.id}')}"><div class="search-ico${folder ? ' is-folder' : ''}"><i class="fas ${folder ? 'fa-folder' : 'fa-book'}"></i></div><div class="search-info"><div class="search-name">${highlightName(e.name, terms)}</div>${path ? `<div class="search-path">${escapeHtml(path)}</div>` : ''}</div><div class="search-tag">${folder ? 'แฟ้ม' : 'PDF'}</div></div>`;
+    }).join('');
+    const empty = hits.length === 0 ? '<div class="state-container"><div class="state-icon">🔎</div><div class="state-title">ไม่พบรายการที่ตรงกับคำค้นหา</div><div class="state-desc">ลองใช้คำสั้นลง หรือกด "รีเฟรชดัชนี" ถ้าเพิ่งเพิ่มไฟล์ใหม่ใน Drive</div></div>' : '';
+    const moreBtn = hits.length > shown.length ? `<button class="fav-more" onclick="showMoreSearch()">แสดงเพิ่ม (${hits.length - shown.length})</button>` : '';
+    area.innerHTML = `<div class="search-results"><div class="search-meta"><span>${escapeHtml(meta)}</span><button class="fav-more" onclick="rebuildSearchIndex()"><i class="fas fa-sync"></i> รีเฟรชดัชนี</button></div>${empty}<div class="search-list">${rows}</div>${moreBtn}</div>`;
+}
+function showMoreSearch() { searchShown += SEARCH_PAGE; renderGlobalResults(searchLastQuery, true); }
+async function runGlobalSearch() {
+    const input = document.getElementById('searchInput');
+    const q = input ? input.value : '';
+    const run = ++searchRunId;
+    if (!q.trim()) { if (onDashboardView()) renderCategoryDashboard(); else applySearchAndSort(); return; }
+    if (!searchIdx || (searchBuildPromise && !searchIdx)) renderSearchProgress();
+    let idx;
+    try { idx = await ensureSearchIndex(); } catch (e) { if (run === searchRunId) document.getElementById('content-area').innerHTML = '<div class="state-container"><div class="state-icon">⚠️</div><div class="state-title">สร้างดัชนีค้นหาไม่สำเร็จ</div><div class="state-desc">ตรวจการเชื่อมต่อแล้วลองใหม่ หรือลองค้นหา "ในแฟ้มนี้" แทน</div></div>'; return; }
+    if (run !== searchRunId || !idx) return;
+    renderGlobalResults(input.value);
+}
+let searchDebounce = null;
+function onSearchInput(immediate = false) {
+    if (!isGlobalSearch()) { searchRunId++; applySearchAndSort(); return; }
+    clearTimeout(searchDebounce);
+    if (immediate === true) runGlobalSearch(); else searchDebounce = setTimeout(runGlobalSearch, 180);
+}
+function openSearchResult(id) {
+    const e = searchIdx?.byId.get(id);
+    if (!e) return;
+    if (e.k === 'pdf') { readerFromSearch = true; openReader(e.id, e.name, 'application/pdf'); return; }
+    const chain = []; let cur = searchIdx.byId.get(e.p), g = 0;
+    while (cur && g++ < 20) { chain.unshift({ id: cur.id, name: cur.name }); cur = searchIdx.byId.get(cur.p); }
+    searchRunId++;
+    folderHistory = [{ id: ROOT_FOLDER_ID, name: 'หน้าหลัก' }, ...chain];
+    loadDriveContent(e.id, e.name);
+}
 function applySearchAndSort() {
+    syncScopeChips();
     if (currentViewMode === 'series-detail' && activeSeriesData) return renderSeriesDetailUI(activeSeriesData);
     if (currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter !== 'dashboard') {
         renderCategoryFolderView(activeCategoryFilter);
@@ -974,8 +1191,9 @@ function applySearchAndSort() {
 window.addEventListener('DOMContentLoaded', () => {
     initCategoryEngine();
     domReady = true;
-    document.getElementById('searchInput').addEventListener('input', applySearchAndSort);
-    document.getElementById('sortSelect').addEventListener('change', applySearchAndSort);
+    document.getElementById('searchInput').addEventListener('input', () => onSearchInput());
+    document.getElementById('searchInput').addEventListener('focus', () => { if (isGlobalSearch() && gapi?.client?.drive && gapi.client.getToken?.()) ensureSearchIndex().catch(() => {}); });
+    document.getElementById('sortSelect').addEventListener('change', () => { if (!isGlobalSearch()) applySearchAndSort(); });
     document.addEventListener('keydown', e => {
         if (document.getElementById('reader-modal').style.display === 'flex') {
             if (e.key === 'ArrowLeft') onPrevPage();
@@ -1070,6 +1288,7 @@ function renderSeriesBreadcrumb(seriesName) {
     requestAnimationFrame(() => { bc.scrollLeft = bc.scrollWidth; });
 }
 function renderBreadcrumb() {
+    searchScopeOverride = null; syncScopeChips();
     const bc = document.getElementById('breadcrumb');
     if (!bc) return;
     bc.innerHTML = '';
@@ -1335,7 +1554,8 @@ function closeReader() {
     if (document.fullscreenElement) document.exitFullscreen();
     currentFileId = null; pageRendering = false; pageNumPending = null; pdfDoc = null;
     currentReaderMeta = null;
-    if (readerFromHome) { readerFromHome = false; if (activeCategoryFilter === 'dashboard' && rootFolderSubItems.length > 0) renderCategoryDashboard(); }
+    if (readerFromSearch) { readerFromSearch = false; if (isGlobalSearch() && document.getElementById('searchInput').value.trim()) onSearchInput(true); else if (currentFolderItems.length > 0) applySearchAndSort(); }
+    else if (readerFromHome) { readerFromHome = false; if (activeCategoryFilter === 'dashboard' && rootFolderSubItems.length > 0) renderCategoryDashboard(); }
     else if (currentFolderItems.length > 0) applySearchAndSort();
 }
 function toggleFullScreen() { if (!document.fullscreenElement) document.getElementById('reader-modal')?.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); }
@@ -1347,7 +1567,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.6.3 Shared Categories</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.7 Global Search</p>
             </div>
         </div>
         <div class="controls">
@@ -1367,6 +1587,10 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchInput" placeholder="ค้นหาหนังสือ, แฟ้ม, หรือซีรีส์...">
+            </div>
+            <div class="scope-toggle" id="scope-toggle" role="group" aria-label="ขอบเขตการค้นหา" style="display:none">
+                <button type="button" id="scope-local" aria-pressed="true" onclick="setSearchScope('local')">ในแฟ้มนี้</button>
+                <button type="button" id="scope-global" aria-pressed="false" onclick="setSearchScope('global')">ทั้งห้องสมุด</button>
             </div>
             <div class="sort-box">
                 <select id="sortSelect">
