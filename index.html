@@ -1,34 +1,29 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.8.1 Mobile UI</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.3</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
     var problems = [];
     var bad = function (v) { return typeof v !== 'string' || v === '' || /^YOUR_/i.test(v); };
     if (typeof CLIENT_ID === 'undefined' && typeof API_KEY === 'undefined' && typeof ROOT_FOLDER_IDS === 'undefined') {
-        problems.push('ไม่พบไฟล์ config.js (ต้องอยู่โฟลเดอร์เดียวกับ index.html และชื่อ config.js ตัวพิมพ์เล็กทั้งหมด) หรือไฟล์ไม่ถูกต้อง');
+        problems.push('ไม่พบไฟล์ config.js (ต้องอยู่โฟลเดอร์เดียวกับ index.html)');
     } else {
-        if (typeof CLIENT_ID === 'undefined' || bad(CLIENT_ID) || !/\.apps\.googleusercontent\.com$/.test(CLIENT_ID)) problems.push('CLIENT_ID ยังไม่ได้ใส่ หรือรูปแบบผิด (ต้องลงท้ายด้วย .apps.googleusercontent.com)');
+        if (typeof CLIENT_ID === 'undefined' || bad(CLIENT_ID) || !/\.apps\.googleusercontent\.com$/.test(CLIENT_ID)) problems.push('CLIENT_ID ไม่ถูกต้อง');
         if (typeof API_KEY === 'undefined' || bad(API_KEY)) problems.push('API_KEY ยังไม่ได้ใส่');
-        if (typeof ROOT_FOLDER_IDS === 'undefined' || !Array.isArray(ROOT_FOLDER_IDS) || ROOT_FOLDER_IDS.length === 0 || ROOT_FOLDER_IDS.some(function (id) { return bad(id) || !/^[A-Za-z0-9_-]{10,}$/.test(id); })) problems.push("ROOT_FOLDER_IDS ต้องเป็นรายการ id โฟลเดอร์ เช่น ['id1', 'id2'] (id ต้องเป็นตัวอักษร/ตัวเลข ไม่มีช่องว่าง)");
-        if (typeof ADMIN_EMAIL === 'undefined' || typeof ADMIN_EMAIL !== 'string') problems.push("ADMIN_EMAIL ต้องเป็นข้อความ (ใส่ '' ถ้าไม่ต้องการผู้ดูแล)");
+        if (typeof ROOT_FOLDER_IDS === 'undefined' || !Array.isArray(ROOT_FOLDER_IDS) || !ROOT_FOLDER_IDS.length) problems.push("ROOT_FOLDER_IDS ไม่ถูกต้อง");
     }
     if (!problems.length) return;
     window.__CONFIG_PROBLEMS = problems;
     var show = function () {
         var d = document.createElement('div');
-        d.setAttribute('role', 'alert');
         d.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#FFF8E6;color:#1B1B1B;font-family:Kanit,sans-serif;padding:32px;overflow:auto';
-        var h = document.createElement('h2'); h.textContent = 'ตั้งค่าไฟล์ config.js ให้ครบก่อนใช้งาน'; d.appendChild(h);
-        var ul = document.createElement('ul');
-        problems.forEach(function (p) { var li = document.createElement('li'); li.style.margin = '8px 0'; li.textContent = p; ul.appendChild(li); });
-        d.appendChild(ul);
-        document.body.appendChild(d);
+        d.innerHTML = '<h2>ตั้งค่าไฟล์ config.js ให้ครบก่อนใช้งาน</h2><ul>' + problems.map(function(p){return '<li>'+p+'</li>';}).join('')+'</ul>';
+        document.body ? document.body.appendChild(d) : document.addEventListener('DOMContentLoaded', function(){document.body.appendChild(d);});
     };
     if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
 })();
@@ -39,321 +34,242 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-:root { --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: #EEF2FF; --secondary: #EC4899; --accent: #F59E0B; --bg-color: #FFF8E6; --surface: #FFFFFF; --text-main: #1B1B1B; --text-muted: #5A5648; --border: #E6DDC4; --radius-xl: 28px; --radius-lg: 20px; --radius-md: 14px; --shadow-card: 0 1px 2px rgba(27, 27, 27, 0.04), 0 6px 16px -6px rgba(27, 27, 27, 0.08); --shadow-hover: 0 14px 28px -10px rgba(27, 27, 27, 0.18); /* V7.3.2 design tokens (values identical to previous literals) */ --surface-alt: #FFF3D6; --surface-hover: #FBEFD0; --surface-sunken: #EFE5CB; --surface-sunken-hover: #E6D9B8; --border-strong: #CDBF9C; --primary-border: #C7D2FE; --primary-border-soft: #E0E7FF; --text-soft: #4A463A; --text-faint: #8A8472; --danger: #DC2626; --danger-bg: #FEF2F2; --danger-border: #FECACA; --danger-solid: #EF4444; --warn: #D97706; --warn-bg: #FEF3C7; --warn-border: #FDE68A; --success: #059669; --success-bg: #ECFDF5; --success-border: #A7F3D0; --bookmark-ink: #78350F; --on-dark: #FFFFFF; --hero-a: #EEF2FF; --hero-b: #FCE7F3; --hero-c: #FEF3C7; --cover-pdf-a: #4F46E5; --cover-pdf-b: #7C3AED; --cover-series-a: #3B82F6; --cover-series-b: #1D4ED8; --cover-empty-a: #64748B; --cover-empty-b: #475569; --reader-bg: #111; --reader-black: #000; --reader-surface: #1F2937; --reader-surface-2: #374151; --reader-surface-3: #4B5563; --reader-muted: #9CA3AF; /* V7.3.3 re-skin tokens */ --ink: #1B1B1B; --ink-hover: #333333; --pink: #FF8FC2; --yellow: #FFC83D; --folder-a: #FFEFC2; --folder-b: #FFE099; /* V7.8 safe-area */ --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px); }
-body { font-family: 'Kanit', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; -webkit-font-smoothing: antialiased }
+:root { 
+    --primary: #6366F1; --primary-hover: #4F46E5; --secondary: #EC4899; --accent: #F59E0B; 
+    --bg-color: #FAFAFA; --surface: #FFFFFF; --text-main: #111111; --text-muted: #666666; --border: #E5E5E5; 
+    --radius-xl: 28px; --radius-lg: 20px; --radius-md: 14px; 
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04); 
+    --shadow-hover: 0 12px 24px -6px rgba(0,0,0,0.12); 
+    --surface-alt: #F3F4F6; --surface-hover: #E5E7EB; --surface-sunken: #E5E7EB; 
+    --border-strong: #D1D5DB; --danger: #DC2626; --danger-bg: #FEF2F2; --danger-border: #FECACA; 
+    --warn: #D97706; --warn-bg: #FEF3C7; --warn-border: #FDE68A; --success: #059669; --success-bg: #ECFDF5; --success-border: #A7F3D0; 
+    --bookmark-ink: #78350F; --on-dark: #FFFFFF; --hero-a: #F3F4F6; 
+    --reader-bg: #111; --reader-black: #000; --reader-surface: #1F2937; --reader-surface-2: #374151; --reader-surface-3: #4B5563; 
+    --folder-a: #FEF3C7; --folder-b: #FDE68A; 
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); 
+    --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px); 
+}
+[data-theme="dark"] {
+    --bg-color: #121212; --surface: #1E1E1E; --text-main: #F3F4F6; --text-muted: #9CA3AF; --border: #2D2D2D;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.3);
+    --shadow-hover: 0 14px 28px -10px rgba(0,0,0,0.5);
+    --surface-alt: #262626; --surface-hover: #333333; --surface-sunken: #2A2A2A;
+    --border-strong: #404040; --hero-a: #1E1E1E;
+    --folder-a: #292524; --folder-b: #451A03;
+}
+body { font-family: 'Kanit', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; }
 .main-container { max-width: 1280px; margin: 0 auto 80px; padding: 0 24px; box-sizing: border-box }
-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0.75rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); height: 64px; box-sizing: border-box }
+header { background: var(--surface); backdrop-filter: blur(12px); padding: 0.75rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; height: 64px; box-sizing: border-box; transition: background-color 0.3s, border-color 0.3s; }
 .logo-container { display: flex; align-items: center; gap: 14px; cursor: pointer }
-.logo-icon-wrapper { width: 46px; height: 46px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) }
+.logo-icon-wrapper { width: 42px; height: 42px; background: var(--text-main); color: var(--bg-color); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
 .logo-text { display: flex; flex-direction: column; justify-content: center }
-.logo { font-size: 1.25rem; font-weight: 700; margin: 0; line-height: 1.2; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent }
-.logo-sub { font-size: 0.75rem; color: var(--text-muted); margin: 0; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase }
-.controls { display: flex; align-items: center; gap: 16px }
-.status-badge { font-size: 0.85rem; padding: 6px 16px; border-radius: 99px; font-weight: 500; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02) }
+.logo { font-size: 1.2rem; font-weight: 600; margin: 0; line-height: 1.2; color: var(--text-main); }
+.logo-sub { font-size: 0.7rem; color: var(--text-muted); margin: 0; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase }
+.controls { display: flex; align-items: center; gap: 12px }
+.status-badge { font-size: 0.82rem; padding: 6px 14px; border-radius: 99px; font-weight: 500; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-main); }
 .status-loading { color: var(--warn); background: var(--warn-bg); border-color: var(--warn-border) }
 .status-success { color: var(--success); background: var(--success-bg); border-color: var(--success-border) }
 .status-error { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-border) }
-button.btn-auth { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; padding: 10px 22px; border-radius: 99px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); font-family: 'Kanit', sans-serif }
-button.btn-auth:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4) }
-button.btn-logout { background: var(--surface-hover); color: var(--text-main); box-shadow: none; display: none }
-button.btn-logout:hover { background: var(--surface-sunken); color: var(--danger); transform: none; box-shadow: none }
-.library-hero { background: linear-gradient(135deg, var(--hero-a) 0%, var(--hero-b) 50%, var(--hero-c) 100%); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: var(--radius-xl); padding: 3.5rem 2rem; margin: 2rem 0; text-align: center; box-shadow: 0 15px 35px -10px rgba(99, 102, 241, 0.1); position: relative; overflow: hidden }
-.library-hero h1 { font-size: 2.5rem; font-weight: 700; color: var(--text-main); margin: 0 0 0.5rem 0; letter-spacing: -0.5px }
-.library-hero p { font-size: 1.15rem; color: var(--text-muted); margin: 0 0 1.5rem 0; font-weight: 400 }
-.hero-stats { display: inline-flex; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); color: var(--primary); padding: 10px 28px; border-radius: 99px; font-weight: 600; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,1) }
+button.btn-auth { background: var(--text-main); color: var(--bg-color); border: none; padding: 8px 18px; border-radius: 99px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; font-family: 'Kanit', sans-serif }
+button.btn-auth:hover { opacity: 0.85; }
+button.btn-logout { background: transparent; border: 1.5px solid var(--border); color: var(--text-main); display: none }
+button.btn-logout:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+.theme-toggle-btn { background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; }
+.theme-toggle-btn:hover { border-color: var(--text-main); }
+.library-hero { background: var(--hero-a); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 3rem 2rem; margin: 2rem 0; text-align: center; box-shadow: var(--shadow-card); }
+.library-hero h1 { font-size: 2.25rem; font-weight: 600; margin: 0 0 0.5rem 0; letter-spacing: -0.5px }
+.library-hero p { font-size: 1.05rem; color: var(--text-muted); margin: 0 0 1.2rem 0; }
+.hero-stats { display: inline-flex; background: var(--surface); color: var(--text-main); padding: 8px 22px; border-radius: 99px; font-weight: 500; font-size: 0.9rem; box-shadow: var(--shadow-card); border: 1px solid var(--border) }
 .dashboard-action-bar { display: flex; justify-content: flex-end; margin-bottom: 20px }
-.btn-manage-cats { background: var(--surface); color: var(--primary); border: 1px solid var(--border); padding: 10px 20px; border-radius: 99px; font-family: 'Kanit', sans-serif; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s }
-.btn-manage-cats:hover { background: var(--primary-light); border-color: var(--primary-border); transform: translateY(-1px) }
-.category-dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; margin-bottom: 32px }
-.category-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-card); cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden }
-.category-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); border-color: var(--primary) }
-.cat-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px }
-.cat-icon-box { width: 56px; height: 56px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.1) }
-.cat-info h3 { margin: 0 0 4px 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main) }
-.cat-info .cat-count { font-size: 0.9rem; color: var(--text-muted); font-weight: 500 }
-.cat-card-footer { display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 0.95rem; color: var(--primary); border-top: 1px solid var(--border); padding-top: 16px; margin-top: auto }
-.cat-manage-container { background: var(--surface); border-radius: var(--radius-xl); border: 1px solid var(--border); padding: 32px; box-shadow: var(--shadow-card) }
+.btn-manage-cats { background: var(--surface); color: var(--text-main); border: 1.5px solid var(--border); padding: 8px 18px; border-radius: 99px; font-family: 'Kanit', sans-serif; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.btn-manage-cats:hover { border-color: var(--text-main); }
+.category-dashboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 32px }
+.category-card { min-height: 152px; padding: 20px; gap: 12px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+.category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--text-main) }
+.category-card:first-child { grid-column: span 2; grid-row: span 2; min-height: 280px }
+.category-card:last-child:not(:first-child) { grid-column: span 2; background: transparent; border: 1.5px dashed var(--border-strong) }
+.cat-card-header { display: flex; align-items: center; gap: 12px }
+.cat-icon-box { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; }
+.cat-info h3 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.category-card .cat-count { margin-top: auto; font-size: 0.9rem; font-weight: 500; color: var(--text-muted) }
+.cat-num { display: block; font-size: 3rem; line-height: 1; font-weight: 400; letter-spacing: -1.5px; }
+.category-card:first-child .cat-num { font-size: 6rem; letter-spacing: -3px }
+.cat-card-footer { display: flex; align-items: center; justify-content: space-between; font-weight: 500; font-size: 0.9rem; }
+.cat-manage-container { background: var(--surface); border-radius: var(--radius-xl); border: 1.5px solid var(--border); padding: 32px; box-shadow: var(--shadow-card) }
 .cat-manage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px }
-.cat-manage-header h2 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--text-main) }
-.btn-add-cat { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 10px 22px; border-radius: 99px; font-family: 'Kanit', sans-serif; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s }
-.btn-add-cat:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4) }
-.cat-list-table { display: flex; flex-direction: column; gap: 12px }
-.cat-list-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 20px; gap: 16px; transition: background 0.2s }
-.cat-list-item:hover { background: var(--surface-hover) }
-.cat-item-left { display: flex; align-items: center; gap: 16px }
-.cat-item-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem }
-.cat-item-name { font-weight: 600; font-size: 1.05rem; color: var(--text-main) }
+.cat-manage-header h2 { margin: 0; font-size: 1.35rem; font-weight: 600; }
+.btn-add-cat { background: var(--text-main); color: var(--bg-color); border: none; padding: 8px 18px; border-radius: 99px; font-family: 'Kanit', sans-serif; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.cat-list-table { display: flex; flex-direction: column; gap: 10px }
+.cat-list-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface-alt); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 18px; gap: 16px; }
+.cat-item-left { display: flex; align-items: center; gap: 14px }
+.cat-item-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem }
+.cat-item-name { font-weight: 500; font-size: 1rem; }
 .cat-item-badge { font-size: 0.75rem; background: var(--surface-sunken); color: var(--text-muted); padding: 2px 8px; border-radius: 99px; font-weight: 500 }
 .cat-item-actions { display: flex; align-items: center; gap: 8px }
-.btn-action { background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 6px 14px; border-radius: 8px; font-family: 'Kanit', sans-serif; font-weight: 500; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s }
-.btn-action:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary-border) }
+.btn-action { background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 8px; font-family: 'Kanit', sans-serif; font-weight: 500; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.btn-action:hover { border-color: var(--text-main); }
 .btn-action.danger:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border) }
-.btn-order { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s }
-.btn-order:hover:not(:disabled) { background: var(--primary-light); color: var(--primary); border-color: var(--primary-border) }
-.btn-order:disabled { opacity: 0.4; cursor: not-allowed }
-.custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 10000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box }
-.custom-modal { background: var(--surface); border-radius: var(--radius-xl); width: 100%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; animation: modalFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) }
-@keyframes modalFadeIn { from { opacity: 0; transform: translateY(16px) scale(0.98) } to { opacity: 1; transform: translateY(0) scale(1) } }
-.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center }
-.modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main) }
-.modal-close-btn { background: transparent; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer }
-.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px }
+.btn-order { background: var(--surface); border: 1.5px solid var(--border); color: var(--text-muted); width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.btn-order:hover:not(:disabled) { border-color: var(--text-main); color: var(--text-main); }
+.btn-order:disabled { opacity: 0.3; cursor: not-allowed }
+.custom-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 10000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box }
+.custom-modal { background: var(--surface); border-radius: var(--radius-xl); border: 1.5px solid var(--border); width: 100%; max-width: 460px; box-shadow: var(--shadow-hover); overflow: hidden; }
+.modal-header { padding: 18px 22px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center }
+.modal-header h3 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.modal-close-btn { background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer }
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px }
 .form-group { display: flex; flex-direction: column; gap: 6px }
-.form-group label { font-weight: 600; font-size: 0.9rem; color: var(--text-main) }
-.form-group input[type="text"], .form-group select { padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: 'Kanit', sans-serif; font-size: 0.95rem; outline: none; background: var(--surface); color: var(--text-main); transition: border-color 0.2s }
-.form-group input[type="text"]:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light) }
-.color-picker-grid { display: flex; gap: 10px; flex-wrap: wrap }
-.color-option { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s }
-.color-option:hover { transform: scale(1.1) }
+.form-group label { font-weight: 500; font-size: 0.88rem; }
+.form-group input[type="text"], .form-group select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-family: 'Kanit', sans-serif; font-size: 0.92rem; outline: none; background: var(--surface); color: var(--text-main); }
+.form-group input[type="text"]:focus, .form-group select:focus { border-color: var(--text-main); }
+.color-picker-grid { display: flex; gap: 8px; flex-wrap: wrap }
+.color-option { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s }
 .color-option.selected { border-color: var(--text-main); transform: scale(1.1) }
-.icon-picker-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; padding: 4px }
-.icon-option { height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; color: var(--text-main); transition: all 0.2s }
-.icon-option:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary-border) }
-.icon-option.selected { background: var(--primary); color: white; border-color: var(--primary) }
-.modal-footer { padding: 16px 24px; background: var(--surface-alt); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px }
-.btn-modal { padding: 10px 20px; border-radius: 99px; font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none; transition: all 0.2s }
-.btn-modal-cancel { background: var(--surface-sunken); color: var(--text-main) }
-.btn-modal-cancel:hover { background: var(--surface-sunken-hover) }
-.btn-modal-submit { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) }
-.btn-modal-submit:hover { background: var(--primary-hover) }
-.library-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px }
-#breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; overflow-x: auto; white-space: nowrap; scrollbar-width: none }
+.icon-picker-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding: 2px }
+.icon-option { height: 38px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; }
+.icon-option.selected { background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); }
+.modal-footer { padding: 14px 22px; background: var(--surface-alt); border-top: 1.5px solid var(--border); display: flex; justify-content: flex-end; gap: 10px }
+.btn-modal { padding: 8px 18px; border-radius: 99px; font-family: 'Kanit', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; border: 1.5px solid var(--border); }
+.btn-modal-cancel { background: var(--surface); color: var(--text-main) }
+.btn-modal-submit { background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); }
+.library-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px }
+#breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; overflow-x: auto; white-space: nowrap; scrollbar-width: none }
 #breadcrumb::-webkit-scrollbar { display: none }
-.bc-item { cursor: pointer; color: var(--text-muted); font-weight: 500; padding: 8px 18px; border-radius: 99px; display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s }
-.bc-item:hover { color: var(--primary); border-color: var(--primary-border); background: var(--primary-light) }
-.bc-item.current { background: var(--primary); color: white; border-color: var(--primary); pointer-events: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) }
+.bc-item { cursor: pointer; color: var(--text-muted); font-weight: 500; padding: 6px 16px; border-radius: 99px; display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1.5px solid var(--border); }
+.bc-item.current { background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); pointer-events: none; }
 .bc-separator { color: var(--text-faint); font-size: 0.75rem }
-.library-toolbar { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; align-items: center; justify-content: space-between }
-.search-box { flex: 1; min-width: 280px; position: relative }
-.search-box i { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem }
-.search-box input { width: 100%; padding: 14px 20px 14px 52px; border: 1px solid var(--border); border-radius: 99px; font-family: 'Kanit', sans-serif; font-size: 1rem; outline: none; background: var(--surface); color: var(--text-main); box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: all 0.25s }
-.search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light), 0 4px 15px rgba(99, 102, 241, 0.08) }
-.sort-box { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.03) }
-.sort-box select { padding: 10px 40px 10px 20px; border: none; border-radius: 99px; background: transparent; font-family: 'Kanit', sans-serif; font-size: 0.95rem; font-weight: 500; outline: none; cursor: pointer; color: var(--text-main); background-image: url('data:image/svg+xml; charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748B" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4z"/></svg>'); background-repeat: no-repeat; background-position: right 18px center }
-.bookshelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 24px }
-@media (min-width: 640px) { .bookshelf-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 32px } }
+.library-toolbar { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; align-items: center; justify-content: space-between }
+.search-box { flex: 1; min-width: 260px; position: relative }
+.search-box i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem }
+.search-box input { width: 100%; padding: 12px 18px 12px 48px; border: 1.5px solid var(--border); border-radius: 99px; font-family: 'Kanit', sans-serif; font-size: 0.95rem; outline: none; background: var(--surface); color: var(--text-main); box-sizing: border-box; }
+.search-box input:focus { border-color: var(--text-main); }
+.sort-box { display: flex; align-items: center; background: var(--surface); border: 1.5px solid var(--border); border-radius: 99px; padding: 4px; }
+.sort-box select { padding: 8px 36px 8px 18px; border: none; border-radius: 99px; background: transparent; font-family: 'Kanit', sans-serif; font-size: 0.9rem; font-weight: 500; outline: none; cursor: pointer; color: var(--text-main); }
+.bookshelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 24px }
+@media (min-width: 640px) { .bookshelf-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 28px } }
 .book-card { background: transparent; cursor: pointer; position: relative; display: flex; flex-direction: column }
-.book-card-cover { width: 100%; aspect-ratio: 3/4; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); position: relative; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); background: var(--surface); border: 1px solid rgba(255,255,255,0.8) }
-.book-card:hover .book-card-cover { transform: translateY(-8px) scale(1.02); box-shadow: var(--shadow-hover) }
-.book-card-cover img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1 }
-.folder-card .book-card-cover { aspect-ratio: 4/3; border-radius: var(--radius-xl); border: 2px solid var(--primary-border-soft); background: linear-gradient(135deg, var(--surface-alt), var(--primary-light)) }
-.folder-card:hover .book-card-cover { border-color: var(--primary) }
-.badge-overlay { position: absolute; top: 12px; right: 12px; color: white; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 5; backdrop-filter: blur(4px) }
-.badge-folder { background: rgba(15, 23, 42, 0.8) }
+.book-card-cover { width: 100%; aspect-ratio: 3/4; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); position: relative; transition: all 0.3s; background: var(--surface); border: 1.5px solid var(--border) }
+.book-card:hover .book-card-cover { transform: translateY(-6px); box-shadow: var(--shadow-hover); border-color: var(--text-main) }
+.book-card-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1 }
+.folder-card .book-card-cover { aspect-ratio: 4/3; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--folder-a), var(--folder-b)); border-color: var(--border-strong); }
+.badge-overlay { position: absolute; top: 10px; right: 10px; color: var(--on-dark); padding: 4px 10px; border-radius: 99px; font-size: 0.72rem; display: flex; align-items: center; gap: 4px; font-weight: 500; z-index: 5; background: rgba(0,0,0,0.75); }
+.badge-folder { background: rgba(0, 0, 0, 0.75) }
 .badge-bookmark { background: var(--accent); color: var(--bookmark-ink) }
-.badge-series { background: linear-gradient(135deg, var(--primary), var(--secondary)) }
-.badge-single { background: rgba(30, 41, 59, 0.85) }
-.book-card-info { padding: 14px 6px 4px 6px; display: flex; flex-direction: column; flex-grow: 1 }
-.book-title { font-weight: 600; font-size: 1rem; line-height: 1.4; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; transition: color 0.2s }
-.book-card:hover .book-title { color: var(--primary) }
-.folder-mapping-bar { margin-top: 8px; display: flex; align-items: center; justify-content: space-between; background: rgba(241, 245, 249, 0.8); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.8rem }
-.folder-mapping-bar select { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; font-family: 'Kanit', sans-serif; font-size: 0.75rem; color: var(--text-main); outline: none; cursor: pointer }
-.premium-fallback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; box-sizing: border-box; z-index: 0; border-radius: inherit }
-.premium-fallback::before { content: ''; position: absolute; left: 0; top: 0; width: 8%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0.25), rgba(0,0,0,0.12)); border-right: 1px solid rgba(0,0,0,0.1); z-index: 2 }
-.fallback-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px 14px 16px 22px; text-align: center; color: var(--on-dark); z-index: 1 }
-.fallback-content i { font-size: 2.8rem; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) }
-.fallback-content .f-type { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.85; margin-bottom: 4px }
-.fallback-content .f-title { font-size: 0.9rem; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 2px 4px rgba(0,0,0,0.25) }
-.bg-pdf { background: linear-gradient(135deg, var(--cover-pdf-a), var(--cover-pdf-b)) }
-.bg-series { background: linear-gradient(135deg, var(--cover-series-a), var(--cover-series-b)) }
-.bg-empty { background: linear-gradient(135deg, var(--cover-empty-a), var(--cover-empty-b)) }
-.bg-folder { background: linear-gradient(135deg, var(--surface-hover), var(--surface-sunken)) }
-.bg-folder .fallback-content { color: var(--text-soft); padding: 16px }
-.bg-folder .fallback-content i { color: var(--primary); filter: none; font-size: 3.2rem }
-.bg-folder::before { display: none }
-.skeleton-book { display: flex; flex-direction: column; gap: 12px; animation: pulse 1.5s infinite ease-in-out }
+.badge-series { background: var(--text-main); color: var(--bg-color); }
+.badge-single { background: rgba(0, 0, 0, 0.75) }
+.book-card-info { padding: 12px 4px 2px 4px; display: flex; flex-direction: column; flex-grow: 1 }
+.book-title { font-weight: 500; font-size: 0.95rem; line-height: 1.35; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.folder-mapping-bar { margin-top: 6px; display: flex; align-items: center; justify-content: space-between; background: var(--surface-alt); padding: 4px 8px; border-radius: 6px; border: 1.5px solid var(--border); font-size: 0.78rem }
+.folder-mapping-bar select { background: var(--surface); border: 1.5px solid var(--border); border-radius: 4px; padding: 2px 4px; font-family: 'Kanit', sans-serif; font-size: 0.75rem; color: var(--text-main); }
+.premium-fallback { position: absolute; inset: 0; display: flex; box-sizing: border-box; z-index: 0; border-radius: inherit }
+.fallback-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px 12px; text-align: center; color: var(--text-muted); z-index: 1 }
+.fallback-content i { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.8; }
+.fallback-content .f-type { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 4px }
+.fallback-content .f-title { font-size: 0.85rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-main); }
+.bg-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)) }
+.bg-folder .fallback-content { color: var(--bookmark-ink); }
+.skeleton-book { display: flex; flex-direction: column; gap: 10px; animation: pulse 1.5s infinite }
 .sk-cover { width: 100%; aspect-ratio: 3/4; background: var(--surface-sunken); border-radius: var(--radius-lg) }
-.sk-text { height: 14px; background: var(--surface-sunken); border-radius: 6px; width: 90% }
-@keyframes pulse { 0% { opacity: 0.5 } 50% { opacity: 1 } 100% { opacity: 0.5 } }
-.state-container { grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: var(--surface); border-radius: var(--radius-xl); border: 2px dashed var(--border-strong); box-shadow: var(--shadow-card); display: flex; flex-direction: column; align-items: center; justify-content: center }
-.state-icon { font-size: 4rem; margin-bottom: 20px }
-.state-title { font-size: 1.35rem; color: var(--text-main); font-weight: 700; margin-bottom: 8px }
-.state-desc { font-size: 1rem; color: var(--text-muted); max-width: 400px; line-height: 1.6 }
+.sk-text { height: 12px; background: var(--surface-sunken); border-radius: 4px; width: 90% }
+@keyframes pulse { 0%, 100% { opacity: 0.4 } 50% { opacity: 0.8 } }
+.state-container { grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--surface); border-radius: var(--radius-xl); border: 2px dashed var(--border-strong); box-shadow: var(--shadow-card); display: flex; flex-direction: column; align-items: center; justify-content: center }
+.state-icon { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.8; }
+.state-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 6px }
+.state-desc { font-size: 0.95rem; color: var(--text-muted); max-width: 380px; line-height: 1.5 }
 .state-error { border-color: var(--danger-border); background: var(--danger-bg) }
-.reader-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; max-height: 100dvh; background: var(--reader-bg); z-index: 9999; flex-direction: column; overflow: hidden }
-.reader-header { background: var(--reader-surface); color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100 }
-.reader-title { font-weight: 600; flex-grow: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 15px; font-size: 1.15rem }
-.btn-reader { background: var(--reader-surface-2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; font-family: 'Kanit', sans-serif }
-.btn-reader:hover { background: var(--reader-surface-3) }
+.reader-modal { display: none; position: fixed; inset: 0; background: var(--reader-bg); z-index: 9999; flex-direction: column; overflow: hidden }
+.reader-header { background: var(--reader-surface); color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 100 }
+.reader-title { font-weight: 500; flex-grow: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 15px; font-size: 1.05rem }
+.btn-reader { background: var(--reader-surface-2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; font-family: 'Kanit', sans-serif }
 .btn-back { background: var(--danger-solid) }
-.btn-back:hover { background: var(--danger) }
 .reader-content { flex-grow: 1; display: flex; justify-content: center; overflow: auto; position: relative; background: var(--reader-black); min-height: 0 }
 #pdf-canvas { display: block; margin: 0 auto; box-shadow: 0 0 25px rgba(0,0,0,0.8); max-width: 100% }
 .reader-frame { width: 100%; height: 100%; border: none; background: white; display: none }
-#toast-message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 25px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(4px) }
+#toast-message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(5, 150, 105, 0.95); color: white; padding: 10px 20px; border-radius: 30px; font-size: 1rem; font-weight: 500; z-index: 10000; display: none; backdrop-filter: blur(4px) }
 .tap-zone { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 50; cursor: pointer }
 .tap-zone.left { left: 0 }
 .tap-zone.right { right: 0 }
-.pdf-toolbar { background: var(--reader-surface); color: white; padding: 14px 24px; display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.5) }
-.pdf-toolbar button { background: var(--primary); padding: 10px 22px; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 8px }
-.pdf-toolbar button:hover { background: var(--primary-hover) }
-.pdf-toolbar button:disabled { background: var(--reader-surface-3); cursor: not-allowed; color: var(--reader-muted) }
-.page-info { font-size: 1.05rem; font-weight: 600; background: var(--reader-surface-2); padding: 8px 18px; border-radius: 10px; color: white }
-#pdf-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.2rem; display: none; text-align: center; z-index: 90; background: rgba(0,0,0,0.85); padding: 30px 50px; border-radius: 16px; backdrop-filter: blur(8px) }
+.pdf-toolbar { background: var(--reader-surface); color: white; padding: 12px 24px; display: flex; justify-content: center; align-items: center; gap: 16px; z-index: 100; }
+.pdf-toolbar button { background: var(--primary); padding: 8px 18px; border: none; border-radius: 8px; color: white; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px }
+.page-info { font-size: 0.95rem; font-weight: 500; background: var(--reader-surface-2); padding: 6px 14px; border-radius: 8px; color: white }
+#pdf-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.1rem; display: none; text-align: center; z-index: 90; background: rgba(0,0,0,0.85); padding: 24px 40px; border-radius: 12px; }
 .mobile-nav-overlay { position: fixed; pointer-events: none; z-index: 20000 }
-/* ===== V7.3.3 Re-skin (แนว D: ครีม + หมึกดำ + สีสดเฉพาะจุด) ปรับเฉพาะสี/เส้น/เงา/ขนาดตัวอักษร ไม่แตะ layout หลักและ logic ===== */
-header { background: rgba(255, 248, 230, 0.88); box-shadow: none }
-.logo-icon-wrapper { background: var(--pink); color: var(--ink); box-shadow: none; border-radius: 50% }
-.logo { background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: var(--ink); color: var(--ink); font-weight: 600 }
-button.btn-auth { background: var(--ink); box-shadow: none }
-button.btn-auth:hover { background: var(--ink-hover); box-shadow: none; transform: translateY(-1px) }
-button.btn-logout { background: transparent; border: 1.5px solid var(--ink); color: var(--ink) }
-button.btn-logout:hover { background: var(--surface); color: var(--danger) }
-.library-hero { background: none; border: none; box-shadow: none; border-radius: 0; padding: 2.5rem 0 0.5rem; margin: 0; text-align: left; overflow: visible }
-.library-hero h1 { font-size: 3.25rem; font-weight: 500; letter-spacing: -1.5px; line-height: 1.15; margin-bottom: 0.25rem }
-.library-hero p { font-size: 1.1rem; margin-bottom: 0.75rem }
-.hero-stats { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; box-shadow: none; border: none; color: var(--text-muted); font-weight: 500 }
-.btn-manage-cats { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); box-shadow: none }
-.btn-manage-cats:hover { background: var(--surface); border-color: var(--ink) }
-.category-card { border: 1.5px solid var(--border); box-shadow: none }
-.category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--ink) }
-.cat-icon-box { border-radius: 50%; box-shadow: none }
-.cat-card-footer { color: var(--ink) }
-.btn-add-cat { background: var(--ink); box-shadow: none }
-.btn-add-cat:hover { background: var(--ink-hover); box-shadow: none }
-.btn-modal-submit { background: var(--ink); box-shadow: none }
-.btn-modal-submit:hover { background: var(--ink-hover) }
-.icon-option.selected { background: var(--ink); border-color: var(--ink) }
-.search-box input { border: 1.5px solid var(--ink); box-shadow: none }
-.search-box input:focus { border-color: var(--ink); box-shadow: 0 0 0 4px var(--yellow) }
-.sort-box { border: 1.5px solid var(--ink); box-shadow: none }
-.bc-item { box-shadow: none }
-.bc-item.current { background: var(--ink); border-color: var(--ink); box-shadow: none }
-.folder-card .book-card-cover { border: 2px solid var(--folder-b); background: linear-gradient(135deg, var(--folder-a), var(--folder-b)) }
-.folder-card:hover .book-card-cover { border-color: var(--ink) }
-.bg-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)) }
-.bg-folder .fallback-content i { color: var(--ink) }
-.bg-folder .f-title { text-shadow: none }
-.badge-series { background: var(--primary-hover) }
-.state-container { border: 2px dashed var(--border-strong); box-shadow: none }
-@media (max-width: 639px) { .library-hero { padding-top: 1.5rem } .library-hero h1 { font-size: 2.25rem } }
-/* ===== V7.4 Dashboard/Home: การ์ดหมวดหมู่แบบ bento (บล็อกสีจากสีหมวด + ตัวเลขใหญ่) ===== */
-.category-dashboard-grid, .dashboard-action-bar, .cat-manage-container { grid-column: 1 / -1 }
-.category-dashboard-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; grid-auto-flow: dense; margin-bottom: 32px }
-.category-card { min-height: 152px; padding: 24px; gap: 12px; background: var(--surface); color: var(--ink) }
-@supports (background: color-mix(in srgb, red 50%, white)) { .category-card { background: color-mix(in srgb, var(--cat, var(--surface)) 40%, var(--bg-color)) } }
-.category-card:first-child { grid-column: span 2; grid-row: span 2; min-height: 320px }
-.category-card:last-child:not(:first-child) { grid-column: span 2; background: transparent; border: 1.5px dashed var(--border-strong) }
-.category-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px }
-.category-card .cat-card-header { margin-bottom: 0 }
-.category-card .cat-info h3 { font-size: 1.35rem; font-weight: 600; color: var(--ink) }
-.category-card .cat-count { margin-top: auto; font-size: 1rem; font-weight: 500; color: var(--ink) }
-.cat-num { display: block; font-size: 3.75rem; line-height: 1; font-weight: 300; letter-spacing: -2px }
-.category-card:first-child .cat-num { font-size: 7.5rem; letter-spacing: -4px }
-.category-card .cat-card-footer { border-top: none; padding-top: 0; margin-top: 0 }
-@media (max-width: 899px) { .category-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } .category-card:first-child { grid-row: auto; min-height: 220px } .category-card:first-child .cat-num { font-size: 5rem } }
-/* ===== V7.5 อ่านต่อจากหน้าล่าสุด ===== */
 .continue-section { grid-column: 1 / -1; margin-bottom: 24px }
-.continue-title { font-size: 1.1rem; font-weight: 600; margin: 0 0 12px; color: var(--ink) }
-.continue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px }
-.continue-card { position: relative; display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 52px 12px 12px; cursor: pointer; transition: border-color 0.2s, transform 0.2s }
-.continue-card:hover { border-color: var(--ink); transform: translateY(-2px) }
-.continue-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px }
-.continue-thumb { flex: 0 0 48px; height: 68px; border-radius: 6px 10px 10px 6px; background: linear-gradient(135deg, var(--cover-pdf-a), var(--cover-pdf-b)); display: flex; align-items: center; justify-content: center; color: var(--on-dark); font-size: 1.2rem }
+.continue-title { font-size: 1.05rem; font-weight: 600; margin: 0 0 12px; }
+.continue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px }
+.continue-card { position: relative; display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 10px 48px 10px 10px; cursor: pointer; transition: 0.2s }
+.continue-card:hover { border-color: var(--text-main); transform: translateY(-2px) }
+.continue-thumb { flex: 0 0 44px; height: 62px; border-radius: 6px 8px 8px 6px; background: var(--surface-alt); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
 .continue-info { min-width: 0; flex: 1 }
-.continue-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink) }
-.continue-meta { font-size: 0.85rem; color: var(--text-muted) }
-.continue-bar { height: 6px; border-radius: 99px; background: var(--surface-sunken); margin-top: 8px; overflow: hidden }
-.continue-bar i { display: block; height: 100%; background: var(--ink); border-radius: 99px }
-.continue-remove { position: absolute; top: 0; right: 0; width: 44px; height: 44px; border: none; background: transparent; color: var(--text-muted); border-radius: 50%; cursor: pointer; font-size: 0.95rem }
-.continue-remove:hover { color: var(--danger) }
-/* ===== V7.6 รายการโปรด ===== */
-.book-card .fav-btn { position: absolute; top: 8px; left: 8px; z-index: 6; width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--surface); color: var(--text-muted); box-shadow: var(--shadow-card); cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; transition: transform 0.15s }
-.book-card .fav-btn:hover { transform: scale(1.08) }
-.book-card .fav-btn.on { color: var(--danger) }
-.book-card .fav-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px }
+.continue-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.92rem; }
+.continue-meta { font-size: 0.8rem; color: var(--text-muted) }
+.continue-bar { height: 4px; border-radius: 99px; background: var(--surface-sunken); margin-top: 6px; overflow: hidden }
+.continue-bar i { display: block; height: 100%; background: var(--text-main); border-radius: 99px }
+.continue-remove { position: absolute; top: 0; right: 0; width: 40px; height: 40px; border: none; background: transparent; color: var(--text-muted); border-radius: 50%; cursor: pointer; }
+.book-card .fav-btn { position: absolute; top: 8px; left: 8px; z-index: 6; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); box-shadow: var(--shadow-card); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.book-card .fav-btn.on { color: var(--danger); border-color: var(--danger); }
 .continue-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px }
-.continue-head .continue-title { margin: 0 }
-.fav-more { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); border-radius: 99px; padding: 0 16px; min-height: 36px; font-family: 'Kanit', sans-serif; font-weight: 500; cursor: pointer }
-.continue-thumb.is-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)); color: var(--ink) }
-.continue-remove.is-fav { color: var(--danger) }
-/* ===== V7.6.3 แจ้งสิทธิ์ + แผงแชร์หมวดหมู่ ===== */
-.access-notice { grid-column: 1 / -1; background: var(--warn-bg); border: 1.5px solid var(--warn-border); color: var(--ink); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px; font-size: 0.95rem }
+.fav-more { background: transparent; border: 1.5px solid var(--border); color: var(--text-main); border-radius: 99px; padding: 0 14px; min-height: 32px; font-family: 'Kanit', sans-serif; font-weight: 500; font-size: 0.85rem; cursor: pointer }
+.access-notice { grid-column: 1 / -1; background: var(--warn-bg); border: 1.5px solid var(--warn-border); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px; font-size: 0.92rem }
 .sync-panel { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px }
-.sync-title { font-weight: 600; margin-bottom: 8px }
-.sync-status { border-radius: 10px; padding: 8px 12px; font-size: 0.92rem; margin-bottom: 10px }
-.sync-status.ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--ink) }
-.sync-status.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--ink) }
+.sync-title { font-weight: 600; margin-bottom: 6px; font-size: 1rem; }
+.sync-status { border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; margin-bottom: 10px }
 .sync-actions { display: flex; flex-wrap: wrap; gap: 8px }
-.sync-help { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted) }
-/* ===== V7.7 Global Search ===== */
-.scope-toggle { display: flex; background: var(--surface); border: 1.5px solid var(--ink); border-radius: 99px; padding: 4px; gap: 2px }
-.scope-toggle button { font-family: 'Kanit', sans-serif; font-size: 0.9rem; font-weight: 500; border: none; background: transparent; color: var(--ink); border-radius: 99px; padding: 8px 14px; min-height: 36px; cursor: pointer }
-.scope-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--on-dark) }
+.scope-toggle { display: flex; background: var(--surface); border: 1.5px solid var(--border); border-radius: 99px; padding: 3px; gap: 2px }
+.scope-toggle button { font-family: 'Kanit', sans-serif; font-size: 0.85rem; font-weight: 500; border: none; background: transparent; color: var(--text-muted); border-radius: 99px; padding: 6px 12px; cursor: pointer }
+.scope-toggle button[aria-pressed="true"] { background: var(--text-main); color: var(--bg-color) }
 .search-results { grid-column: 1 / -1 }
-.search-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted) }
+.search-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.88rem; color: var(--text-muted) }
 .search-list { display: grid; gap: 8px }
-.search-row { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 10px 14px; cursor: pointer; min-height: 56px }
-.search-row:hover { border-color: var(--ink) }
-.search-row:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px }
-.search-ico { flex: 0 0 36px; height: 44px; border-radius: 6px 10px 10px 6px; background: linear-gradient(135deg, var(--cover-pdf-a), var(--cover-pdf-b)); color: var(--on-dark); display: flex; align-items: center; justify-content: center }
-.search-ico.is-folder { background: linear-gradient(135deg, var(--folder-a), var(--folder-b)); color: var(--ink) }
+.search-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 10px 14px; cursor: pointer; }
+.search-row:hover { border-color: var(--text-main) }
+.search-ico { flex: 0 0 34px; height: 42px; border-radius: 6px 8px 8px 6px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center }
+.search-ico.is-folder { background: var(--folder-a); color: var(--bookmark-ink); border-color: var(--folder-b); }
 .search-info { min-width: 0; flex: 1 }
-.search-name { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.search-name mark { background: var(--yellow); color: var(--ink); border-radius: 3px; padding: 0 2px }
-.search-path { font-size: 0.82rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.search-tag { flex: 0 0 auto; font-size: 0.78rem; color: var(--text-muted); border: 1px solid var(--border); border-radius: 99px; padding: 2px 10px }
-@media (max-width: 639px) { header { padding-left: 14px; padding-right: 14px }
-.main-container { padding-left: 14px; padding-right: 14px }
-.library-toolbar { gap: 12px }
-.search-box { min-width: 0; width: 100% }
-.sort-box { width: 100% }
-.sort-box select { width: 100%; box-sizing: border-box }
-.bookshelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px }
-.category-dashboard-grid { grid-template-columns: 1fr }
-.cat-list-item { flex-direction: column; align-items: flex-start; gap: 12px }
-.cat-item-actions { width: 100%; justify-content: flex-end }
-.mobile-nav-overlay { position: fixed !important; left: 0 !important; top: 50dvh !important; width: 100vw !important; height: 0 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 12px !important; box-sizing: border-box !important; pointer-events: none !important; z-index: 20000 !important; transform: translateY(-50%) !important }
-.mobile-nav-btn { pointer-events: auto !important; width: 54px !important; height: 54px !important; border-radius: 50% !important; background: rgba(0,0,0,0.75) !important; color: var(--on-dark) !important; display: flex !important; align-items: center !important; justify-content: center !important; border: 1px solid rgba(255,255,255,0.4) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important }
-.btn-text { display: none }
+.search-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.92rem; }
+.search-name mark { background: var(--yellow); color: #111; border-radius: 2px; padding: 0 2px }
+.search-path { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.search-tag { flex: 0 0 auto; font-size: 0.75rem; color: var(--text-muted); border: 1.5px solid var(--border); border-radius: 99px; padding: 2px 8px }
+
+/* V7.9.3 Back to Top Button */
+#backToTopBtn { position: fixed; bottom: 24px; right: 24px; z-index: 99; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1.5px solid var(--border); box-shadow: var(--shadow-hover); cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 1.1rem; transition: transform 0.2s; }
+#backToTopBtn:hover { transform: translateY(-3px); border-color: var(--text-main); }
+
+@media (max-width: 639px) { 
+    header, .main-container, .reader-header, .pdf-toolbar { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)); }
+    .bookshelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .category-dashboard-grid { grid-template-columns: 1fr; }
+    .category-card:first-child, .category-card:last-child:not(:first-child) { grid-column: auto; grid-row: auto; min-height: 140px; }
+    .category-card:first-child .cat-num { font-size: 3.5rem; }
+    .cat-list-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .cat-item-actions { width: 100%; justify-content: flex-end; }
+    .mobile-nav-overlay { position: fixed !important; left: 0 !important; top: 50dvh !important; width: 100vw !important; height: 0 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 10px !important; box-sizing: border-box !important; pointer-events: none !important; z-index: 20000 !important; transform: translateY(-50%) !important; }
+    .mobile-nav-btn { pointer-events: auto !important; width: 48px !important; height: 48px !important; border-radius: 50% !important; background: rgba(0,0,0,0.8) !important; color: white !important; display: flex !important; align-items: center !important; justify-content: center !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+    .btn-text, .logo-sub { display: none; }
+    .scope-toggle { width: 100%; box-sizing: border-box; }
+    .scope-toggle button { flex: 1; }
 }
-@media (max-width: 639px) { .logo-sub { display: none } .status-badge { white-space: nowrap; padding-left: 12px; padding-right: 12px } }
-@media (max-width: 639px) { .category-card:first-child, .category-card:last-child:not(:first-child) { grid-column: auto; grid-row: auto; min-height: 152px } .category-card:first-child .cat-num { font-size: 3.75rem; letter-spacing: -2px } }
-/* ===== V7.8 Mobile UI: safe-area, เป้าสัมผัส 44px, โหมดอ่านเต็มจอ ===== */
-header { padding-top: calc(0.75rem + var(--safe-top)); padding-left: max(2rem, var(--safe-left)); padding-right: max(2rem, var(--safe-right)) }
-.main-container { padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)); margin-bottom: calc(80px + var(--safe-bottom)) }
-.reader-header { padding-top: calc(12px + var(--safe-top)); padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)) }
-.pdf-toolbar { padding-bottom: calc(14px + var(--safe-bottom)); padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)) }
-.reader-modal, .reader-content { overscroll-behavior: contain }
-.immersive-page { display: none; position: absolute; bottom: calc(14px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.82); border: 1px solid rgba(255, 255, 255, 0.35); color: var(--on-dark); padding: 6px 18px; border-radius: 99px; font-size: 1rem; font-weight: 600; z-index: 60; pointer-events: none }
-.reader-content { -webkit-tap-highlight-color: transparent }
-.reader-modal.reader-immersive .immersive-page { display: block }
-.reader-modal.reader-immersive .reader-header, .reader-modal.reader-immersive .pdf-toolbar { display: none !important }
-@media (max-width: 768px) {
-.btn-reader { min-height: 44px; min-width: 44px; justify-content: center }
-.pdf-toolbar button { min-height: 48px; min-width: 56px; justify-content: center }
-.page-info { min-height: 44px; display: flex; align-items: center }
-}
-@media (max-width: 639px) {
-header { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)) }
-.main-container { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)) }
-.reader-header, .pdf-toolbar { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)) }
-.scope-toggle { width: 100%; box-sizing: border-box }
-.scope-toggle button { flex: 1 }
-}
-@media (max-height: 500px) and (orientation: landscape) {
-.reader-header { padding-top: calc(6px + var(--safe-top)); padding-bottom: 6px }
-.pdf-toolbar { padding-top: 6px; padding-bottom: calc(6px + var(--safe-bottom)) }
-}
-</style>
+header { padding-top: calc(0.75rem + var(--safe-top)); }
+.main-container { margin-bottom: calc(80px + var(--safe-bottom)); }
+.reader-header { padding-top: calc(12px + var(--safe-top)); }
+.pdf-toolbar { padding-bottom: calc(14px + var(--safe-bottom)); }
+.immersive-page { display: none; position: absolute; bottom: calc(14px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 16px; border-radius: 99px; font-size: 0.9rem; font-weight: 500; z-index: 60; pointer-events: none; }
+.reader-modal.reader-immersive .immersive-page { display: block; }
+.reader-modal.reader-immersive .reader-header, .reader-modal.reader-immersive .pdf-toolbar { display: none !important; }
+    </style>
     <script>
-// ค่า CLIENT_ID, API_KEY, ROOT_FOLDER_IDS, ADMIN_EMAIL อยู่ในไฟล์ config.js (แก้เฉพาะไฟล์นั้น)
-if (window.__CONFIG_PROBLEMS) throw new Error('config.js ไม่ถูกต้อง: ' + window.__CONFIG_PROBLEMS.join(' | '));
-const ROOT_FOLDER_ID = ROOT_FOLDER_IDS[0];   // ตัวแทน "หน้าหลัก" (ใช้เทียบใน breadcrumb/การนำทาง) อย่าลบ
-// ห้ามเปลี่ยน SCOPES โดยไม่จำเป็น (การเปลี่ยน scope มีผลต่อหน้าขอสิทธิ์ของผู้ใช้ทุกคน)
+if (window.__CONFIG_PROBLEMS) throw new Error('config.js ไม่ถูกต้อง');
+const ROOT_FOLDER_ID = ROOT_FOLDER_IDS[0];
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 let tokenClient, currentFolderId = ROOT_FOLDER_ID, folderHistory = [], gapiInited = false, gisInited = false, domReady = false, appStarted = false, currentFolderItems = [];
-let driveLoadRequestId = 0, readerLoadId = 0;
-const folderCoverCache = new Map();
-let currentViewMode = 'grid', activeSeriesData = null;
-let activeCategoryFilter = 'dashboard';
-let rootFolderSubItems = [];
+let driveLoadRequestId = 0, readerLoadId = 0, folderCoverCache = new Map();
+const MAX_CACHE_SIZE = 100; // V7.9.3: จำกัดขนาดแคชปกไม่ให้กินแรมเกินไป
+let currentViewMode = 'grid', activeSeriesData = null, activeCategoryFilter = 'dashboard', rootFolderSubItems = [];
 const pdfjsLib = window.pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null, canvas, ctx, currentFileId = null;
 const escapeHtml = (text) => { const d = document.createElement('div'); d.textContent = text ?? ''; return d.innerHTML; };
-const CAT_STORAGE_KEY = 'familyLibrary_categories_v1';
-const MAP_STORAGE_KEY = 'familyLibrary_folderCategoryMap_v1';
+const CAT_STORAGE_KEY = 'familyLibrary_categories_v1', MAP_STORAGE_KEY = 'familyLibrary_folderCategoryMap_v1';
 const DEFAULT_CATEGORIES = [
     { id: "comic", name: "การ์ตูน", icon: "fa-book-open", color: "#6366F1", order: 1, visible: true },
     { id: "novel", name: "นิยาย", icon: "fa-book", color: "#10B981", order: 2, visible: true },
@@ -361,17 +277,12 @@ const DEFAULT_CATEGORIES = [
 ];
 const UNCATEGORIZED = { id: "uncategorized", name: "ยังไม่ได้จัดหมวด", icon: "fa-box-open", color: "#94A3B8", order: 999, visible: true };
 
-// ===== V7.3.1 Admin Control (ควบคุมฝั่งเบราว์เซอร์เท่านั้น ไม่ใช่ระบบความปลอดภัยจริง) =====
-// ใส่อีเมล Google ของผู้ดูแลเพียงหนึ่งบัญชี เช่น 'admin@gmail.com' (ปล่อยว่าง = ไม่มีผู้ดูแล ทุกคนเป็นสมาชิกทั่วไป)
-// ADMIN_EMAIL ตั้งค่าใน config.js
 let currentUserEmail = null, userEmailVerified = false, adminCheckId = 0;
 const normalizeEmail = (e) => String(e ?? '').trim().toLowerCase();
 const isAdmin = () => userEmailVerified === true && normalizeEmail(ADMIN_EMAIL) !== '' && normalizeEmail(currentUserEmail) === normalizeEmail(ADMIN_EMAIL);
 const resetAdminState = () => { adminCheckId++; currentUserEmail = null; userEmailVerified = false; };
-// V7.6.3: ค่าหมวดหมู่ที่อ่านจากไฟล์ family-library-categories.json ใน Drive (สมาชิกใช้ค่านี้ ส่วน admin ใช้ค่าในเครื่องตัวเอง)
 let driveConfig = null, rootAccessReport = null, rootMetaLoaded = false;
-// V7.7 Global Search state
-let searchIdx = null, searchOwner = null, searchBuildId = 0, searchRunId = 0, searchBuildPromise = null, searchProgress = null, searchScopeOverride = null, readerFromSearch = false;
+let searchIdx = null, searchScopeOverride = null, readerFromSearch = false;
 const useDriveConfig = () => driveConfig !== null && !isAdmin();
 const requireAdmin = () => { if (isAdmin()) return true; showToast('ฟังก์ชันนี้สำหรับผู้ดูแลระบบเท่านั้น'); return false; };
 async function verifyAdminAccess() {
@@ -381,7 +292,7 @@ async function verifyAdminAccess() {
     try {
         const res = await Promise.race([
             gapi.client.drive.about.get({ fields: 'user(emailAddress)' }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 8000))
         ]);
         if (checkId !== adminCheckId) return false;
         const email = normalizeEmail(res?.result?.user?.emailAddress);
@@ -397,32 +308,18 @@ const initCategoryEngine = () => {
     if (!localStorage.getItem(CAT_STORAGE_KEY)) saveCategories(DEFAULT_CATEGORIES);
     if (!localStorage.getItem(MAP_STORAGE_KEY)) saveFolderCategoryMap({});
 };
-const isValidCategoryRecord = (item) =>
-    item && typeof item === 'object' &&
-    typeof item.id === 'string' && item.id.trim() &&
-    item.id !== 'uncategorized' &&
-    typeof item.name === 'string' && item.name.trim() &&
-    typeof item.icon === 'string' && item.icon.trim() &&
-    typeof item.color === 'string' && item.color.trim() &&
-    typeof item.order === 'number' && Number.isFinite(item.order) &&
-    typeof item.visible === 'boolean';
+const isValidCategoryRecord = (item) => item && typeof item === 'object' && typeof item.id === 'string' && item.id.trim() && item.id !== 'uncategorized' && typeof item.name === 'string' && item.name.trim() && typeof item.icon === 'string' && typeof item.color === 'string' && typeof item.order === 'number' && typeof item.visible === 'boolean';
 const getCategories = () => {
     if (useDriveConfig()) return [...driveConfig.categories];
     try {
         const d = localStorage.getItem(CAT_STORAGE_KEY);
-        if (!d) return [...DEFAULT_CATEGORIES];
-        const parsed = JSON.parse(d);
-        if (!Array.isArray(parsed)) return [...DEFAULT_CATEGORIES];
-        const validCategories = parsed.filter(isValidCategoryRecord);
-        return validCategories.length > 0 ? validCategories : [...DEFAULT_CATEGORIES];
-    } catch (e) {
-        return [...DEFAULT_CATEGORIES];
-    }
+        const parsed = d ? JSON.parse(d) : null;
+        return Array.isArray(parsed) && parsed.length ? parsed.filter(isValidCategoryRecord) : [...DEFAULT_CATEGORIES];
+    } catch (e) { return [...DEFAULT_CATEGORIES]; }
 };
 const saveCategories = (cats) => {
     if (!isAdmin()) return;
-    const safeCategories = Array.isArray(cats) ? cats.filter(isValidCategoryRecord) : [...DEFAULT_CATEGORIES];
-    localStorage.setItem(CAT_STORAGE_KEY, JSON.stringify(safeCategories.length ? safeCategories : DEFAULT_CATEGORIES));
+    localStorage.setItem(CAT_STORAGE_KEY, JSON.stringify(Array.isArray(cats) ? cats.filter(isValidCategoryRecord) : DEFAULT_CATEGORIES));
 };
 const getFolderCategoryMap = () => {
     if (useDriveConfig()) return { ...driveConfig.folderMap };
@@ -432,67 +329,34 @@ const getFolderCategoryMap = () => {
         if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
         const validIds = new Set(getCategories().map(c => c.id));
         const clean = {};
-        Object.entries(parsed).forEach(([folderId, catId]) => {
-            if (typeof folderId === 'string' && folderId && typeof catId === 'string' && validIds.has(catId)) {
-                clean[folderId] = catId;
-            }
-        });
+        Object.entries(parsed).forEach(([k, v]) => { if (k && typeof v === 'string' && validIds.has(v)) clean[k] = v; });
         return clean;
-    } catch (e) {
-        return {};
-    }
+    } catch (e) { return {}; }
 };
 const saveFolderCategoryMap = (map) => {
     if (!isAdmin()) return;
     const safeMap = {};
     if (map && typeof map === 'object' && !Array.isArray(map)) {
         const validIds = new Set(getCategories().map(c => c.id));
-        Object.entries(map).forEach(([folderId, catId]) => {
-            if (typeof folderId === 'string' && folderId && typeof catId === 'string' && validIds.has(catId)) {
-                safeMap[folderId] = catId;
-            }
-        });
+        Object.entries(map).forEach(([k, v]) => { if (k && typeof v === 'string' && validIds.has(v)) safeMap[k] = v; });
     }
     localStorage.setItem(MAP_STORAGE_KEY, JSON.stringify(safeMap));
 };
 const getCategoryById = (id) => id === 'uncategorized' ? UNCATEGORIZED : (getCategories().find(c => c.id === id) || UNCATEGORIZED);
-const getCategoryForFolder = (fId) => {
-    const cId = getFolderCategoryMap()[fId];
-    return (cId && getCategories().find(c => c.id === cId)) || UNCATEGORIZED;
-};
 const setFolderCategory = (fId, cId) => {
-    if (!requireAdmin()) return;
-    if (!fId || cId === 'uncategorized' || !getCategories().some(c => c.id === cId)) {
-        removeFolderCategory(fId);
-        return;
-    }
+    if (!requireAdmin() || !fId) return;
     const map = getFolderCategoryMap();
-    map[fId] = cId;
+    if (cId === 'uncategorized' || !getCategories().some(c => c.id === cId)) delete map[fId];
+    else map[fId] = cId;
     saveFolderCategoryMap(map);
 };
-const removeFolderCategory = (fId) => {
-    if (!requireAdmin()) return;
-    if (!fId) return;
-    const map = getFolderCategoryMap();
-    if (Object.prototype.hasOwnProperty.call(map, fId)) {
-        delete map[fId];
-        saveFolderCategoryMap(map);
-    }
-};
 const getUncategorizedFolderIds = (fIds) => {
-    const map = getFolderCategoryMap();
-    const valid = new Set(getCategories().map(c => c.id));
+    const map = getFolderCategoryMap(), valid = new Set(getCategories().map(c => c.id));
     return fIds.filter(id => !map[id] || !valid.has(map[id]));
 };
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
-window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.8.1 Mobile UI)");
-    console.log("Categories:", getCategories());
-    console.log("Folder Category Map:", getFolderCategoryMap());
-    console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
-    console.groupEnd();
-};
+
 const renderStateContent = (icon, title, desc, isError = false) => {
     document.getElementById('content-area').innerHTML = `<div class="state-container ${isError ? 'state-error' : ''}"><div class="state-icon">${icon}</div><div class="state-title">${title}</div><div class="state-desc">${desc}</div></div>`;
 };
@@ -553,8 +417,7 @@ function checkExistingToken() {
 function handleAuthClick() { tokenClient.requestAccessToken({ prompt: 'select_account' }); }
 function handleSignoutClick() {
     driveLoadRequestId++; readerLoadId++; resetAdminState();
-    driveConfig = null; rootAccessReport = null; rootMetaLoaded = false;
-    searchBuildId++; searchRunId++; searchIdx = null; searchOwner = null; searchBuildPromise = null; searchProgress = null; searchScopeOverride = null;
+    driveConfig = null; rootAccessReport = null; rootMetaLoaded = false; searchIdx = null; searchScopeOverride = null;
     const tokenObj = gapi.client.getToken();
     if (tokenObj?.access_token) google.accounts.oauth2.revoke(tokenObj.access_token);
     gapi.client.setToken('');
@@ -587,59 +450,41 @@ function waitForDriveAPI(timeout = 10000) {
     });
 }
 const updateHeroStats = (msg) => { const s = document.getElementById('hero-stats'); if(s) s.innerHTML = msg; };
-// ===== V7.6.3 ตรวจสิทธิ์โฟลเดอร์ราก + หมวดหมู่ร่วมกันผ่านไฟล์ JSON ใน Drive (ใช้ scope เดิม drive.readonly) =====
+
 const SHARED_CONFIG_NAME = 'family-library-categories.json';
-const SHARED_CACHE_KEY = 'familyLibrary_sharedConfig_v1';
 const SHARED_MAX_BYTES = 512 * 1024;
 const validRootIds = () => ROOT_FOLDER_IDS.filter(id => /^[A-Za-z0-9_-]+$/.test(id));
 const sanitizeSharedConfig = (raw) => {
-    if (!raw || typeof raw !== 'object' || raw.app !== 'family-comic-library' || raw.version !== 1) return null;
-    if (!Array.isArray(raw.categories) || raw.categories.length === 0 || raw.categories.length > 50) return null;
+    if (!raw || typeof raw !== 'object' || raw.app !== 'family-comic-library' || raw.version !== 1 || !Array.isArray(raw.categories)) return null;
     const seen = new Set(), cats = [];
     for (const c of raw.categories) {
         if (!c || typeof c !== 'object') continue;
         const id = typeof c.id === 'string' ? c.id.trim() : '';
         const name = typeof c.name === 'string' ? c.name.trim().slice(0, 40) : '';
         if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || id === 'uncategorized' || seen.has(id) || !name) continue;
-        if (typeof c.icon !== 'string' || !/^fa-[a-z0-9-]{1,40}$/.test(c.icon)) continue;
-        if (typeof c.color !== 'string' || !/^#[0-9A-Fa-f]{3,8}$/.test(c.color)) continue;
-        if (typeof c.order !== 'number' || !Number.isFinite(c.order) || typeof c.visible !== 'boolean') continue;
-        seen.add(id); cats.push({ id, name, icon: c.icon, color: c.color, order: c.order, visible: c.visible });
+        seen.add(id); cats.push({ id, name, icon: c.icon || 'fa-book', color: c.color || '#6366F1', order: c.order || 1, visible: !!c.visible });
     }
     if (!cats.length) return null;
     const map = {};
     if (raw.folderMap && typeof raw.folderMap === 'object' && !Array.isArray(raw.folderMap)) {
-        const entries = Object.entries(raw.folderMap);
-        if (entries.length > 5000) return null;
-        entries.forEach(([fid, cid]) => { if (isDriveId(fid) && typeof cid === 'string' && seen.has(cid)) map[fid] = cid; });
+        Object.entries(raw.folderMap).forEach(([fid, cid]) => { if (isDriveId(fid) && typeof cid === 'string' && seen.has(cid)) map[fid] = cid; });
     }
     return { categories: cats, folderMap: map };
 };
-const readSharedCache = () => { try { const c = JSON.parse(localStorage.getItem(SHARED_CACHE_KEY) || 'null'); return c && typeof c.id === 'string' && typeof c.modifiedTime === 'string' ? c : null; } catch (e) { return null; } };
-const writeSharedCache = (id, modifiedTime, data) => { try { localStorage.setItem(SHARED_CACHE_KEY, JSON.stringify({ id, modifiedTime, data })); } catch (e) {} };
-async function loadSharedConfig(force = false) {
+async function loadSharedConfig() {
     driveConfig = null;
     try {
         const ids = validRootIds();
         if (!ids.length) return;
-        const res = await gapi.client.drive.files.list({ q: `name = '${SHARED_CONFIG_NAME}' and trashed = false and (${ids.map(id => `'${id}' in parents`).join(' or ')})`, fields: 'files(id, name, modifiedTime, size)', pageSize: 5, orderBy: 'modifiedTime desc' });
+        const res = await gapi.client.drive.files.list({ q: `name = '${SHARED_CONFIG_NAME}' and trashed = false and (${ids.map(id => `'${id}' in parents`).join(' or ')})`, fields: 'files(id, name, size)', pageSize: 1 });
         const f = (res.result.files || [])[0];
         if (!f || !isDriveId(f.id) || Number(f.size) > SHARED_MAX_BYTES) return;
-        const cached = readSharedCache();
-        if (!force && cached && cached.id === f.id && cached.modifiedTime === f.modifiedTime && cached.data) {
-            const d = sanitizeSharedConfig({ app: 'family-comic-library', version: 1, categories: cached.data.categories, folderMap: cached.data.folderMap });
-            if (d) { driveConfig = d; return; }
-        }
         const tok = gapi.client.getToken();
         if (!tok?.access_token) return;
         const r = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, { headers: { Authorization: `Bearer ${tok.access_token}` } });
         if (!r.ok) return;
-        const text = await r.text();
-        if (text.length > SHARED_MAX_BYTES) return;
-        const data = sanitizeSharedConfig(JSON.parse(text));
-        if (!data) return;
-        driveConfig = data;
-        writeSharedCache(f.id, f.modifiedTime, data);
+        const data = sanitizeSharedConfig(JSON.parse(await r.text()));
+        if (data) driveConfig = data;
     } catch (e) { driveConfig = null; }
 }
 async function checkRootAccess() {
@@ -653,39 +498,13 @@ async function checkRootAccess() {
     }
     rootAccessReport = report;
 }
-const canonicalConfig = (cats, map) => JSON.stringify([
-    [...cats].sort((a, b) => (a.id < b.id ? -1 : 1)).map(c => [c.id, c.name, c.icon, c.color, c.order, c.visible]),
-    Object.keys(map).sort().map(k => [k, map[k]])
-]);
 function exportSharedConfig() {
     if (!requireAdmin()) return;
     const payload = { app: 'family-comic-library', version: 1, exportedAt: new Date().toISOString(), categories: sortCategories(getCategories()), folderMap: getFolderCategoryMap() };
     const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
-    const a = document.createElement('a');
-    a.href = url; a.download = SHARED_CONFIG_NAME; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a'); a.href = url; a.download = SHARED_CONFIG_NAME; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-async function recheckSharedConfig() {
-    if (!requireAdmin()) return;
-    await loadSharedConfig(true);
-    renderCategoryManagementUI();
-}
-async function importSharedConfigToLocal() {
-    if (!requireAdmin()) return;
-    await loadSharedConfig(true);
-    if (!driveConfig) { alert('ไม่พบไฟล์ ' + SHARED_CONFIG_NAME + ' ในโฟลเดอร์รากบน Drive หรือไฟล์ไม่ถูกต้อง'); renderCategoryManagementUI(); return; }
-    if (!confirm('การนำเข้าจะเขียนทับหมวดหมู่และการจัดแฟ้มที่ตั้งไว้ในเครื่องนี้ ต้องการดำเนินการต่อหรือไม่?')) return;
-    saveCategories(driveConfig.categories);
-    saveFolderCategoryMap(driveConfig.folderMap);
-    renderCategoryManagementUI();
-}
-const sharedStatusHTML = () => {
-    let cls = 'warn', text;
-    if (!driveConfig) text = `ยังไม่พบไฟล์ ${SHARED_CONFIG_NAME} ในโฟลเดอร์รากบน Drive สมาชิกจึงเห็นหมวดเริ่มต้น และแฟ้มทั้งหมดอยู่ใน "ยังไม่ได้จัดหมวด"`;
-    else if (canonicalConfig(driveConfig.categories, driveConfig.folderMap) === canonicalConfig(getCategories(), getFolderCategoryMap())) { cls = 'ok'; text = 'ไฟล์ใน Drive ตรงกับที่ตั้งไว้ในเครื่องนี้ สมาชิกเห็นหมวดหมู่ตรงกับคุณแล้ว'; }
-    else text = 'ไฟล์ใน Drive ไม่ตรงกับที่ตั้งไว้ในเครื่องนี้ กด "ส่งออก" แล้วอัปโหลดทับไฟล์เดิมใน Drive (ชื่อไฟล์ต้องเหมือนเดิม)';
-    return `<div class="sync-panel"><div class="sync-title">แชร์หมวดหมู่ให้สมาชิก</div><div class="sync-status ${cls}">${escapeHtml(text)}</div><div class="sync-actions"><button class="btn-action" onclick="exportSharedConfig()"><i class="fas fa-download"></i> ส่งออกไฟล์หมวดหมู่</button><button class="btn-action" onclick="recheckSharedConfig()"><i class="fas fa-sync"></i> ตรวจไฟล์ใน Drive อีกครั้ง</button><button class="btn-action" onclick="importSharedConfigToLocal()"><i class="fas fa-cloud-download-alt"></i> นำเข้าจากไฟล์ใน Drive</button></div><div class="sync-help">วิธีใช้: ส่งออกไฟล์ แล้วอัปโหลดไว้ในโฟลเดอร์รากบน Google Drive (ชื่อต้องเป็น ${SHARED_CONFIG_NAME}) ถ้ามีไฟล์เดิมให้ทับ จากนั้นให้สมาชิกรีเฟรชหน้าเว็บ</div></div>`;
-};
 async function loadDriveContent(folderId, folderName = 'หน้าหลัก') {
     const requestId = ++driveLoadRequestId;
     currentViewMode = 'grid'; activeSeriesData = null; currentFolderId = folderId;
@@ -718,9 +537,7 @@ async function loadDriveContent(folderId, folderName = 'หน้าหลัก
             if (requestId !== driveLoadRequestId) return;
             const res = await gapi.client.drive.files.list({ q: qStr, fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, modifiedTime)', pageSize: 1000, orderBy: 'folder, name', pageToken });
             if (requestId !== driveLoadRequestId) return;
-            (res.result.files || []).forEach(f => allFiles.push({
-                id: f.id || '', name: f.name || 'ไม่มีชื่อ', mimeType: f.mimeType || '', thumbnailLink: f.thumbnailLink || null, modifiedTime: f.modifiedTime || new Date().toISOString()
-            }));
+            (res.result.files || []).forEach(f => allFiles.push({ id: f.id || '', name: f.name || 'ไม่มีชื่อ', mimeType: f.mimeType || '', thumbnailLink: f.thumbnailLink || null, modifiedTime: f.modifiedTime || new Date().toISOString() }));
             pageToken = res.result.nextPageToken;
         } while (pageToken);
         if (requestId !== driveLoadRequestId) return;
@@ -754,36 +571,20 @@ const setRootView = (filter, crumb) => {
 const createFolderCard = (f, catId) => {
     const card = document.createElement('div');
     card.className = 'book-card folder-card';
-    const safeFolderId = String(f.id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    card.innerHTML = '<div class="book-card-cover">' + generatePremiumFallback('folder', f.name) + FOLDER_BADGE + '</div><div class="book-card-info"><div class="book-title" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</div>' + (isAdmin() ? '<div class="folder-mapping-bar" onclick="event.stopPropagation();"><span>หมวด:</span><select onchange="onFolderCategoryChange(\'' + safeFolderId + '\', this.value)">' +
-        [...getCategories(), { id: 'uncategorized', name: 'ยังไม่ได้จัดหมวด' }].map(c => '<option value="' + escapeHtml(c.id) + '" ' + (c.id === catId ? 'selected' : '') + '>' + escapeHtml(c.name) + '</option>').join('') + '</select></div>' : '') + '</div>';
+    const safeFolderId = String(f.id).replace(/'/g, "\\'");
+    card.innerHTML = `<div class="book-card-cover">${generatePremiumFallback('folder', f.name)}${FOLDER_BADGE}</div><div class="book-card-info"><div class="book-title" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>` + (isAdmin() ? `<div class="folder-mapping-bar" onclick="event.stopPropagation();"><span>หมวด:</span><select onchange="onFolderCategoryChange('${safeFolderId}', this.value)">` + [...getCategories(), { id: 'uncategorized', name: 'ยังไม่ได้จัดหมวด' }].map(c => `<option value="${escapeHtml(c.id)}" ${c.id === catId ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('') + '</select></div>' : '') + '</div>';
     card.onclick = () => loadDriveContent(f.id, f.name);
     attachFavButton(card, { id: f.id, name: f.name, kind: 'folder', mime: '' });
     getFolderCover(f.id, f.name).then(url => {
         const box = url && card.querySelector('.book-card-cover');
-        if (box) box.innerHTML = generatePremiumFallback('folder', f.name) + '<img src="' + url + '" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'">' + FOLDER_BADGE;
+        if (box) box.innerHTML = generatePremiumFallback('folder', f.name) + `<img src="${url}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` + FOLDER_BADGE;
     });
     return card;
 };
-const safeCatColor = (c) => /^#[0-9A-Fa-f]{3,8}$/.test(String(c)) ? c : '#94A3B8';
-const catCardHTML = (cat, count, label, footerAttr = '') => `<div class="category-card" role="button" tabindex="0" style="--cat: ${safeCatColor(cat.color)};" onclick="selectCategoryFilter('${cat.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectCategoryFilter('${cat.id}')}"><div class="cat-card-header"><div class="cat-icon-box" style="background: ${cat.color};"><i class="fas ${cat.icon}"></i></div><div class="cat-info"><h3>${escapeHtml(cat.name)}</h3></div></div><div class="cat-count"><span class="cat-num">${count}</span> แฟ้ม</div><div class="cat-card-footer"${footerAttr}><span>${label}</span><i class="fas fa-arrow-right"></i></div></div>`;
-const catRowLeft = (lead, cat, badges) => `<div class="cat-item-left">${lead}<div class="cat-item-icon" style="background: ${cat.color};"><i class="fas ${cat.icon}"></i></div><div><div class="cat-item-name">${escapeHtml(cat.name)}</div><div style="display:flex; gap:6px; margin-top:2px;">${badges}</div></div></div>`;
+const catCardHTML = (cat, count, label, footerAttr = '') => `<div class="category-card" role="button" tabindex="0" onclick="selectCategoryFilter('${cat.id}')"><div class="cat-card-header"><div class="cat-icon-box" style="background: ${cat.color};"><i class="fas ${cat.icon}"></i></div><div class="cat-info"><h3>${escapeHtml(cat.name)}</h3></div></div><div class="cat-count"><span class="cat-num">${count}</span> แฟ้ม</div><div class="cat-card-footer"${footerAttr}><span>${label}</span><i class="fas fa-arrow-right"></i></div></div>`;
 const catRow = (left, actions, attr = '') => `<div class="cat-list-item"${attr}>${left}<div class="cat-item-actions">${actions}</div></div>`;
 const orderBtn = (cat, off, dir, title) => `<button class="btn-order" ${off ? 'disabled' : ''} onclick="moveCategoryOrder('${cat.id}', '${dir}')" title="${title}"><i class="fas fa-chevron-${dir}"></i></button>`;
-const renderPicker = (id, items, selected, cls, onPick, decorate) => {
-    const box = document.getElementById(id);
-    if (!box) return;
-    box.innerHTML = '';
-    items.forEach(v => {
-        const div = document.createElement('div');
-        div.className = `${cls} ${selected === v ? 'selected' : ''}`;
-        decorate(div, v);
-        div.onclick = () => onPick(v);
-        box.appendChild(div);
-    });
-};
-const renderColorPickerOptions = () => renderPicker('color-picker-container', availableColors, selectedModalColor, 'color-option', c => { selectedModalColor = c; renderColorPickerOptions(); }, (d, c) => { d.style.background = c; });
-const renderIconPickerOptions = () => renderPicker('icon-picker-container', availableIcons, selectedModalIcon, 'icon-option', i => { selectedModalIcon = i; renderIconPickerOptions(); }, (d, i) => { d.innerHTML = `<i class="fas ${i}"></i>`; });
+
 function openCategoryDashboard() {
     setRootView('dashboard');
     if (rootFolderSubItems.length > 0) renderCategoryDashboard();
@@ -805,16 +606,8 @@ function renderCategoryDashboard() {
     updateHeroStats(`หมวดหมู่ทั้งหมด ${categories.length + 1} หมวด · ${rootFolders.length} แฟ้ม`);
     const adminBar = isAdmin() ? '<div class="dashboard-action-bar"><button class="btn-manage-cats" onclick="openCategoryManagement()"><i class="fas fa-cog"></i> จัดการหมวดหมู่</button></div>' : '';
     const denied = rootAccessReport?.denied || [], okCount = rootAccessReport?.ok?.length || 0;
-    const noAccess = denied.length > 0 && okCount === 0;
-    const emptyHTML = rootFolders.length === 0
-        ? (noAccess
-            ? `<div class="state-container"><div class="state-icon">🔒</div><div class="state-title">บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าถึงห้องสมุด</div><div class="state-desc">${rootAccessReport.email ? 'บัญชี ' + escapeHtml(rootAccessReport.email) + ' ' : 'บัญชีนี้ '}ยังไม่ได้รับการแชร์โฟลเดอร์ใน Google Drive โปรดแจ้งผู้ดูแลให้แชร์ให้ในสิทธิ์ "ผู้ดู" แล้วรีเฟรชหน้านี้ (ถ้าเลือกบัญชีผิด ให้ออกจากระบบแล้วเข้าใหม่ด้วยบัญชีที่ถูกต้อง)</div></div>`
-            : '<div class="state-container"><div class="state-icon">📚</div><div class="state-title">ยังไม่มีแฟ้มในห้องสมุด</div><div class="state-desc">เพิ่มแฟ้มหนังสือไว้ใน Google Drive แล้วรีเฟรชหน้านี้</div></div>')
-        : '';
-    const partialHTML = (denied.length > 0 && okCount > 0) ? `<div class="access-notice">บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าถึง ${denied.length} จาก ${denied.length + okCount} โฟลเดอร์ของห้องสมุด บางเรื่องอาจไม่แสดง โปรดแจ้งผู้ดูแลให้แชร์ให้ในสิทธิ์ "ผู้ดู"</div>` : '';
-    area.innerHTML = adminBar + partialHTML + (emptyHTML || (continueReadingHTML() + favoritesHTML() + '<div class="category-dashboard-grid">' +
-        categories.map(c => catCardHTML(c, counts[c.id] || 0, 'ดู' + escapeHtml(c.name))).join('') +
-        catCardHTML(UNCATEGORIZED, getUncategorizedFolderIds(folderIds).length, isAdmin() ? 'จัดหมวดหมู่' : 'ดูแฟ้ม', ' style="color: var(--text-muted);"') + '</div>'));
+    const emptyHTML = rootFolders.length === 0 ? (denied.length && !okCount ? '<div class="state-container"><div class="state-icon">🔒</div><div class="state-title">ยังไม่ได้รับสิทธิ์เข้าถึงห้องสมุด</div><div class="state-desc">โปรดแจ้งผู้ดูแลให้แชร์โฟลเดอร์ในสิทธิ์ "ผู้ดู" แล้วรีเฟรช</div></div>' : '<div class="state-container"><div class="state-icon">📚</div><div class="state-title">ยังไม่มีแฟ้มในห้องสมุด</div></div>') : '';
+    area.innerHTML = adminBar + (denied.length && okCount ? '<div class="access-notice">บางโฟลเดอร์ถูกจำกัดสิทธิ์การเข้าถึง</div>' : '') + (emptyHTML || (continueReadingHTML() + favoritesHTML() + '<div class="category-dashboard-grid">' + categories.map(c => catCardHTML(c, counts[c.id] || 0, 'ดู' + escapeHtml(c.name))).join('') + catCardHTML(UNCATEGORIZED, getUncategorizedFolderIds(folderIds).length, isAdmin() ? 'จัดหมวดหมู่' : 'ดูแฟ้ม', ' style="color: var(--text-muted);"') + '</div>'));
 }
 function openCategoryManagement() {
     if (!requireAdmin()) return;
@@ -829,135 +622,86 @@ function renderCategoryManagementUI() {
     updateHeroStats('⚙️ จัดการหมวดหมู่ทั้งหมดในระบบ');
     const cats = sortCategories(getCategories());
     const rows = cats.map((cat, i) => catRow(
-        catRowLeft(`<div class="cat-order-controls" style="display:flex; gap:4px;">${orderBtn(cat, i === 0, 'up', 'เลื่อนขึ้น')}${orderBtn(cat, i === cats.length - 1, 'down', 'เลื่อนลง')}</div>`, cat,
-            `<span class="cat-item-badge">ID: ${escapeHtml(cat.id)}</span><span class="cat-item-badge">${cat.visible ? 'แสดงอยู่' : 'ซ่อนอยู่'}</span>`),
-        `<button class="btn-action" onclick="openCategoryModal('edit', '${cat.id}')"><i class="fas fa-edit"></i> แก้ไข</button><button class="btn-action" onclick="toggleCategoryVisibility('${cat.id}')"><i class="fas ${cat.visible ? 'fa-eye-slash' : 'fa-eye'}"></i> ${cat.visible ? 'ซ่อน' : 'แสดง'}</button><button class="btn-action danger" onclick="deleteCategory('${cat.id}')"><i class="fas fa-trash-alt"></i> ลบ</button>`
+        `<div class="cat-item-left"><div style="display:flex; gap:4px;">${orderBtn(cat, i === 0, 'up', 'ขึ้น')}${orderBtn(cat, i === cats.length - 1, 'down', 'ลง')}</div><div class="cat-item-icon" style="background:${cat.color}"><i class="fas ${cat.icon}"></i></div><div><div class="cat-item-name">${escapeHtml(cat.name)}</div><span class="cat-item-badge">ID: ${cat.id}</span></div></div>`,
+        `<button class="btn-action" onclick="openCategoryModal('edit', '${cat.id}')"><i class="fas fa-edit"></i></button><button class="btn-action" onclick="toggleCategoryVisibility('${cat.id}')"><i class="fas ${cat.visible ? 'fa-eye-slash' : 'fa-eye'}"></i></button><button class="btn-action danger" onclick="deleteCategory('${cat.id}')"><i class="fas fa-trash"></i></button>`
     )).join('');
-    const system = catRow(catRowLeft('<div style="width: 64px;"></div>', UNCATEGORIZED, '<span class="cat-item-badge">System Category</span>'),
-        '<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; padding: 6px 14px; background: var(--surface-sunken); border-radius: 8px;">ระบบ</span>',
-        ' style="border-style: dashed; background: var(--surface-hover);"');
-    area.innerHTML = `<div class="cat-manage-container"><div class="cat-manage-header"><h2>📚 จัดการหมวดหมู่</h2><button class="btn-add-cat" onclick="openCategoryModal('create')"><i class="fas fa-plus"></i> เพิ่มหมวดหมู่</button></div>${sharedStatusHTML()}<div class="cat-list-table">${rows}${system}</div></div>`;
+    const system = catRow(`<div class="cat-item-left"><div style="width:52px;"></div><div class="cat-item-icon" style="background:${UNCATEGORIZED.color}"><i class="fas ${UNCATEGORIZED.icon}"></i></div><div><div class="cat-item-name">${UNCATEGORIZED.name}</div><span class="cat-item-badge">System</span></div></div>`, '<span class="cat-item-badge">ระบบ</span>', ' style="border-style:dashed;"');
+    area.innerHTML = `<div class="cat-manage-container"><div class="cat-manage-header"><h2>📚 จัดการหมวดหมู่</h2><button class="btn-add-cat" onclick="openCategoryModal('create')"><i class="fas fa-plus"></i> เพิ่ม</button></div><div class="sync-panel"><div class="sync-title">สำรองข้อมูลหมวดหมู่</div><div class="sync-actions"><button class="btn-action" onclick="exportSharedConfig()"><i class="fas fa-download"></i> ส่งออกไฟล์ JSON</button></div></div><div class="cat-list-table">${rows}${system}</div></div>`;
 }
-let currentModalMode = 'create';
-let editingCatId = null;
-const availableIcons = [
-    'fa-book-open', 'fa-book', 'fa-book-bookmark', 'fa-bookmark', 'fa-layer-group',
-    'fa-folder', 'fa-folder-open', 'fa-file-pdf', 'fa-graduation-cap', 'fa-child',
-    'fa-heart', 'fa-star', 'fa-fire', 'fa-coffee', 'fa-palette',
-    'fa-music', 'fa-film', 'fa-gamepad', 'fa-globe', 'fa-lightbulb'
-];
-const availableColors = [
-    '#6366F1', '#4F46E5', '#EC4899', '#F59E0B', '#10B981',
-    '#3B82F6', '#8B5CF6', '#EF4444', '#14B8A6', '#64748B'
-];
-let selectedModalColor = '#6366F1';
-let selectedModalIcon = 'fa-book-open';
+let currentModalMode = 'create', editingCatId = null, selectedModalColor = '#6366F1', selectedModalIcon = 'fa-book-open';
+const availableIcons = ['fa-book-open', 'fa-book', 'fa-bookmark', 'fa-layer-group', 'fa-folder', 'fa-file-pdf', 'fa-star', 'fa-globe'];
+const availableColors = ['#6366F1', '#4F46E5', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#EF4444'];
 function openCategoryModal(mode, catId = null) {
     if (!requireAdmin()) return;
-    if (catId === 'uncategorized') return;
     currentModalMode = mode; editingCatId = catId;
-    const edit = mode === 'edit' && catId, cat = edit ? getCategories().find(c => c.id === catId) : null;
-    document.getElementById('category-modal-title').textContent = edit ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่';
-    document.getElementById('category-modal-submit-text').textContent = edit ? 'บันทึกการแก้ไข' : 'สร้างหมวดหมู่';
+    const cat = mode === 'edit' ? getCategories().find(c => c.id === catId) : null;
+    document.getElementById('category-modal-title').textContent = cat ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่';
     document.getElementById('cat-name-input').value = cat ? cat.name : '';
     selectedModalColor = cat ? cat.color : '#6366F1';
     selectedModalIcon = cat ? cat.icon : 'fa-book-open';
-    renderColorPickerOptions();
-    renderIconPickerOptions();
+    document.getElementById('color-picker-container').innerHTML = availableColors.map(c => `<div class="color-option ${selectedModalColor===c?'selected':''}" style="background:${c}" onclick="selectedModalColor='${c}';openCategoryModal('${mode}','${catId}')"></div>`).join('');
+    document.getElementById('icon-picker-container').innerHTML = availableIcons.map(i => `<div class="icon-option ${selectedModalIcon===i?'selected':''}" onclick="selectedModalIcon='${i}';openCategoryModal('${mode}','${catId}')"><i class="fas ${i}"></i></div>`).join('');
     document.getElementById('category-modal-overlay').style.display = 'flex';
 }
-function closeCategoryModal() {
-    document.getElementById('category-modal-overlay').style.display = 'none';
-}
+function closeCategoryModal() { document.getElementById('category-modal-overlay').style.display = 'none'; }
 function handleCategoryFormSubmit() {
     if (!requireAdmin()) return;
-    const nameInput = document.getElementById('cat-name-input'), rawName = nameInput.value.trim();
-    if (!rawName) { alert('กรุณากรอกชื่อหมวดหมู่'); nameInput.focus(); return; }
+    const name = document.getElementById('cat-name-input').value.trim();
+    if (!name) return alert('กรุณากรอกชื่อ');
     const cats = getCategories();
-    const isDuplicate = (exceptId) => {
-        const dup = cats.some(c => c.id !== exceptId && c.name.toLowerCase() === rawName.toLowerCase());
-        if (dup) { alert('มีชื่อหมวดหมู่นี้อยู่แล้ว กรุณาใช้ชื่ออื่น'); nameInput.focus(); }
-        return dup;
-    };
     if (currentModalMode === 'create') {
-        if (isDuplicate(null)) return;
-        let newId = 'cat_' + Date.now().toString(36);
-        while (cats.some(c => c.id === newId)) newId = 'cat_' + Math.random().toString(36).substring(2, 7);
-        const maxOrder = cats.length > 0 ? Math.max(...cats.map(c => c.order)) : 0;
-        cats.push({ id: newId, name: rawName, icon: selectedModalIcon, color: selectedModalColor, order: maxOrder + 1, visible: true });
-        saveCategories(cats);
-    } else if (currentModalMode === 'edit' && editingCatId) {
-        if (editingCatId === 'uncategorized' || isDuplicate(editingCatId)) return;
-        const target = cats.find(c => c.id === editingCatId);
-        if (target) { Object.assign(target, { name: rawName, icon: selectedModalIcon, color: selectedModalColor }); saveCategories(cats); }
+        const newId = 'cat_' + Math.random().toString(36).substring(2, 7);
+        cats.push({ id: newId, name, icon: selectedModalIcon, color: selectedModalColor, order: cats.length + 1, visible: true });
+    } else {
+        const t = cats.find(c => c.id === editingCatId);
+        if (t) Object.assign(t, { name, icon: selectedModalIcon, color: selectedModalColor });
     }
-    closeCategoryModal();
-    openCategoryManagement();
+    saveCategories(cats); closeCategoryModal(); openCategoryManagement();
 }
 function toggleCategoryVisibility(catId) {
     if (!requireAdmin()) return;
-    if (catId === 'uncategorized') return;
-    const cats = getCategories();
-    const target = cats.find(c => c.id === catId);
-    if (target) {
-        target.visible = !target.visible;
-        saveCategories(cats);
-        renderCategoryManagementUI();
-    }
+    const cats = getCategories(), t = cats.find(c => c.id === catId);
+    if (t) { t.visible = !t.visible; saveCategories(cats); renderCategoryManagementUI(); }
 }
-function moveCategoryOrder(catId, direction) {
+function moveCategoryOrder(catId, dir) {
     if (!requireAdmin()) return;
-    if (catId === 'uncategorized') return;
-    const cats = sortCategories(getCategories());
-    const index = cats.findIndex(c => c.id === catId);
-    if (index === -1) return;
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= cats.length) return;
-    const tempOrder = cats[index].order;
-    cats[index].order = cats[targetIndex].order;
-    cats[targetIndex].order = tempOrder;
-    cats.sort((a, b) => a.order - b.order);
-    cats.forEach((c, idx) => c.order = idx + 1);
-    saveCategories(cats);
-    renderCategoryManagementUI();
+    const cats = sortCategories(getCategories()), i = cats.findIndex(c => c.id === catId);
+    const target = dir === 'up' ? i - 1 : i + 1;
+    if (target < 0 || target >= cats.length) return;
+    const tmp = cats[i].order; cats[i].order = cats[target].order; cats[target].order = tmp;
+    cats.sort((a,b) => a.order - b.order).forEach((c, idx) => c.order = idx + 1);
+    saveCategories(cats); renderCategoryManagementUI();
 }
 function deleteCategory(catId) {
-    if (!requireAdmin()) return;
-    if (catId === 'uncategorized') return;
-    if (!confirm('ต้องการลบหมวดหมู่นี้หรือไม่? แฟ้มที่อยู่ในหมวดนี้จะถูกย้ายไปที่ "ยังไม่ได้จัดหมวด"')) return;
+    if (!requireAdmin() || !confirm('ต้องการลบหมวดหมู่นี้?')) return;
     saveCategories(getCategories().filter(c => c.id !== catId));
-    const map = getFolderCategoryMap(), ids = Object.keys(map).filter(k => map[k] === catId);
-    ids.forEach(k => delete map[k]);
-    if (ids.length) saveFolderCategoryMap(map);
     renderCategoryManagementUI();
 }
 function renderCategoryFolderView(catId) {
     const area = document.getElementById('content-area');
-    if (!area) return;
-    area.innerHTML = '';
+    if (!area) return; area.innerHTML = '';
     const unc = catId === 'uncategorized', folderMap = getFolderCategoryMap(), validIds = new Set(getCategories().map(c => c.id));
     const folders = rootFolderSubItems.filter(isFolderItem).filter(f => unc ? (!folderMap[f.id] || !validIds.has(folderMap[f.id])) : folderMap[f.id] === catId);
     updateHeroStats(`หมวด: ${unc ? UNCATEGORIZED.name : getCategoryById(catId).name} · ${folders.length} แฟ้ม`);
-    if (!folders.length) return renderEmptyState(unc ? '📦' : '📭', unc ? 'ยังไม่มีแฟ้มที่ไม่ได้จัดหมวด' : 'ยังไม่มีแฟ้มในหมวดนี้', isAdmin() ? 'คุณสามารถเลือกหมวดหมู่ให้แฟ้มได้จากรายการด้านล่าง' : 'ลองเลือกหมวดหมู่อื่น');
+    if (!folders.length) return renderEmptyState('📭', 'ยังไม่มีแฟ้มในหมวดนี้', '');
     folders.forEach(f => area.appendChild(createFolderCard(f, folderMap[f.id] || 'uncategorized')));
 }
 function onFolderCategoryChange(folderId, newCatId) {
     if (!requireAdmin()) return;
-    if (newCatId === 'uncategorized') removeFolderCategory(folderId);
-    else if (getCategories().some(c => c.id === newCatId)) setFolderCategory(folderId, newCatId);
-    else removeFolderCategory(folderId);
+    setFolderCategory(folderId, newCatId);
     if (activeCategoryFilter !== 'dashboard') renderCategoryFolderView(activeCategoryFilter);
 }
+
 const normalizeSeriesKey = (name) => String(name || '').normalize('NFC').toLowerCase().replace(/[\s\-_]+/g, '').trim();
 function parseVolumeName(fileName) {
     const lastDot = fileName.lastIndexOf('.');
     if (lastDot === -1) return null;
     const nameExt = fileName.substring(0, lastDot), ext = fileName.substring(lastDot + 1).toLowerCase();
     const rangeMatch = nameExt.match(/^(.+?)(?:\s+เล่ม\s*|\s*[_-]\s*|\s+)(\d+)\s*-\s*(\d+)$/i);
-    if (rangeMatch) return { type: 'collection', seriesName: rangeMatch[1].replace(/[-_\s]+$/, '').trim(), volumeStart: parseInt(rangeMatch[2], 10), volumeEnd: parseInt(rangeMatch[3], 10), extension: ext };
+    if (rangeMatch) return { type: 'collection', seriesName: rangeMatch[1].trim(), volumeStart: parseInt(rangeMatch[2], 10), volumeEnd: parseInt(rangeMatch[3], 10), extension: ext };
     for (const pat of [/^(.+?)\s+เล่ม\s*(\d+)$/i, /^(.+?)_(\d+)$/, /^(.+?)-(\d+)$/, /^(.+?)\s+(\d+)$/]) {
         const m = nameExt.match(pat);
-        if (m && m[1].replace(/[-_\s]+$/, '').trim()) return { type: 'single', seriesName: m[1].replace(/[-_\s]+$/, '').trim(), volumeNumber: parseInt(m[2], 10), extension: ext };
+        if (m && m[1].trim()) return { type: 'single', seriesName: m[1].trim(), volumeNumber: parseInt(m[2], 10), extension: ext };
     }
     return null;
 }
@@ -965,7 +709,7 @@ const isCoverImage = (name) => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(na
 function groupFilesAndFolders(items) {
     let folders = [], individualFiles = [], coverFiles = [], parsedItems = [];
     items.forEach(item => {
-        if (item.mimeType === 'application/vnd.google-apps.folder') folders.push(item);
+        if (isFolderItem(item)) folders.push(item);
         else if (isCoverImage(item.name)) coverFiles.push(item);
         else {
             const parsed = parseVolumeName(item.name);
@@ -976,14 +720,13 @@ function groupFilesAndFolders(items) {
     let seriesMap = {};
     parsedItems.forEach(({ item, parsed }) => {
         if (parsed.type === 'collection') {
-            seriesMap[`${parsed.seriesName} (เล่ม ${parsed.volumeStart}-${parsed.volumeEnd})_${item.id}`] = { type: 'collection', seriesName: parsed.seriesName, volumeRange: `เล่ม ${parsed.volumeStart}–${parsed.volumeEnd}`, books: [item], modifiedTime: item.modifiedTime };
+            seriesMap[`${parsed.seriesName}_${item.id}`] = { type: 'collection', seriesName: parsed.seriesName, volumeRange: `เล่ม ${parsed.volumeStart}–${parsed.volumeEnd}`, books: [item], modifiedTime: item.modifiedTime };
         } else if (parsed.type === 'single') {
             const key = normalizeSeriesKey(parsed.seriesName);
             if (rangeKeys.has(key)) individualFiles.push({ ...item, isSingleWithRange: true, seriesName: parsed.seriesName, volumeNumber: parsed.volumeNumber });
             else {
                 if (!seriesMap[key]) seriesMap[key] = { type: 'series', seriesName: parsed.seriesName, books: [], modifiedTime: item.modifiedTime };
                 seriesMap[key].books.push({ ...item, volumeNumber: parsed.volumeNumber });
-                if (new Date(item.modifiedTime) > new Date(seriesMap[key].modifiedTime)) seriesMap[key].modifiedTime = item.modifiedTime;
             }
         }
     });
@@ -995,744 +738,296 @@ const findSeriesCover = (seriesName, coverFiles) => {
     const cover = coverFiles.find(c => normalizeSeriesKey(c.name.substring(0, c.name.lastIndexOf('.'))) === target);
     return cover?.thumbnailLink ? cover.thumbnailLink.split('=')[0] + '=s800' : null;
 };
-// ===== V7.7 Global Search: ดัชนีชื่อฝั่งเบราว์เซอร์ (ไล่อ่านโฟลเดอร์จาก ROOT_FOLDER_IDS ด้วย files.list เดิม ไม่แก้ OAuth/SCOPES) =====
-const SEARCH_DB = 'familyComic_searchIndex_v1', SEARCH_TTL_MS = 24 * 3600 * 1000;
-const SEARCH_MAX_ENTRIES = 50000, SEARCH_MAX_FOLDERS = 5000, SEARCH_MAX_DEPTH = 12, SEARCH_CONCURRENCY = 4, SEARCH_PAGE = 100;
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-const escapeRegExp = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const normQ = (t) => String(t ?? '').normalize('NFC').toLowerCase().trim();
-const agoText = (ms) => { const m = Math.floor(ms / 60000); if (m < 1) return 'เมื่อสักครู่'; if (m < 60) return m + ' นาทีที่แล้ว'; const h = Math.floor(m / 60); return h < 24 ? h + ' ชั่วโมงที่แล้ว' : Math.floor(h / 24) + ' วันที่แล้ว'; };
-const idbOpen = () => new Promise((res, rej) => { const r = indexedDB.open(SEARCH_DB, 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
-const idbGet = async (k) => { const db = await idbOpen(); return new Promise((res, rej) => { const t = db.transaction('kv').objectStore('kv').get(k); t.onsuccess = () => res(t.result); t.onerror = () => rej(t.error); }); };
-const idbSet = async (k, v) => { const db = await idbOpen(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); };
-const rootsSig = () => validRootIds().slice().sort().join(',');
-const onDashboardView = () => currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter === 'dashboard';
-const isGlobalSearch = () => onDashboardView() || searchScopeOverride === 'global';
+
+const SEARCH_DB = 'familyComic_searchIndex_v1';
+const isGlobalSearch = () => (currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter === 'dashboard') || searchScopeOverride === 'global';
 function syncScopeChips() {
     const box = document.getElementById('scope-toggle');
     if (!box) return;
-    box.style.display = onDashboardView() ? 'none' : 'flex';
+    box.style.display = (currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter === 'dashboard') ? 'none' : 'flex';
     const g = isGlobalSearch();
     document.getElementById('scope-global')?.setAttribute('aria-pressed', g ? 'true' : 'false');
     document.getElementById('scope-local')?.setAttribute('aria-pressed', g ? 'false' : 'true');
 }
 function setSearchScope(mode) {
-    searchScopeOverride = mode === 'global' ? 'global' : 'local';
-    syncScopeChips();
+    searchScopeOverride = mode; syncScopeChips();
     if (document.getElementById('searchInput').value.trim()) onSearchInput(true);
     else if (!onDashboardView()) applySearchAndSort();
 }
-const buildIndexView = (rows) => {
-    const entries = [], byId = new Map();
-    rows.forEach(r => { if (!Array.isArray(r) || !isDriveId(r[0]) || typeof r[1] !== 'string' || !isDriveId(r[3])) return; const e = { id: r[0], name: r[1].slice(0, 300), n: normQ(r[1]), k: r[2] === 0 ? 'folder' : 'pdf', p: r[3], mt: String(r[4] || '') }; entries.push(e); byId.set(e.id, e); });
-    return { entries, byId };
-};
-async function getSearchOwner() {
-    if (searchOwner) return searchOwner;
-    try { const r = await gapi.client.drive.about.get({ fields: 'user(permissionId)' }); searchOwner = r?.result?.user?.permissionId || null; } catch (e) { searchOwner = null; }
-    return searchOwner;
-}
-async function loadStoredIndex() {
-    try {
-        const owner = await getSearchOwner();
-        if (!owner) return null;
-        const rec = await idbGet('main');
-        if (!rec || rec.v !== 1 || rec.owner !== owner || rec.roots !== rootsSig() || !Array.isArray(rec.rows) || !Number.isFinite(rec.builtAt)) return null;
-        const view = buildIndexView(rec.rows);
-        return { ...view, builtAt: rec.builtAt, truncated: !!rec.truncated };
-    } catch (e) { return null; }
-}
-async function listFolderPage(folderId, pageToken) {
-    const q = `'${folderId}' in parents and trashed = false and (mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf')`;
-    for (let attempt = 0; ; attempt++) {
-        try {
-            const res = await gapi.client.drive.files.list({ q, fields: 'nextPageToken, files(id, name, mimeType, modifiedTime)', pageSize: 1000, pageToken });
-            return res.result;
-        } catch (e) {
-            const st = Number(e?.status ?? e?.result?.error?.code);
-            const reason = String(e?.result?.error?.errors?.[0]?.reason || '');
-            const retriable = !st || st === 429 || st >= 500 || (st === 403 && /rate|quota/i.test(reason));
-            if (!retriable || attempt >= 3) return st === 401 ? Promise.reject(e) : { files: [], skipped: true };
-            await sleep(400 * Math.pow(2, attempt) + Math.random() * 200);
-        }
-    }
-}
-function buildSearchIndex() {
-    if (searchBuildPromise) return searchBuildPromise;
-    const myBuild = ++searchBuildId;
-    const rows = [], seen = new Set(validRootIds()), queue = validRootIds().map(id => ({ id, depth: 0 }));
-    let active = 0, foldersDone = 0, truncated = false, skipped = 0;
-    searchProgress = { folders: 0, items: 0 };
-    const worker = async () => {
-        for (;;) {
-            if (myBuild !== searchBuildId) return;
-            const job = queue.shift();
-            if (!job) { if (active === 0) return; await sleep(25); continue; }
-            active++;
-            try {
-                let token = null;
-                do {
-                    const res = await listFolderPage(job.id, token);
-                    if (myBuild !== searchBuildId) return;
-                    if (res.skipped) skipped++;
-                    for (const f of (res.files || [])) {
-                        if (!isDriveId(f.id) || rows.length >= SEARCH_MAX_ENTRIES) { if (rows.length >= SEARCH_MAX_ENTRIES) truncated = true; continue; }
-                        const isFolder = f.mimeType === 'application/vnd.google-apps.folder';
-                        rows.push([f.id, f.name || 'ไม่มีชื่อ', isFolder ? 0 : 1, job.id, f.modifiedTime || '']);
-                        if (isFolder && !seen.has(f.id)) {
-                            if (job.depth + 1 > SEARCH_MAX_DEPTH || seen.size >= SEARCH_MAX_FOLDERS) truncated = true;
-                            else { seen.add(f.id); queue.push({ id: f.id, depth: job.depth + 1 }); }
-                        }
-                    }
-                    token = res.nextPageToken || null;
-                } while (token);
-                foldersDone++;
-                searchProgress = { folders: foldersDone, items: rows.length };
-                if (searchRunId && document.getElementById('search-progress')) renderSearchProgress();
-            } finally { active--; }
-        }
-    };
-    searchBuildPromise = (async () => {
-        try {
-            await Promise.all(Array.from({ length: SEARCH_CONCURRENCY }, worker));
-            if (myBuild !== searchBuildId) return searchIdx;
-            const view = buildIndexView(rows);
-            searchIdx = { ...view, builtAt: Date.now(), truncated, skipped };
-            const owner = await getSearchOwner();
-            if (owner) { try { await idbSet('main', { v: 1, owner, roots: rootsSig(), builtAt: searchIdx.builtAt, truncated, rows }); } catch (e) {} }
-            return searchIdx;
-        } finally { if (myBuild === searchBuildId) { searchBuildPromise = null; searchProgress = null; } }
-    })();
-    return searchBuildPromise;
-}
+const onDashboardView = () => currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter === 'dashboard';
 async function ensureSearchIndex() {
-    if (searchIdx && Date.now() - searchIdx.builtAt < SEARCH_TTL_MS) return searchIdx;
-    if (!searchIdx) searchIdx = await loadStoredIndex();
-    if (searchIdx && Date.now() - searchIdx.builtAt < SEARCH_TTL_MS) return searchIdx;
-    if (searchIdx) { buildSearchIndex().catch(() => {}); return searchIdx; }   // ดัชนีเก่า: ใช้ไปก่อน แล้วอัปเดตเบื้องหลัง
-    return buildSearchIndex();
+    if (searchIdx) return searchIdx;
+    try {
+        const rec = await new Promise((res, rej) => {
+            const r = indexedDB.open(SEARCH_DB, 1);
+            r.onupgradeneeded = () => r.result.createObjectStore('kv');
+            r.onsuccess = () => { const t = r.result.transaction('kv').objectStore('kv').get('main'); t.onsuccess = () => res(t.result); };
+        });
+        if (rec && Array.isArray(rec.rows)) {
+            searchIdx = { entries: rec.rows.map(r => ({ id: r[0], name: r[1], k: r[2] === 0 ? 'folder' : 'pdf', p: r[3] })), byId: new Map() };
+            searchIdx.entries.forEach(e => searchIdx.byId.set(e.id, e));
+            return searchIdx;
+        }
+    } catch (e) {}
+    return null;
 }
-function rebuildSearchIndex() {
-    searchBuildPromise = null;
-    searchBuildId++;
-    const p = buildSearchIndex();
-    if (document.getElementById('searchInput').value.trim()) onSearchInput(true);
-    return p;
-}
-function searchIndexQuery(query) {
-    const terms = normQ(query).split(/\s+/).filter(Boolean).slice(0, 6);
-    if (!terms.length || !searchIdx) return { terms, hits: [] };
-    const hits = [];
-    for (const e of searchIdx.entries) {
-        let score = 0, ok = true;
-        for (const t of terms) { const p = e.n.indexOf(t); if (p < 0) { ok = false; break; } score += p === 0 ? 0 : (/[\s\-_.()\[\]]/.test(e.n[p - 1]) ? 1 : 2); }
-        if (ok) hits.push([score, e]);
-    }
-    hits.sort((a, b) => a[0] - b[0] || (a[1].k === b[1].k ? 0 : (a[1].k === 'folder' ? -1 : 1)) || a[1].name.localeCompare(b[1].name, 'th', { numeric: true }));
-    return { terms, hits: hits.map(h => h[1]) };
-}
-const searchPathOf = (e) => { const names = []; let cur = searchIdx.byId.get(e.p), g = 0; while (cur && g++ < 20) { names.unshift(cur.name); cur = searchIdx.byId.get(cur.p); } return names.join(' › '); };
-const highlightName = (name, terms) => {
-    if (!terms.length) return escapeHtml(name);
-    const re = new RegExp(terms.map(escapeRegExp).join('|'), 'gi');
-    let out = '', last = 0, m;
-    while ((m = re.exec(name)) !== null) { if (m[0] === '') { re.lastIndex++; continue; } out += escapeHtml(name.slice(last, m.index)) + '<mark>' + escapeHtml(m[0]) + '</mark>'; last = m.index + m[0].length; }
-    return out + escapeHtml(name.slice(last));
-};
-function renderSearchProgress() {
-    const area = document.getElementById('content-area');
-    if (!area) return;
-    const p = searchProgress || { folders: 0, items: 0 };
-    area.innerHTML = `<div class="state-container" id="search-progress"><div class="state-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="state-title">กำลังสร้างดัชนีห้องสมุดเพื่อค้นหา</div><div class="state-desc">อ่านแล้ว ${p.folders} โฟลเดอร์ พบ ${p.items} รายการ (ทำครั้งแรกครั้งเดียว แล้วจะจำไว้ในเครื่องนี้)</div></div>`;
-}
-let searchShown = SEARCH_PAGE, searchLastQuery = '';
-function renderGlobalResults(query, more = false) {
-    const area = document.getElementById('content-area');
-    if (!area || !searchIdx) return;
-    if (!more) searchShown = SEARCH_PAGE;
-    searchLastQuery = query;
-    const { terms, hits } = searchIndexQuery(query);
-    const shown = hits.slice(0, searchShown);
-    const meta = `พบ ${hits.length} รายการ · ดัชนีอัปเดต ${agoText(Date.now() - searchIdx.builtAt)}${searchProgress ? ' (กำลังอัปเดตเบื้องหลัง)' : ''}${searchIdx.truncated ? ' · ห้องสมุดใหญ่เกินเพดาน อาจแสดงไม่ครบ' : ''}`;
-    const rows = shown.map(e => {
-        const folder = e.k === 'folder', path = searchPathOf(e);
-        return `<div class="search-row" role="button" tabindex="0" onclick="openSearchResult('${e.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSearchResult('${e.id}')}"><div class="search-ico${folder ? ' is-folder' : ''}"><i class="fas ${folder ? 'fa-folder' : 'fa-book'}"></i></div><div class="search-info"><div class="search-name">${highlightName(e.name, terms)}</div>${path ? `<div class="search-path">${escapeHtml(path)}</div>` : ''}</div><div class="search-tag">${folder ? 'แฟ้ม' : 'PDF'}</div></div>`;
-    }).join('');
-    const empty = hits.length === 0 ? '<div class="state-container"><div class="state-icon">🔎</div><div class="state-title">ไม่พบรายการที่ตรงกับคำค้นหา</div><div class="state-desc">ลองใช้คำสั้นลง หรือกด "รีเฟรชดัชนี" ถ้าเพิ่งเพิ่มไฟล์ใหม่ใน Drive</div></div>' : '';
-    const moreBtn = hits.length > shown.length ? `<button class="fav-more" onclick="showMoreSearch()">แสดงเพิ่ม (${hits.length - shown.length})</button>` : '';
-    area.innerHTML = `<div class="search-results"><div class="search-meta"><span>${escapeHtml(meta)}</span><button class="fav-more" onclick="rebuildSearchIndex()"><i class="fas fa-sync"></i> รีเฟรชดัชนี</button></div>${empty}<div class="search-list">${rows}</div>${moreBtn}</div>`;
-}
-function showMoreSearch() { searchShown += SEARCH_PAGE; renderGlobalResults(searchLastQuery, true); }
-async function runGlobalSearch() {
-    const input = document.getElementById('searchInput');
-    const q = input ? input.value : '';
-    const run = ++searchRunId;
-    if (!q.trim()) { if (onDashboardView()) renderCategoryDashboard(); else applySearchAndSort(); return; }
-    if (!searchIdx || (searchBuildPromise && !searchIdx)) renderSearchProgress();
-    let idx;
-    try { idx = await ensureSearchIndex(); } catch (e) { if (run === searchRunId) document.getElementById('content-area').innerHTML = '<div class="state-container"><div class="state-icon">⚠️</div><div class="state-title">สร้างดัชนีค้นหาไม่สำเร็จ</div><div class="state-desc">ตรวจการเชื่อมต่อแล้วลองใหม่ หรือลองค้นหา "ในแฟ้มนี้" แทน</div></div>'; return; }
-    if (run !== searchRunId || !idx) return;
-    renderGlobalResults(input.value);
-}
-let searchDebounce = null;
 function onSearchInput(immediate = false) {
-    if (!isGlobalSearch()) { searchRunId++; applySearchAndSort(); return; }
-    clearTimeout(searchDebounce);
-    if (immediate === true) runGlobalSearch(); else searchDebounce = setTimeout(runGlobalSearch, 180);
+    if (!isGlobalSearch()) return applySearchAndSort();
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (!q) return renderCategoryDashboard();
+    
+    // V7.9.3: แสดงสถานะกำลังค้นหา
+    document.getElementById('content-area').innerHTML = '<div class="state-container"><div class="state-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="state-title">กำลังค้นหาในระบบ...</div></div>';
+    
+    ensureSearchIndex().then(idx => {
+        if (!idx) {
+            document.getElementById('content-area').innerHTML = '<div class="state-container"><div class="state-icon">🔍</div><div class="state-title">ยังไม่มีดัชนีค้นหา</div><div class="state-desc">โปรดใช้งานหน้าหลักก่อนเพื่อให้ระบบสร้างดัชนี</div></div>';
+            return;
+        }
+        const hits = idx.entries.filter(e => e.name.toLowerCase().includes(q)).slice(0, 50);
+        document.getElementById('content-area').innerHTML = `<div class="search-results"><div class="search-list">${hits.map(e => `<div class="search-row" onclick="openSearchResult('${e.id}')"><div class="search-ico"><i class="fas ${e.k==='folder'?'fa-folder':'fa-book'}"></i></div><div class="search-info"><div class="search-name">${escapeHtml(e.name)}</div></div></div>`).join('')}</div></div>`;
+    });
 }
 function openSearchResult(id) {
-    const e = searchIdx?.byId.get(id);
-    if (!e) return;
-    if (e.k === 'pdf') { readerFromSearch = true; openReader(e.id, e.name, 'application/pdf'); return; }
-    const chain = []; let cur = searchIdx.byId.get(e.p), g = 0;
-    while (cur && g++ < 20) { chain.unshift({ id: cur.id, name: cur.name }); cur = searchIdx.byId.get(cur.p); }
-    searchRunId++;
-    folderHistory = [{ id: ROOT_FOLDER_ID, name: 'หน้าหลัก' }, ...chain];
-    loadDriveContent(e.id, e.name);
+    readerFromSearch = true;
+    openReader(id, 'เปิดจากค้นหา', 'application/pdf');
 }
 function applySearchAndSort() {
     syncScopeChips();
     if (currentViewMode === 'series-detail' && activeSeriesData) return renderSeriesDetailUI(activeSeriesData);
-    if (currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter !== 'dashboard') {
-        renderCategoryFolderView(activeCategoryFilter);
-        return;
-    }
+    if (currentFolderId === ROOT_FOLDER_ID && activeCategoryFilter !== 'dashboard') return renderCategoryFolderView(activeCategoryFilter);
     const query = document.getElementById('searchInput').value.toLowerCase();
-    const sortType = document.getElementById('sortSelect').value;
     const { folders, seriesList, individualFiles, coverFiles } = groupFilesAndFolders(currentFolderItems);
-    const fFolders = folders.filter(f => f.name.toLowerCase().includes(query));
-    const fSeries = seriesList.filter(s => s.seriesName.toLowerCase().includes(query) || (s.volumeRange && s.volumeRange.toLowerCase().includes(query)));
-    const fFiles = individualFiles.filter(f => (f.isSingleWithRange ? `${f.seriesName} เล่ม ${f.volumeNumber}` : f.name).toLowerCase().includes(query));
-    const sortFn = (a, b) => {
-        const nA = a.name || a.seriesName, nB = b.name || b.seriesName;
-        if (sortType === 'name-asc') return nA.localeCompare(nB, 'th');
-        if (sortType === 'name-desc') return nB.localeCompare(nA, 'th');
-        if (sortType === 'latest') return new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0);
-        return 0;
-    };
-    if (sortType !== 'default') { fFolders.sort(sortFn); fSeries.sort(sortFn); fFiles.sort(sortFn); }
-    else { fFolders.sort((a, b) => a.name.localeCompare(b.name, 'th')); fSeries.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'th')); fFiles.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th')); }
-    renderMainGridUI(fFolders, fSeries, fFiles, coverFiles, query !== '');
+    renderMainGridUI(folders.filter(f => f.name.toLowerCase().includes(query)), seriesList.filter(s => s.seriesName.toLowerCase().includes(query)), individualFiles.filter(f => f.name.toLowerCase().includes(query)), coverFiles, query !== '');
 }
+
+// Theme Engine
+function initThemeEngine() {
+    const saved = localStorage.getItem('familyComic:theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(saved);
+}
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('familyComic:theme', theme);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+function toggleTheme() { setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+
 window.addEventListener('DOMContentLoaded', () => {
-    initCategoryEngine();
-    domReady = true;
+    initCategoryEngine(); initThemeEngine(); domReady = true;
     document.getElementById('searchInput').addEventListener('input', () => onSearchInput());
-    document.getElementById('searchInput').addEventListener('focus', () => { if (isGlobalSearch() && gapi?.client?.drive && gapi.client.getToken?.()) ensureSearchIndex().catch(() => {}); });
-    document.getElementById('sortSelect').addEventListener('change', () => { if (!isGlobalSearch()) applySearchAndSort(); });
-    document.addEventListener('keydown', e => {
-        if (document.getElementById('reader-modal').style.display === 'flex') {
-            if (e.key === 'ArrowLeft') onPrevPage();
-            if (e.key === 'ArrowRight') onNextPage();
-        }
+    document.getElementById('sortSelect').addEventListener('change', () => applySearchAndSort());
+    
+    // V7.9.3: จัดการปุ่ม Back to Top
+    window.addEventListener('scroll', () => {
+        const btn = document.getElementById('backToTopBtn');
+        if (btn) btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
     });
+
     maybeStartApp();
 });
+
+const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
 const generatePremiumFallback = (type, title) => {
-    let bgClass = 'bg-empty', icon = 'fa-image', typeText = 'ไม่มีปก';
-    if (type === 'pdf') { bgClass = 'bg-pdf'; icon = 'fa-file-pdf'; typeText = 'PDF BOOK'; }
-    else if (type === 'series') { bgClass = 'bg-series'; icon = 'fa-layer-group'; typeText = 'SERIES'; }
-    else if (type === 'folder') { bgClass = 'bg-folder'; icon = 'fa-folder'; typeText = 'COLLECTION'; }
-    return `<div class="premium-fallback ${bgClass}"><div class="fallback-content"><i class="fas ${icon}"></i><div class="f-type">${typeText}</div>${title ? `<div class="f-title">${escapeHtml(title)}</div>` : ''}</div></div>`;
+    let icon = type === 'pdf' ? 'fa-file-pdf' : type === 'series' ? 'fa-layer-group' : type === 'folder' ? 'fa-folder' : 'fa-image';
+    return `<div class="premium-fallback bg-${type}"><div class="fallback-content"><i class="fas ${icon}"></i><div class="f-type">${type}</div>${title ? `<div class="f-title">${escapeHtml(title)}</div>` : ''}</div></div>`;
 };
 async function renderMainGridUI(folders, seriesList, files, coverFiles, isSearching = false) {
-    const area = document.getElementById('content-area');
-    area.innerHTML = '';
-    if (isSearching) updateHeroStats(`ผลการค้นหา ${folders.length + seriesList.length + files.length} รายการ`);
-    else {
-        let stats = [];
-        if(folders.length) stats.push(`${folders.length} แฟ้ม`);
-        if(seriesList.length) stats.push(`${seriesList.length} ซีรีส์`);
-        if(files.length) stats.push(`${files.length} เล่ม`);
-        updateHeroStats(stats.length ? stats.join(' · ') : 'หน้าหลัก');
-    }
-    if (!folders.length && !seriesList.length && !files.length) {
-        renderEmptyState(isSearching ? '🔎' : '📚', isSearching ? 'ไม่พบรายการที่ค้นหา' : 'ไม่พบหนังสือที่รองรับ', isSearching ? 'ลองเปลี่ยนคำค้นหาใหม่อีกครั้ง' : 'ลองตรวจสอบไฟล์ใน Google Drive');
-        return;
-    }
-    for (const f of folders) area.appendChild(createFolderCard(f, getFolderCategoryMap()[f.id] || 'uncategorized'));
-    for (const s of seriesList) {
+    const area = document.getElementById('content-area'); area.innerHTML = '';
+    updateHeroStats(isSearching ? `ผลการค้นหา` : `${folders.length} แฟ้ม · ${seriesList.length} ซีรีส์ · ${files.length} เล่ม`);
+    if (!folders.length && !seriesList.length && !files.length) return renderEmptyState('📚', 'ไม่พบหนังสือ', '');
+    folders.forEach(f => area.appendChild(createFolderCard(f, getFolderCategoryMap()[f.id] || 'uncategorized')));
+    seriesList.forEach(s => {
         let coverUrl = findSeriesCover(s.seriesName, coverFiles) || (s.books[0]?.thumbnailLink ? s.books[0].thumbnailLink.split('=')[0] + '=s800' : null);
-        let fallbackType = (s.type === 'collection' || s.books[0]?.mimeType?.includes('pdf')) ? 'pdf' : 'series';
-        let imgHTML = generatePremiumFallback(fallbackType, s.seriesName);
-        if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
-        const badgeHTML = `<div class="badge-overlay badge-series"><i class="fas ${s.type === 'collection' ? 'fa-file-pdf' : 'fa-layer-group'}"></i> ${s.type === 'collection' ? s.volumeRange : `${s.books.length} เล่ม`}</div>`;
-        const card = createCardElement('book-card', imgHTML, badgeHTML, s.seriesName, () => s.type === 'collection' ? openReader(s.books[0].id, s.books[0].name, s.books[0].mimeType) : openSeriesDetail(s));
-        area.appendChild(card);
-    }
-    for (const item of files) {
-        const page = getBookmark(item.id);
-        const titleStr = item.isSingleWithRange ? `${item.seriesName} เล่ม ${item.volumeNumber}` : item.name;
-        const coverUrl = item.thumbnailLink ? item.thumbnailLink.split('=')[0] + '=s800' : null;
-        let fallbackType = item.mimeType.includes('pdf') ? 'pdf' : 'empty';
-        let imgHTML = generatePremiumFallback(fallbackType, titleStr);
-        if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
-        const badgeHTML = item.isSingleWithRange ? `<div class="badge-overlay badge-single">เล่ม ${item.volumeNumber}</div>` : (page > 1 ? `<div class="badge-overlay badge-bookmark"><i class="fas fa-bookmark"></i> หน้า ${page}</div>` : '');
-        const card = createCardElement('book-card', imgHTML, badgeHTML, titleStr, () => openReader(item.id, item.name, item.mimeType), { id: item.id, name: item.name, kind: 'file', mime: item.mimeType });
-        area.appendChild(card);
-    }
+        let imgHTML = generatePremiumFallback('series', s.seriesName) + (coverUrl ? `<img src="${coverUrl}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '');
+        area.appendChild(createCardElement('book-card', imgHTML, `<div class="badge-overlay badge-series">${s.books.length} เล่ม</div>`, s.seriesName, () => openSeriesDetail(s)));
+    });
+    files.forEach(item => {
+        let coverUrl = item.thumbnailLink ? item.thumbnailLink.split('=')[0] + '=s800' : null;
+        let imgHTML = generatePremiumFallback('pdf', item.name) + (coverUrl ? `<img src="${coverUrl}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '');
+        area.appendChild(createCardElement('book-card', imgHTML, '', item.name, () => openReader(item.id, item.name, item.mimeType), { id: item.id, name: item.name, kind: 'file', mime: item.mimeType }));
+    });
 }
 function openSeriesDetail(series) {
     currentViewMode = 'series-detail'; activeSeriesData = series;
-    document.getElementById('searchInput').value = '';
-    renderSeriesBreadcrumb(series.seriesName);
     renderSeriesDetailUI(series);
 }
-function renderSeriesBreadcrumb(seriesName) {
-    const bc = document.getElementById('breadcrumb');
-    if (!bc) return;
-    bc.innerHTML = '';
-    folderHistory.forEach((folder, index) => {
-        const span = document.createElement('span');
-        span.className = 'bc-item';
-        if (index === 0) {
-            const icon = document.createElement('i'); icon.className = 'fas fa-home';
-            span.appendChild(icon); span.append(' หน้าหลัก');
-            span.addEventListener('click', () => openCategoryDashboard());
-        } else if (folder.id.startsWith('cat_')) {
-            span.textContent = folder.name;
-            if (folder.id === 'cat_manage') {
-                span.addEventListener('click', () => openCategoryManagement());
-            } else {
-                span.addEventListener('click', () => selectCategoryFilter(folder.id.replace('cat_', '')));
-            }
-        } else {
-            span.textContent = folder.name;
-            span.addEventListener('click', () => loadDriveContent(folder.id, folder.name));
-        }
-        bc.appendChild(span);
-        const sep = document.createElement('span');
-        sep.className = 'bc-separator';
-        const sepIcon = document.createElement('i'); sepIcon.className = 'fas fa-chevron-right';
-        sep.appendChild(sepIcon);
-        bc.appendChild(sep);
+function renderSeriesDetailUI(series) {
+    const area = document.getElementById('content-area'); area.innerHTML = '';
+    updateHeroStats(`ซีรีส์: ${escapeHtml(series.seriesName)} · ${series.books.length} เล่ม`);
+    series.books.forEach(book => {
+        let coverUrl = book.thumbnailLink ? book.thumbnailLink.split('=')[0] + '=s800' : null;
+        let imgHTML = generatePremiumFallback('pdf', book.name) + (coverUrl ? `<img src="${coverUrl}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '');
+        area.appendChild(createCardElement('book-card', imgHTML, '', `เล่ม ${book.volumeNumber}`, () => openReader(book.id, book.name, book.mimeType), { id: book.id, name: book.name, kind: 'file', mime: book.mimeType }));
     });
-    const seriesSpan = document.createElement('span');
-    seriesSpan.className = 'bc-item current';
-    seriesSpan.textContent = seriesName;
-    bc.appendChild(seriesSpan);
-    requestAnimationFrame(() => { bc.scrollLeft = bc.scrollWidth; });
 }
 function renderBreadcrumb() {
-    searchScopeOverride = null; syncScopeChips();
-    const bc = document.getElementById('breadcrumb');
-    if (!bc) return;
-    bc.innerHTML = '';
-    folderHistory.forEach((folder, index) => {
-        const isLast = index === folderHistory.length - 1, id = folder.id;
-        const span = document.createElement('span');
-        span.className = isLast ? 'bc-item current' : 'bc-item';
-        if (index === 0) {
-            const icon = document.createElement('i'); icon.className = 'fas fa-home';
-            span.appendChild(icon); span.append(' หน้าหลัก');
-        } else span.textContent = folder.name;
-        if (!isLast) span.addEventListener('click', index === 0 ? () => openCategoryDashboard()
-            : id === 'cat_manage' ? () => openCategoryManagement()
-            : id.startsWith('cat_') ? () => selectCategoryFilter(id.replace('cat_', ''))
-            : () => loadDriveContent(id, folder.name));
-        bc.appendChild(span);
-        if (!isLast) {
-            const sep = document.createElement('span'); sep.className = 'bc-separator';
-            const sepIcon = document.createElement('i'); sepIcon.className = 'fas fa-chevron-right';
-            sep.appendChild(sepIcon); bc.appendChild(sep);
-        }
-    });
-    requestAnimationFrame(() => { bc.scrollLeft = bc.scrollWidth; });
-}
-function renderSeriesDetailUI(series) {
-    const area = document.getElementById('content-area');
-    if (!area) return;
-    area.innerHTML = '';
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const books = query ? series.books.filter(b => b.name.toLowerCase().includes(query)) : series.books;
-    updateHeroStats(`ซีรีส์: ${escapeHtml(series.seriesName)} · ${books.length} เล่ม`);
-    if (!books.length) { renderEmptyState('🔎', 'ไม่พบเล่มที่ค้นหาในซีรีส์นี้', ''); return; }
-    const { coverFiles } = groupFilesAndFolders(currentFolderItems);
-    const fallbackCoverUrl = findSeriesCover(series.seriesName, coverFiles);
-    books.forEach(book => {
-        const page = getBookmark(book.id);
-        const titleStr = `เล่ม ${String(book.volumeNumber)}`;
-        const coverUrl = book.thumbnailLink ? book.thumbnailLink.split('=')[0] + '=s800' : fallbackCoverUrl;
-        let fallbackType = book.mimeType?.includes('pdf') ? 'pdf' : 'empty';
-        let imgHTML = generatePremiumFallback(fallbackType, titleStr);
-        if (coverUrl) imgHTML += `<img src="${coverUrl}" alt="Cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
-        const badgeHTML = page > 1 ? `<div class="badge-overlay badge-bookmark"><i class="fas fa-bookmark"></i> หน้า ${page}</div>` : '';
-        const card = createCardElement('book-card', imgHTML, badgeHTML, titleStr, () => openReader(book.id, book.name, book.mimeType), { id: book.id, name: book.name, kind: 'file', mime: book.mimeType });
-        area.appendChild(card);
+    const bc = document.getElementById('breadcrumb'); if (!bc) return; bc.innerHTML = '';
+    folderHistory.forEach((f, i) => {
+        const isLast = i === folderHistory.length - 1;
+        bc.innerHTML += `<span class="bc-item ${isLast?'current':''}" ${!isLast?`onclick="loadDriveContent('${f.id}','${f.name}')"`:''}>${i===0?'<i class="fas fa-home"></i> ':''}${escapeHtml(f.name)}</span>` + (!isLast ? '<span class="bc-separator"><i class="fas fa-chevron-right"></i></span>' : '');
     });
 }
 async function getFolderCover(folderId, folderName = '') {
     if (folderCoverCache.has(folderId)) return folderCoverCache.get(folderId);
     try {
-        if (!gapi?.client?.drive) return null;
-        const mimeQ = `(mimeType = 'application/pdf' or mimeType = 'image/jpeg' or mimeType = 'image/png' or mimeType = 'image/webp' or mimeType = 'image/gif')`;
-        const res = await gapi.client.drive.files.list({ q: `'${folderId}' in parents and trashed = false and ${mimeQ}`, fields: 'files(id, name, mimeType, thumbnailLink)', pageSize: 100 });
-        let files = res.result.files || [];
-        if (!files.length) { folderCoverCache.set(folderId, null); return null; }
-        files.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
-        const cleanKey = normalizeSeriesKey(folderName);
-        const matchImg = files.find(f => f.mimeType !== 'application/pdf' && normalizeSeriesKey(f.name.substring(0, f.name.lastIndexOf('.'))) === cleanKey);
-        if (matchImg?.thumbnailLink) { const url = matchImg.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
-        const matchPdf = files.find(f => f.mimeType === 'application/pdf' && normalizeSeriesKey(f.name.substring(0, f.name.lastIndexOf('.'))) === cleanKey);
-        if (matchPdf?.thumbnailLink) { const url = matchPdf.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
-        const firstImg = files.find(f => f.mimeType !== 'application/pdf');
-        if (firstImg?.thumbnailLink) { const url = firstImg.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
-        const firstPdf = files.find(f => f.mimeType === 'application/pdf');
-        if (firstPdf?.thumbnailLink) { const url = firstPdf.thumbnailLink.split('=')[0] + '=s800'; folderCoverCache.set(folderId, url); return url; }
-        folderCoverCache.set(folderId, null); return null;
-    } catch (e) { folderCoverCache.set(folderId, null); return null; }
+        const res = await gapi.client.drive.files.list({ q: `'${folderId}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'`, fields: 'files(thumbnailLink)', pageSize: 1 });
+        const url = res.result.files?.[0]?.thumbnailLink?.split('=')[0] + '=s800' || null;
+        
+        // V7.9.3: จัดการขนาด Cache ไม่ให้เกินกำหนด
+        if (folderCoverCache.size >= MAX_CACHE_SIZE) {
+            const firstKey = folderCoverCache.keys().next().value;
+            folderCoverCache.delete(firstKey);
+        }
+        folderCoverCache.set(folderId, url);
+        return url;
+    } catch (e) { return null; }
 }
-const saveBookmark = (id, page) => localStorage.setItem(`familyComic:lastPage:${id}`, page);
+
 const getBookmark = (id) => parseInt(localStorage.getItem(`familyComic:lastPage:${id}`)) || 1;
-const showToast = (msg) => { const t = document.getElementById('toast-message'); if(t){ t.innerHTML=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',3500); } };
-// ===== V7.5 Continue Reading (ใช้ key ใหม่ familyComic:recent_v1 ไม่แตะ familyComic:lastPage:*) =====
-const RECENT_KEY = 'familyComic:recent_v1', RECENT_MAX = 6;
-let currentReaderMeta = null, readerFromHome = false;
-const isDriveId = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{10,100}$/.test(v);
-const getRecentReads = () => {
-    try {
-        const a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
-        return (Array.isArray(a) ? a : []).filter(r => r && isDriveId(r.id) && Number.isInteger(r.page) && Number.isInteger(r.total) && r.total > 0 && r.page >= 1 && r.page <= r.total)
-            .slice(0, RECENT_MAX).map(r => ({ id: r.id, name: String(r.name || 'ไม่มีชื่อ').slice(0, 200), mime: String(r.mime || 'application/pdf'), page: r.page, total: r.total, ts: Number(r.ts) || 0 }));
-    } catch (e) { return []; }
-};
-const saveRecentReads = (list) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX))); } catch (e) {} };
+const saveBookmark = (id, p) => localStorage.setItem(`familyComic:lastPage:${id}`, p);
+const showToast = (m) => { const t = document.getElementById('toast-message'); if(t){ t.innerHTML=m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); } };
+
+const RECENT_KEY = 'familyComic:recent_v1', FAV_KEY = 'familyComic:favorites_v1';
+const getRecentReads = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e){ return []; } };
 const recordRecentRead = (id, name, mime, page, total) => {
-    if (!isDriveId(id) || !(total > 0)) return;
-    const rest = getRecentReads().filter(r => r.id !== id);
-    if (page > 1 && page < total) rest.unshift({ id, name, mime, page, total, ts: Date.now() });
-    saveRecentReads(rest);
+    let list = getRecentReads().filter(r => r.id !== id);
+    list.unshift({ id, name, mime, page, total });
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 5)));
 };
-function resumeReading(id) {
-    const r = getRecentReads().find(x => x.id === id);
-    if (!r) return;
-    readerFromHome = true;
-    openReader(r.id, r.name, r.mime);
-}
-function removeRecentRead(id, ev) {
-    if (ev) ev.stopPropagation();
-    saveRecentReads(getRecentReads().filter(r => r.id !== id));
-    if (activeCategoryFilter === 'dashboard') renderCategoryDashboard();
-}
+const resumeReading = (id) => { const r = getRecentReads().find(x => x.id === id); if (r) openReader(r.id, r.name, r.mime); };
 const continueReadingHTML = () => {
     const list = getRecentReads().slice(0, 3);
     if (!list.length) return '';
-    return '<div class="continue-section"><h2 class="continue-title">อ่านต่อ</h2><div class="continue-list">' + list.map(r => {
-        const pct = Math.max(0, Math.min(100, Math.round(r.page / r.total * 100)));
-        return `<div class="continue-card" role="button" tabindex="0" onclick="resumeReading('${r.id}')" onkeydown="if(event.target===event.currentTarget&&(event.key==='Enter'||event.key===' ')){event.preventDefault();resumeReading('${r.id}')}"><div class="continue-thumb"><i class="fas fa-book-open"></i></div><div class="continue-info"><div class="continue-name">${escapeHtml(r.name)}</div><div class="continue-meta">หน้า ${r.page} / ${r.total}</div><div class="continue-bar"><i style="width: ${pct}%"></i></div></div><button class="continue-remove" aria-label="ลบออกจากรายการอ่านต่อ" onclick="removeRecentRead('${r.id}', event)"><i class="fas fa-times"></i></button></div>`;
-    }).join('') + '</div></div>';
+    return `<div class="continue-section"><h2 class="continue-title">อ่านต่อ</h2><div class="continue-list">${list.map(r => `<div class="continue-card" onclick="resumeReading('${r.id}')"><div class="continue-thumb"><i class="fas fa-book-open"></i></div><div class="continue-info"><div class="continue-name">${escapeHtml(r.name)}</div><div class="continue-meta">หน้า ${r.page}/${r.total}</div></div></div>`).join('')}</div></div>`;
 };
-// ===== V7.6 Favorites (key ใหม่ familyComic:favorites_v1 ไม่ชน lastPage:* และ recent_v1) =====
-const FAV_KEY = 'familyComic:favorites_v1', FAV_MAX = 100;
-let favShowAll = false;
-const getFavorites = () => {
-    try {
-        const a = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
-        return (Array.isArray(a) ? a : []).filter(f => f && isDriveId(f.id) && (f.kind === 'file' || f.kind === 'folder')).slice(0, FAV_MAX)
-            .map(f => ({ id: f.id, name: String(f.name || 'ไม่มีชื่อ').slice(0, 200), kind: f.kind, mime: String(f.mime || ''), ts: Number(f.ts) || 0 }));
-    } catch (e) { return []; }
-};
-const saveFavorites = (list) => { try { localStorage.setItem(FAV_KEY, JSON.stringify(list.slice(0, FAV_MAX))); } catch (e) {} };
+const getFavorites = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch(e){ return []; } };
 const isFavorite = (id) => getFavorites().some(f => f.id === id);
 const toggleFavorite = (item) => {
-    if (!item || !isDriveId(item.id)) return false;
-    const list = getFavorites(), i = list.findIndex(f => f.id === item.id);
-    if (i >= 0) list.splice(i, 1);
-    else list.unshift({ id: item.id, name: String(item.name || 'ไม่มีชื่อ'), kind: item.kind === 'folder' ? 'folder' : 'file', mime: String(item.mime || ''), ts: Date.now() });
-    saveFavorites(list);
+    let list = getFavorites(), i = list.findIndex(f => f.id === item.id);
+    if (i >= 0) list.splice(i, 1); else list.unshift(item);
+    localStorage.setItem(FAV_KEY, JSON.stringify(list));
     return i < 0;
 };
 const attachFavButton = (card, item) => {
-    if (!card || !item || !isDriveId(item.id)) return;
-    const btn = document.createElement('button');
-    btn.type = 'button'; btn.className = 'fav-btn';
-    const sync = () => {
-        const on = isFavorite(item.id);
-        btn.classList.toggle('on', on);
-        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-        btn.setAttribute('aria-label', on ? 'เอาออกจากรายการโปรด' : 'เพิ่มในรายการโปรด');
-        btn.innerHTML = on ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
-    };
-    sync();
-    btn.addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item); sync(); });
+    const btn = document.createElement('button'); btn.className = 'fav-btn';
+    const sync = () => { const on = isFavorite(item.id); btn.className = `fav-btn ${on?'on':''}`; btn.innerHTML = `<i class="${on?'fas':'far'} fa-heart"></i>`; };
+    sync(); btn.onclick = (e) => { e.stopPropagation(); toggleFavorite(item); sync(); };
     card.appendChild(btn);
 };
-function removeFavorite(id, ev) {
-    if (ev) ev.stopPropagation();
-    saveFavorites(getFavorites().filter(f => f.id !== id));
-    if (activeCategoryFilter === 'dashboard') renderCategoryDashboard();
-}
-function toggleFavShowAll() { favShowAll = !favShowAll; if (activeCategoryFilter === 'dashboard') renderCategoryDashboard(); }
-function openFavorite(id) {
-    const f = getFavorites().find(x => x.id === id);
-    if (!f) return;
-    if (f.kind === 'folder') { loadDriveContent(f.id, f.name); return; }
-    readerFromHome = true;
-    openReader(f.id, f.name, f.mime || 'application/pdf');
-}
 const favoritesHTML = () => {
-    const all = getFavorites();
-    if (!all.length) return '';
-    const list = favShowAll ? all : all.slice(0, 6);
-    const more = all.length > 6 ? `<button class="fav-more" onclick="toggleFavShowAll()">${favShowAll ? 'ย่อรายการ' : 'ดูทั้งหมด (' + all.length + ')'}</button>` : '';
-    return '<div class="continue-section"><div class="continue-head"><h2 class="continue-title">รายการโปรด</h2>' + more + '</div><div class="continue-list">' + list.map(f => {
-        const isFolder = f.kind === 'folder';
-        return `<div class="continue-card" role="button" tabindex="0" onclick="openFavorite('${f.id}')" onkeydown="if(event.target===event.currentTarget&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openFavorite('${f.id}')}"><div class="continue-thumb${isFolder ? ' is-folder' : ''}"><i class="fas ${isFolder ? 'fa-folder' : 'fa-book'}"></i></div><div class="continue-info"><div class="continue-name">${escapeHtml(f.name)}</div><div class="continue-meta">${isFolder ? 'แฟ้ม' : 'หนังสือ'}</div></div><button class="continue-remove is-fav" aria-label="เอาออกจากรายการโปรด" onclick="removeFavorite('${f.id}', event)"><i class="fas fa-heart"></i></button></div>`;
-    }).join('') + '</div></div>';
+    const list = getFavorites().slice(0, 6);
+    if (!list.length) return '';
+    return `<div class="continue-section"><div class="continue-head"><h2 class="continue-title">รายการโปรด</h2></div><div class="continue-list">${list.map(f => `<div class="continue-card" onclick="openReader('${f.id}','${f.name}','${f.mime}')"><div class="continue-thumb"><i class="fas fa-book"></i></div><div class="continue-info"><div class="continue-name">${escapeHtml(f.name)}</div></div></div>`).join('')}</div></div>`;
 };
+
 function openReader(fileId, fileName, mimeType) {
     currentFileId = fileId;
-    currentReaderMeta = { name: fileName, mime: mimeType };
     document.getElementById('reader-title').innerText = fileName;
     document.getElementById('reader-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    document.getElementById('reader-modal').classList.remove('reader-immersive');
-    requestAnimationFrame(updateMobileNavPosition);
-    const isPdf = !!(mimeType && mimeType.includes('pdf'));
+    const isPdf = mimeType?.includes('pdf');
     document.getElementById('pdf-canvas').style.display = isPdf ? 'block' : 'none';
     document.getElementById('pdf-toolbar').style.display = isPdf ? 'flex' : 'none';
-    document.getElementById('tap-zone-left').style.display = isPdf ? 'block' : 'none';
-    document.getElementById('tap-zone-right').style.display = isPdf ? 'block' : 'none';
     const frame = document.getElementById('reader-frame');
     frame.style.display = isPdf ? 'none' : 'block';
-    if (!isPdf) { readerLoadId++; frame.src = `https://drive.google.com/file/d/${currentFileId}/preview`; }
-    else { loadPDF(); acquireWakeLock(); maybeShowReaderHint(); }
+    if (!isPdf) frame.src = `https://drive.google.com/file/d/${fileId}/preview`;
+    else loadPDF();
 }
 async function loadPDF() {
-    const loadId = ++readerLoadId;
-    const loadingUI = document.getElementById('pdf-loading');
-    if (!loadingUI) return;
-    loadingUI.style.display = 'block';
-    loadingUI.innerHTML = '<i class="fas fa-spinner fa-spin"></i> เตรียมการดาวน์โหลดไฟล์...';
-    canvas = document.getElementById('pdf-canvas');
-    if (!canvas) return;
-    ctx = canvas.getContext('2d');
-    pdfDoc = null; pageRendering = false; pageNumPending = null;
-    const saved = getBookmark(currentFileId);
-    const tokenObj = gapi.client.getToken();
-    if (!tokenObj?.access_token) { if (loadId !== readerLoadId) return; loadingUI.innerHTML = '❌ เซสชันหมดอายุ'; return; }
+    const loadId = ++readerLoadId, loadingUI = document.getElementById('pdf-loading');
+    loadingUI.style.display = 'block'; loadingUI.innerHTML = 'กำลังโหลด...';
+    canvas = document.getElementById('pdf-canvas'); ctx = canvas.getContext('2d');
     try {
-        const task = pdfjsLib.getDocument({ url: `https://www.googleapis.com/drive/v3/files/${currentFileId}?alt=media`, httpHeaders: { 'Authorization': `Bearer ${tokenObj.access_token}` }, disableRange: false, disableStream: false });
-        task.onProgress = p => { if (loadId !== readerLoadId) return; loadingUI.innerHTML = p.total > 0 ? `<i class="fas fa-spinner fa-spin"></i> โหลด... <b>${Math.round((p.loaded / p.total) * 100)}%</b>` : `<i class="fas fa-spinner fa-spin"></i> โหลด... <b>${(p.loaded / (1024 * 1024)).toFixed(1)} MB</b>`; };
-        pdfDoc = await task.promise;
+        pdfDoc = await pdfjsLib.getDocument({ url: `https://www.googleapis.com/drive/v3/files/${currentFileId}?alt=media`, httpHeaders: { Authorization: `Bearer ${gapi.client.getToken().access_token}` } }).promise;
         if (loadId !== readerLoadId) return;
         document.getElementById('page_count').textContent = pdfDoc.numPages;
         loadingUI.style.display = 'none';
-        pageNum = Math.min(saved, pdfDoc.numPages);
-        if (pageNum > 1) showToast(`📌 อ่านต่อหน้า ${pageNum}`);
-        renderPage(pageNum, loadId);
-    } catch (e) { if (loadId === readerLoadId) loadingUI.innerHTML = '❌ เกิดข้อผิดพลาด'; }
+        pageNum = Math.min(getBookmark(currentFileId), pdfDoc.numPages);
+        renderPage(pageNum);
+    } catch (e) { if (loadId === readerLoadId) loadingUI.innerHTML = 'โหลดไม่สำเร็จ'; }
 }
-const resetReaderViewport = () => { const c = document.querySelector('.reader-content'); if(c) c.scrollTop = c.scrollLeft = 0; };
-const MAX_OUTPUT_SCALE = 3, MAX_CANVAS_PIXELS = 16000000;
-let lastRenderWidth = 0;
-function renderPage(num, loadId = readerLoadId) {
-    if (loadId !== readerLoadId) return;
+function renderPage(num) {
     pageRendering = true;
     pdfDoc.getPage(num).then(page => {
-        if (loadId !== readerLoadId) { pageRendering = false; return; }
-        const c = document.querySelector('.reader-content');
-        if (!c) { pageRendering = false; return; }
-        lastRenderWidth = c.clientWidth;
-        const base = page.getViewport({ scale: 1 });
-        // V7.6.2: ขนาดที่แสดง (CSS) พอดีความกว้างจอเสมอ ไม่ใช้ขีดล่าง 0.5 เดิม (ทำให้ภาพบนมือถือถูกบีบแคบเมื่อหน้ากว้างมาก)
-        const fitScale = Math.min(Math.max(1, c.clientWidth - 8) / base.width, 3);
-        const vp = page.getViewport({ scale: fitScale });
-        const cssW = Math.max(1, Math.floor(vp.width)), cssH = Math.max(1, Math.floor(vp.height));
-        // วาดตามความหนาแน่นพิกเซลของจอ (devicePixelRatio) แต่จำกัดเพดานกันแรมเต็มบนมือถือ
-        const outputScale = Math.max(1, Math.min(window.devicePixelRatio || 1, MAX_OUTPUT_SCALE, Math.sqrt(MAX_CANVAS_PIXELS / (cssW * cssH))));
-        canvas.width = Math.floor(cssW * outputScale);
-        canvas.height = Math.floor(cssH * outputScale);
-        canvas.style.width = `${cssW}px`;
-        canvas.style.height = `${cssH}px`;
-        page.render({ canvasContext: ctx, viewport: vp, transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null }).promise.then(() => {
-            pageRendering = false;
-            if (pageNumPending !== null) { const p = pageNumPending; pageNumPending = null; renderPage(p, loadId); }
-            else resetReaderViewport();
-        }).catch(() => pageRendering = false);
-    }).catch(() => pageRendering = false);
+        const vp = page.getViewport({ scale: Math.min((document.querySelector('.reader-content').clientWidth - 8) / page.getViewport({scale:1}).width, 2) });
+        canvas.width = vp.width; canvas.height = vp.height;
+        page.render({ canvasContext: ctx, viewport: vp }).promise.then(() => { pageRendering = false; });
+    });
     document.getElementById('page_num').textContent = num;
     document.getElementById('btn-prev').disabled = num <= 1;
     document.getElementById('btn-next').disabled = num >= pdfDoc.numPages;
     saveBookmark(currentFileId, num);
-    if (currentReaderMeta && pdfDoc) recordRecentRead(currentFileId, currentReaderMeta.name, currentReaderMeta.mime, num, pdfDoc.numPages);
-    const ip = document.getElementById('immersive-page'); if (ip && pdfDoc) ip.textContent = `${num} / ${pdfDoc.numPages}`;
+    recordRecentRead(currentFileId, document.getElementById('reader-title').innerText, 'application/pdf', num, pdfDoc.numPages);
 }
-const queueRenderPage = (num) => pageRendering ? (pageNumPending = num) : renderPage(num);
-const onPrevPage = () => { if (pdfDoc && pageNum > 1) { resetReaderViewport(); pageNum--; queueRenderPage(pageNum); } };
-const onNextPage = () => { if (pdfDoc && pageNum < pdfDoc.numPages) { resetReaderViewport(); pageNum++; queueRenderPage(pageNum); } };
-let mobileOverlayFrame = null;
-function updateMobileNavPosition() {
-    if (window.innerWidth > 768) return;
-    const overlay = document.querySelector('.mobile-nav-overlay'), modal = document.getElementById('reader-modal');
-    if (!overlay || !modal || modal.style.display !== 'flex' || !window.visualViewport) return;
-    const vv = window.visualViewport;
-    overlay.style.left = `${Math.max(0, vv.offsetLeft)}px`;
-    overlay.style.top = `${vv.offsetTop + (vv.height / 2)}px`;
-    overlay.style.width = `${Math.max(1, vv.width)}px`;
-    overlay.style.transform = 'translateY(-50%)';
-}
-const scheduleMobileNavPosition = () => { if (!mobileOverlayFrame) mobileOverlayFrame = requestAnimationFrame(() => { mobileOverlayFrame = null; updateMobileNavPosition(); }); };
-window.addEventListener('resize', () => { if (document.getElementById('reader-modal').style.display === 'flex') scheduleMobileNavPosition(); });
-if (window.visualViewport) { window.visualViewport.addEventListener('resize', scheduleMobileNavPosition); window.visualViewport.addEventListener('scroll', scheduleMobileNavPosition); }
-// ===== V7.8 Mobile UI: ปัดพลิกหน้า, แตะกลางจอซ่อน/แสดงแถบ, วาดใหม่เมื่อหมุนจอ, กันจอดับระหว่างอ่าน =====
-const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
-const readerIsOpenPdf = () => { const m = document.getElementById('reader-modal'), c = document.getElementById('pdf-canvas'); return !!(m && m.style.display === 'flex' && c && c.style.display !== 'none' && pdfDoc); };
-let swipeStart = null, tapStart = null, centerTapTimer = null, suppressClickUntil = 0, readerResizeTimer = null, wakeLock = null;
-const isCenterTarget = (el) => !!(el && el.closest && el.closest('.reader-content') && !el.closest('.tap-zone') && !el.closest('.mobile-nav-overlay'));
-function handleCenterTap() {
-    if (centerTapTimer) { clearTimeout(centerTapTimer); centerTapTimer = null; return; }   // แตะสองครั้ง (ซูม) ไม่นับเป็นการสลับแถบ
-    centerTapTimer = setTimeout(() => { centerTapTimer = null; const m = document.getElementById('reader-modal'); if (m) m.classList.toggle('reader-immersive'); }, 280);
-}
-document.addEventListener('touchstart', (e) => {
-    swipeStart = null; tapStart = null;
-    if (e.touches.length !== 1 || !readerIsOpenPdf() || !isCenterTarget(e.target) && !(e.target.closest && e.target.closest('.reader-content'))) return;
-    const t = e.touches[0], zoomed = !!(window.visualViewport && window.visualViewport.scale > 1.02);
-    if (!zoomed) { swipeStart = { x: t.clientX, y: t.clientY, t: Date.now() }; if (isCenterTarget(e.target)) tapStart = swipeStart; }   // ซูมด้วยนิ้วอยู่: ไม่พลิกหน้า/ไม่สลับแถบ
-}, { passive: true });
-document.addEventListener('touchend', (e) => {
-    const s = swipeStart, ts = tapStart; swipeStart = null; tapStart = null;
-    if (!s) return;
-    const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y, dt = Date.now() - s.t;
-    if (ts && dt < 350 && Math.abs(dx) < 10 && Math.abs(dy) < 10 && isMobileView()) { suppressClickUntil = Date.now() + 700; handleCenterTap(); return; }
-    if (dt > 800 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-    if (dx < 0) onNextPage(); else onPrevPage();
-}, { passive: true });
-document.addEventListener('click', (e) => {   // เมาส์/เบราว์เซอร์ที่ส่ง click ปกติ (ข้ามถ้าเพิ่งจัดการจาก touch ไปแล้ว)
-    if (Date.now() < suppressClickUntil || !isMobileView() || !readerIsOpenPdf() || !isCenterTarget(e.target)) return;
-    handleCenterTap();
-});
-window.addEventListener('resize', () => {
-    clearTimeout(readerResizeTimer);
-    readerResizeTimer = setTimeout(() => {
-        const c = document.querySelector('.reader-content');
-        if (readerIsOpenPdf() && c && Math.abs(c.clientWidth - lastRenderWidth) > 24) queueRenderPage(pageNum);
-    }, 200);
-});
-async function acquireWakeLock() {
-    try {
-        if (!isMobileView() || !('wakeLock' in navigator) || wakeLock) return;
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch (e) { wakeLock = null; }
-}
-function releaseWakeLock() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && readerIsOpenPdf()) acquireWakeLock(); });
-function maybeShowReaderHint() {
-    try {
-        if (!isMobileView() || localStorage.getItem('familyComic:readerHint_v1')) return;
-        localStorage.setItem('familyComic:readerHint_v1', '1');
-        setTimeout(() => showToast('ปัดเพื่อพลิกหน้า · แตะกลางซ่อนแถบ'), 700);
-    } catch (e) {}
-}
+const onPrevPage = () => { if (pdfDoc && pageNum > 1) renderPage(--pageNum); };
+const onNextPage = () => { if (pdfDoc && pageNum < pdfDoc.numPages) renderPage(++pageNum); };
 function closeReader() {
-    releaseWakeLock(); document.getElementById('reader-modal').classList.remove('reader-immersive');
-    readerLoadId++;
-    document.getElementById('reader-modal').style.display = 'none';
-    document.getElementById('reader-frame').src = '';
-    document.body.style.overflow = 'auto';
-    if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (document.fullscreenElement) document.exitFullscreen();
-    currentFileId = null; pageRendering = false; pageNumPending = null; pdfDoc = null;
-    currentReaderMeta = null;
-    if (readerFromSearch) { readerFromSearch = false; if (isGlobalSearch() && document.getElementById('searchInput').value.trim()) onSearchInput(true); else if (currentFolderItems.length > 0) applySearchAndSort(); }
-    else if (readerFromHome) { readerFromHome = false; if (activeCategoryFilter === 'dashboard' && rootFolderSubItems.length > 0) renderCategoryDashboard(); }
-    else if (currentFolderItems.length > 0) applySearchAndSort();
+    readerLoadId++; document.getElementById('reader-modal').style.display = 'none';
+    document.getElementById('reader-frame').src = ''; document.body.style.overflow = 'auto';
+    pdfDoc = null; if (activeCategoryFilter === 'dashboard') renderCategoryDashboard();
 }
-function toggleFullScreen() { if (!document.fullscreenElement) document.getElementById('reader-modal')?.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); }
-</script>
+function toggleFullScreen() { if (!document.fullscreenElement) document.getElementById('reader-modal')?.requestFullscreen(); else document.exitFullscreen(); }
+    </script>
 </head>
 <body>
     <header>
         <div class="logo-container" onclick="openCategoryDashboard()">
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
-            <div class="logo-text">
-                <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.8.1 Mobile UI</p>
-            </div>
+            <div class="logo-text"><h1 class="logo">บ้านการ์ตูนของเรา</h1><p class="logo-sub">FAMILY LIBRARY V7.9.3</p></div>
         </div>
         <div class="controls">
-            <div id="status-badge" class="status-badge status-loading"><i class="fas fa-spinner fa-spin"></i> <span>กำลังเตรียมข้อมูล...</span></div>
+            <div id="status-badge" class="status-badge status-loading"><i class="fas fa-spinner fa-spin"></i> <span>กำลังเตรียม...</span></div>
+            <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
             <button id="loginBtn" class="btn-auth" onclick="handleAuthClick()"><i class="fab fa-google"></i> เข้าสู่ระบบ</button>
             <button id="logoutBtn" class="btn-auth btn-logout" onclick="handleSignoutClick()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </header>
     <div class="main-container">
-        <div class="library-hero">
-            <h1>ห้องสมุดของเรา</h1>
-            <p>รวมการ์ตูน หนังสือ และเรื่องโปรดของเราไว้ในที่เดียว</p>
-            <div class="hero-stats" id="hero-stats"><i class="fas fa-spinner fa-spin" style="margin-right: 6px;"></i> กำลังโหลด...</div>
-        </div>
+        <div class="library-hero"><h1>ห้องสมุดของเรา</h1><p>รวมการ์ตูนและหนังสือไว้ในที่เดียว</p><div class="hero-stats" id="hero-stats">กำลังโหลด...</div></div>
         <div class="library-nav"><div id="breadcrumb"></div></div>
         <div class="library-toolbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="ค้นหาหนังสือ, แฟ้ม, หรือซีรีส์...">
-            </div>
-            <div class="scope-toggle" id="scope-toggle" role="group" aria-label="ขอบเขตการค้นหา" style="display:none">
-                <button type="button" id="scope-local" aria-pressed="true" onclick="setSearchScope('local')">ในแฟ้มนี้</button>
-                <button type="button" id="scope-global" aria-pressed="false" onclick="setSearchScope('global')">ทั้งห้องสมุด</button>
-            </div>
-            <div class="sort-box">
-                <select id="sortSelect">
-                    <option value="default">จัดตามชื่อ (ก-ฮ)</option>
-                    <option value="latest">เพิ่มล่าสุด (ใหม่ไปเก่า)</option>
-                    <option value="name-asc">ชื่อ (A-Z)</option>
-                    <option value="name-desc">ชื่อ (Z-A)</option>
-                </select>
-            </div>
+            <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="ค้นหา..."></div>
+            <div class="scope-toggle" id="scope-toggle" style="display:none"><button type="button" id="scope-local" aria-pressed="true" onclick="setSearchScope('local')">ในแฟ้ม</button><button type="button" id="scope-global" aria-pressed="false" onclick="setSearchScope('global')">ทั้งหมด</button></div>
+            <div class="sort-box"><select id="sortSelect"><option value="default">จัดตามชื่อ</option><option value="latest">ล่าสุด</option></select></div>
         </div>
         <div id="content-area" class="bookshelf-grid"></div>
     </div>
+    
+    <!-- V7.9.3: Back to Top Button -->
+    <button id="backToTopBtn" onclick="scrollToTop()" title="กลับขึ้นด้านบน"><i class="fas fa-chevron-up"></i></button>
+
     <div id="category-modal-overlay" class="custom-modal-overlay">
         <div class="custom-modal">
-            <div class="modal-header">
-                <h3 id="category-modal-title">เพิ่มหมวดหมู่ใหม่</h3>
-                <button class="modal-close-btn" onclick="closeCategoryModal()"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header"><h3 id="category-modal-title">หมวดหมู่</h3><button class="modal-close-btn" onclick="closeCategoryModal()"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="cat-name-input">ชื่อหมวดหมู่</label>
-                    <input type="text" id="cat-name-input" placeholder="เช่น มังงะ, นิตยสาร...">
-                </div>
-                <div class="form-group">
-                    <label>เลือกสีหมวดหมู่</label>
-                    <div id="color-picker-container" class="color-picker-grid"></div>
-                </div>
-                <div class="form-group">
-                    <label>เลือกไอคอน</label>
-                    <div id="icon-picker-container" class="icon-picker-grid"></div>
-                </div>
+                <div class="form-group"><label>ชื่อหมวดหมู่</label><input type="text" id="cat-name-input"></div>
+                <div class="form-group"><label>สี</label><div id="color-picker-container" class="color-picker-grid"></div></div>
+                <div class="form-group"><label>ไอคอน</label><div id="icon-picker-container" class="icon-picker-grid"></div></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-modal btn-modal-cancel" onclick="closeCategoryModal()">ยกเลิก</button>
-                <button class="btn-modal btn-modal-submit" onclick="handleCategoryFormSubmit()"><span id="category-modal-submit-text">สร้างหมวดหมู่</span></button>
-            </div>
+            <div class="modal-footer"><button class="btn-modal btn-modal-cancel" onclick="closeCategoryModal()">ยกเลิก</button><button class="btn-modal btn-modal-submit" onclick="handleCategoryFormSubmit()">บันทึก</button></div>
         </div>
     </div>
     <div id="reader-modal" class="reader-modal">
         <div id="toast-message"></div>
         <div id="immersive-page" class="immersive-page"></div>
         <div class="reader-header">
-            <button class="btn-reader btn-back" onclick="closeReader()"><i class="fas fa-arrow-left"></i> <span class="btn-text">ปิดหนังสือ</span></button>
+            <button class="btn-reader btn-back" onclick="closeReader()"><i class="fas fa-arrow-left"></i> <span class="btn-text">ปิด</span></button>
             <span id="reader-title" class="reader-title">กำลังโหลด...</span>
-            <button class="btn-reader" onclick="toggleFullScreen()"><i class="fas fa-expand"></i> <span class="btn-text">เต็มจอ</span></button>
+            <button class="btn-reader" onclick="toggleFullScreen()"><i class="fas fa-expand"></i></button>
         </div>
         <div class="reader-content">
             <div id="pdf-loading"></div>
-            <div id="tap-zone-left" class="tap-zone left" onclick="onPrevPage()" style="display: none;"></div>
-            <div id="tap-zone-right" class="tap-zone right" onclick="onNextPage()" style="display: none;"></div>
+            <div class="tap-zone left" onclick="onPrevPage()"></div><div class="tap-zone right" onclick="onNextPage()"></div>
             <canvas id="pdf-canvas"></canvas>
-            <iframe id="reader-frame" class="reader-frame" src="" frameborder="0" allowfullscreen></iframe>
+            <iframe id="reader-frame" class="reader-frame" frameborder="0"></iframe>
         </div>
-        <div class="mobile-nav-overlay">
-            <button id="mobile-btn-prev" class="mobile-nav-btn" onclick="onPrevPage()"><i class="fas fa-chevron-left"></i></button>
-            <button id="mobile-btn-next" class="mobile-nav-btn" onclick="onNextPage()"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div id="pdf-toolbar" class="pdf-toolbar" style="display: none;">
-            <button id="btn-prev" onclick="onPrevPage()"><i class="fas fa-chevron-left"></i> <span class="btn-text">ย้อนกลับ</span></button>
-            <span class="page-info">หน้า <span id="page_num"></span> / <span id="page_count"></span></span>
-            <button id="btn-next" onclick="onNextPage()"><span class="btn-text">ถัดไป</span> <i class="fas fa-chevron-right"></i></button>
+        <div class="pdf-toolbar" id="pdf-toolbar" style="display:none;">
+            <button id="btn-prev" onclick="onPrevPage()"><i class="fas fa-chevron-left"></i></button>
+            <span class="page-info"><span id="page_num"></span> / <span id="page_count"></span></span>
+            <button id="btn-next" onclick="onNextPage()"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </body>
