@@ -2,9 +2,9 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.7 Global Search</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.8 Mobile UI</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -39,7 +39,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-:root { --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: #EEF2FF; --secondary: #EC4899; --accent: #F59E0B; --bg-color: #FFF8E6; --surface: #FFFFFF; --text-main: #1B1B1B; --text-muted: #5A5648; --border: #E6DDC4; --radius-xl: 28px; --radius-lg: 20px; --radius-md: 14px; --shadow-card: 0 1px 2px rgba(27, 27, 27, 0.04), 0 6px 16px -6px rgba(27, 27, 27, 0.08); --shadow-hover: 0 14px 28px -10px rgba(27, 27, 27, 0.18); /* V7.3.2 design tokens (values identical to previous literals) */ --surface-alt: #FFF3D6; --surface-hover: #FBEFD0; --surface-sunken: #EFE5CB; --surface-sunken-hover: #E6D9B8; --border-strong: #CDBF9C; --primary-border: #C7D2FE; --primary-border-soft: #E0E7FF; --text-soft: #4A463A; --text-faint: #8A8472; --danger: #DC2626; --danger-bg: #FEF2F2; --danger-border: #FECACA; --danger-solid: #EF4444; --warn: #D97706; --warn-bg: #FEF3C7; --warn-border: #FDE68A; --success: #059669; --success-bg: #ECFDF5; --success-border: #A7F3D0; --bookmark-ink: #78350F; --on-dark: #FFFFFF; --hero-a: #EEF2FF; --hero-b: #FCE7F3; --hero-c: #FEF3C7; --cover-pdf-a: #4F46E5; --cover-pdf-b: #7C3AED; --cover-series-a: #3B82F6; --cover-series-b: #1D4ED8; --cover-empty-a: #64748B; --cover-empty-b: #475569; --reader-bg: #111; --reader-black: #000; --reader-surface: #1F2937; --reader-surface-2: #374151; --reader-surface-3: #4B5563; --reader-muted: #9CA3AF; /* V7.3.3 re-skin tokens */ --ink: #1B1B1B; --ink-hover: #333333; --pink: #FF8FC2; --yellow: #FFC83D; --folder-a: #FFEFC2; --folder-b: #FFE099; }
+:root { --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: #EEF2FF; --secondary: #EC4899; --accent: #F59E0B; --bg-color: #FFF8E6; --surface: #FFFFFF; --text-main: #1B1B1B; --text-muted: #5A5648; --border: #E6DDC4; --radius-xl: 28px; --radius-lg: 20px; --radius-md: 14px; --shadow-card: 0 1px 2px rgba(27, 27, 27, 0.04), 0 6px 16px -6px rgba(27, 27, 27, 0.08); --shadow-hover: 0 14px 28px -10px rgba(27, 27, 27, 0.18); /* V7.3.2 design tokens (values identical to previous literals) */ --surface-alt: #FFF3D6; --surface-hover: #FBEFD0; --surface-sunken: #EFE5CB; --surface-sunken-hover: #E6D9B8; --border-strong: #CDBF9C; --primary-border: #C7D2FE; --primary-border-soft: #E0E7FF; --text-soft: #4A463A; --text-faint: #8A8472; --danger: #DC2626; --danger-bg: #FEF2F2; --danger-border: #FECACA; --danger-solid: #EF4444; --warn: #D97706; --warn-bg: #FEF3C7; --warn-border: #FDE68A; --success: #059669; --success-bg: #ECFDF5; --success-border: #A7F3D0; --bookmark-ink: #78350F; --on-dark: #FFFFFF; --hero-a: #EEF2FF; --hero-b: #FCE7F3; --hero-c: #FEF3C7; --cover-pdf-a: #4F46E5; --cover-pdf-b: #7C3AED; --cover-series-a: #3B82F6; --cover-series-b: #1D4ED8; --cover-empty-a: #64748B; --cover-empty-b: #475569; --reader-bg: #111; --reader-black: #000; --reader-surface: #1F2937; --reader-surface-2: #374151; --reader-surface-3: #4B5563; --reader-muted: #9CA3AF; /* V7.3.3 re-skin tokens */ --ink: #1B1B1B; --ink-hover: #333333; --pink: #FF8FC2; --yellow: #FFC83D; --folder-a: #FFEFC2; --folder-b: #FFE099; /* V7.8 safe-area */ --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px); }
 body { font-family: 'Kanit', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; -webkit-font-smoothing: antialiased }
 .main-container { max-width: 1280px; margin: 0 auto 80px; padding: 0 24px; box-sizing: border-box }
 header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0.75rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); height: 64px; box-sizing: border-box }
@@ -309,6 +309,31 @@ button.btn-logout:hover { background: var(--surface); color: var(--danger) }
 }
 @media (max-width: 639px) { .logo-sub { display: none } .status-badge { white-space: nowrap; padding-left: 12px; padding-right: 12px } }
 @media (max-width: 639px) { .category-card:first-child, .category-card:last-child:not(:first-child) { grid-column: auto; grid-row: auto; min-height: 152px } .category-card:first-child .cat-num { font-size: 3.75rem; letter-spacing: -2px } }
+/* ===== V7.8 Mobile UI: safe-area, เป้าสัมผัส 44px, โหมดอ่านเต็มจอ ===== */
+header { padding-top: calc(0.75rem + var(--safe-top)); padding-left: max(2rem, var(--safe-left)); padding-right: max(2rem, var(--safe-right)) }
+.main-container { padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)); margin-bottom: calc(80px + var(--safe-bottom)) }
+.reader-header { padding-top: calc(12px + var(--safe-top)); padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)) }
+.pdf-toolbar { padding-bottom: calc(14px + var(--safe-bottom)); padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)) }
+.reader-modal, .reader-content { overscroll-behavior: contain }
+.immersive-page { display: none; position: absolute; bottom: calc(10px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.6); color: var(--on-dark); padding: 4px 14px; border-radius: 99px; font-size: 0.85rem; z-index: 60; pointer-events: none }
+.reader-modal.reader-immersive .immersive-page { display: block }
+.reader-modal.reader-immersive .reader-header, .reader-modal.reader-immersive .pdf-toolbar { display: none !important }
+@media (max-width: 768px) {
+.btn-reader { min-height: 44px; min-width: 44px; justify-content: center }
+.pdf-toolbar button { min-height: 48px; min-width: 56px; justify-content: center }
+.page-info { min-height: 44px; display: flex; align-items: center }
+}
+@media (max-width: 639px) {
+header { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)) }
+.main-container { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)) }
+.reader-header, .pdf-toolbar { padding-left: max(14px, var(--safe-left)); padding-right: max(14px, var(--safe-right)) }
+.scope-toggle { width: 100%; box-sizing: border-box }
+.scope-toggle button { flex: 1 }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+.reader-header { padding-top: calc(6px + var(--safe-top)); padding-bottom: 6px }
+.pdf-toolbar { padding-top: 6px; padding-bottom: calc(6px + var(--safe-bottom)) }
+}
 </style>
     <script>
 // ค่า CLIENT_ID, API_KEY, ROOT_FOLDER_IDS, ADMIN_EMAIL อยู่ในไฟล์ config.js (แก้เฉพาะไฟล์นั้น)
@@ -461,7 +486,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.7 Global Search)");
+    console.group("📚 Category Engine Debug (V7.8 Mobile UI)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1460,6 +1485,7 @@ function openReader(fileId, fileName, mimeType) {
     document.getElementById('reader-title').innerText = fileName;
     document.getElementById('reader-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    document.getElementById('reader-modal').classList.remove('reader-immersive');
     requestAnimationFrame(updateMobileNavPosition);
     const isPdf = !!(mimeType && mimeType.includes('pdf'));
     document.getElementById('pdf-canvas').style.display = isPdf ? 'block' : 'none';
@@ -1469,7 +1495,7 @@ function openReader(fileId, fileName, mimeType) {
     const frame = document.getElementById('reader-frame');
     frame.style.display = isPdf ? 'none' : 'block';
     if (!isPdf) { readerLoadId++; frame.src = `https://drive.google.com/file/d/${currentFileId}/preview`; }
-    else loadPDF();
+    else { loadPDF(); acquireWakeLock(); maybeShowReaderHint(); }
 }
 async function loadPDF() {
     const loadId = ++readerLoadId;
@@ -1498,6 +1524,7 @@ async function loadPDF() {
 }
 const resetReaderViewport = () => { const c = document.querySelector('.reader-content'); if(c) c.scrollTop = c.scrollLeft = 0; };
 const MAX_OUTPUT_SCALE = 3, MAX_CANVAS_PIXELS = 16000000;
+let lastRenderWidth = 0;
 function renderPage(num, loadId = readerLoadId) {
     if (loadId !== readerLoadId) return;
     pageRendering = true;
@@ -1505,6 +1532,7 @@ function renderPage(num, loadId = readerLoadId) {
         if (loadId !== readerLoadId) { pageRendering = false; return; }
         const c = document.querySelector('.reader-content');
         if (!c) { pageRendering = false; return; }
+        lastRenderWidth = c.clientWidth;
         const base = page.getViewport({ scale: 1 });
         // V7.6.2: ขนาดที่แสดง (CSS) พอดีความกว้างจอเสมอ ไม่ใช้ขีดล่าง 0.5 เดิม (ทำให้ภาพบนมือถือถูกบีบแคบเมื่อหน้ากว้างมาก)
         const fitScale = Math.min(Math.max(1, c.clientWidth - 8) / base.width, 3);
@@ -1527,6 +1555,7 @@ function renderPage(num, loadId = readerLoadId) {
     document.getElementById('btn-next').disabled = num >= pdfDoc.numPages;
     saveBookmark(currentFileId, num);
     if (currentReaderMeta && pdfDoc) recordRecentRead(currentFileId, currentReaderMeta.name, currentReaderMeta.mime, num, pdfDoc.numPages);
+    const ip = document.getElementById('immersive-page'); if (ip && pdfDoc) ip.textContent = `${num} / ${pdfDoc.numPages}`;
 }
 const queueRenderPage = (num) => pageRendering ? (pageNumPending = num) : renderPage(num);
 const onPrevPage = () => { if (pdfDoc && pageNum > 1) { resetReaderViewport(); pageNum--; queueRenderPage(pageNum); } };
@@ -1545,7 +1574,55 @@ function updateMobileNavPosition() {
 const scheduleMobileNavPosition = () => { if (!mobileOverlayFrame) mobileOverlayFrame = requestAnimationFrame(() => { mobileOverlayFrame = null; updateMobileNavPosition(); }); };
 window.addEventListener('resize', () => { if (document.getElementById('reader-modal').style.display === 'flex') scheduleMobileNavPosition(); });
 if (window.visualViewport) { window.visualViewport.addEventListener('resize', scheduleMobileNavPosition); window.visualViewport.addEventListener('scroll', scheduleMobileNavPosition); }
+// ===== V7.8 Mobile UI: ปัดพลิกหน้า, แตะกลางจอซ่อน/แสดงแถบ, วาดใหม่เมื่อหมุนจอ, กันจอดับระหว่างอ่าน =====
+const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
+const readerIsOpenPdf = () => { const m = document.getElementById('reader-modal'), c = document.getElementById('pdf-canvas'); return !!(m && m.style.display === 'flex' && c && c.style.display !== 'none' && pdfDoc); };
+let swipeStart = null, centerTapTimer = null, readerResizeTimer = null, wakeLock = null;
+document.addEventListener('touchstart', (e) => {
+    swipeStart = null;
+    if (e.touches.length !== 1 || !readerIsOpenPdf() || !e.target.closest || !e.target.closest('.reader-content')) return;
+    if (window.visualViewport && window.visualViewport.scale > 1.02) return;   // ซูมด้วยนิ้วอยู่: ให้เลื่อนดูภาพแทนการพลิกหน้า
+    const t = e.touches[0];
+    swipeStart = { x: t.clientX, y: t.clientY, t: Date.now() };
+}, { passive: true });
+document.addEventListener('touchend', (e) => {
+    if (!swipeStart) return;
+    const s = swipeStart; swipeStart = null;
+    const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y;
+    if (Date.now() - s.t > 800 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (dx < 0) onNextPage(); else onPrevPage();
+}, { passive: true });
+document.addEventListener('click', (e) => {
+    if (!isMobileView() || !readerIsOpenPdf() || !e.target.closest) return;
+    if (!e.target.closest('.reader-content') || e.target.closest('.tap-zone')) return;
+    if (centerTapTimer) { clearTimeout(centerTapTimer); centerTapTimer = null; return; }   // แตะสองครั้ง (ซูม) ไม่นับเป็นการสลับแถบ
+    centerTapTimer = setTimeout(() => { centerTapTimer = null; document.getElementById('reader-modal').classList.toggle('reader-immersive'); }, 280);
+});
+window.addEventListener('resize', () => {
+    clearTimeout(readerResizeTimer);
+    readerResizeTimer = setTimeout(() => {
+        const c = document.querySelector('.reader-content');
+        if (readerIsOpenPdf() && c && Math.abs(c.clientWidth - lastRenderWidth) > 24) queueRenderPage(pageNum);
+    }, 200);
+});
+async function acquireWakeLock() {
+    try {
+        if (!isMobileView() || !('wakeLock' in navigator) || wakeLock) return;
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (e) { wakeLock = null; }
+}
+function releaseWakeLock() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && readerIsOpenPdf()) acquireWakeLock(); });
+function maybeShowReaderHint() {
+    try {
+        if (!isMobileView() || localStorage.getItem('familyComic:readerHint_v1')) return;
+        localStorage.setItem('familyComic:readerHint_v1', '1');
+        setTimeout(() => showToast('ปัดเพื่อพลิกหน้า · แตะกลางซ่อนแถบ'), 700);
+    } catch (e) {}
+}
 function closeReader() {
+    releaseWakeLock(); document.getElementById('reader-modal').classList.remove('reader-immersive');
     readerLoadId++;
     document.getElementById('reader-modal').style.display = 'none';
     document.getElementById('reader-frame').src = '';
@@ -1567,7 +1644,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.7 Global Search</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.8 Mobile UI</p>
             </div>
         </div>
         <div class="controls">
@@ -1631,6 +1708,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
     </div>
     <div id="reader-modal" class="reader-modal">
         <div id="toast-message"></div>
+        <div id="immersive-page" class="immersive-page"></div>
         <div class="reader-header">
             <button class="btn-reader btn-back" onclick="closeReader()"><i class="fas fa-arrow-left"></i> <span class="btn-text">ปิดหนังสือ</span></button>
             <span id="reader-title" class="reader-title">กำลังโหลด...</span>
