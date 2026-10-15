@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.8 Mobile UI</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.8.1 Mobile UI</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -315,7 +315,8 @@ header { padding-top: calc(0.75rem + var(--safe-top)); padding-left: max(2rem, v
 .reader-header { padding-top: calc(12px + var(--safe-top)); padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)) }
 .pdf-toolbar { padding-bottom: calc(14px + var(--safe-bottom)); padding-left: max(24px, var(--safe-left)); padding-right: max(24px, var(--safe-right)) }
 .reader-modal, .reader-content { overscroll-behavior: contain }
-.immersive-page { display: none; position: absolute; bottom: calc(10px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.6); color: var(--on-dark); padding: 4px 14px; border-radius: 99px; font-size: 0.85rem; z-index: 60; pointer-events: none }
+.immersive-page { display: none; position: absolute; bottom: calc(14px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.82); border: 1px solid rgba(255, 255, 255, 0.35); color: var(--on-dark); padding: 6px 18px; border-radius: 99px; font-size: 1rem; font-weight: 600; z-index: 60; pointer-events: none }
+.reader-content { -webkit-tap-highlight-color: transparent }
 .reader-modal.reader-immersive .immersive-page { display: block }
 .reader-modal.reader-immersive .reader-header, .reader-modal.reader-immersive .pdf-toolbar { display: none !important }
 @media (max-width: 768px) {
@@ -486,7 +487,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.8 Mobile UI)");
+    console.group("📚 Category Engine Debug (V7.8.1 Mobile UI)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1577,26 +1578,29 @@ if (window.visualViewport) { window.visualViewport.addEventListener('resize', sc
 // ===== V7.8 Mobile UI: ปัดพลิกหน้า, แตะกลางจอซ่อน/แสดงแถบ, วาดใหม่เมื่อหมุนจอ, กันจอดับระหว่างอ่าน =====
 const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
 const readerIsOpenPdf = () => { const m = document.getElementById('reader-modal'), c = document.getElementById('pdf-canvas'); return !!(m && m.style.display === 'flex' && c && c.style.display !== 'none' && pdfDoc); };
-let swipeStart = null, centerTapTimer = null, readerResizeTimer = null, wakeLock = null;
+let swipeStart = null, tapStart = null, centerTapTimer = null, suppressClickUntil = 0, readerResizeTimer = null, wakeLock = null;
+const isCenterTarget = (el) => !!(el && el.closest && el.closest('.reader-content') && !el.closest('.tap-zone') && !el.closest('.mobile-nav-overlay'));
+function handleCenterTap() {
+    if (centerTapTimer) { clearTimeout(centerTapTimer); centerTapTimer = null; return; }   // แตะสองครั้ง (ซูม) ไม่นับเป็นการสลับแถบ
+    centerTapTimer = setTimeout(() => { centerTapTimer = null; const m = document.getElementById('reader-modal'); if (m) m.classList.toggle('reader-immersive'); }, 280);
+}
 document.addEventListener('touchstart', (e) => {
-    swipeStart = null;
-    if (e.touches.length !== 1 || !readerIsOpenPdf() || !e.target.closest || !e.target.closest('.reader-content')) return;
-    if (window.visualViewport && window.visualViewport.scale > 1.02) return;   // ซูมด้วยนิ้วอยู่: ให้เลื่อนดูภาพแทนการพลิกหน้า
-    const t = e.touches[0];
-    swipeStart = { x: t.clientX, y: t.clientY, t: Date.now() };
+    swipeStart = null; tapStart = null;
+    if (e.touches.length !== 1 || !readerIsOpenPdf() || !isCenterTarget(e.target) && !(e.target.closest && e.target.closest('.reader-content'))) return;
+    const t = e.touches[0], zoomed = !!(window.visualViewport && window.visualViewport.scale > 1.02);
+    if (!zoomed) { swipeStart = { x: t.clientX, y: t.clientY, t: Date.now() }; if (isCenterTarget(e.target)) tapStart = swipeStart; }   // ซูมด้วยนิ้วอยู่: ไม่พลิกหน้า/ไม่สลับแถบ
 }, { passive: true });
 document.addEventListener('touchend', (e) => {
-    if (!swipeStart) return;
-    const s = swipeStart; swipeStart = null;
-    const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y;
-    if (Date.now() - s.t > 800 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const s = swipeStart, ts = tapStart; swipeStart = null; tapStart = null;
+    if (!s) return;
+    const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y, dt = Date.now() - s.t;
+    if (ts && dt < 350 && Math.abs(dx) < 10 && Math.abs(dy) < 10 && isMobileView()) { suppressClickUntil = Date.now() + 700; handleCenterTap(); return; }
+    if (dt > 800 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     if (dx < 0) onNextPage(); else onPrevPage();
 }, { passive: true });
-document.addEventListener('click', (e) => {
-    if (!isMobileView() || !readerIsOpenPdf() || !e.target.closest) return;
-    if (!e.target.closest('.reader-content') || e.target.closest('.tap-zone')) return;
-    if (centerTapTimer) { clearTimeout(centerTapTimer); centerTapTimer = null; return; }   // แตะสองครั้ง (ซูม) ไม่นับเป็นการสลับแถบ
-    centerTapTimer = setTimeout(() => { centerTapTimer = null; document.getElementById('reader-modal').classList.toggle('reader-immersive'); }, 280);
+document.addEventListener('click', (e) => {   // เมาส์/เบราว์เซอร์ที่ส่ง click ปกติ (ข้ามถ้าเพิ่งจัดการจาก touch ไปแล้ว)
+    if (Date.now() < suppressClickUntil || !isMobileView() || !readerIsOpenPdf() || !isCenterTarget(e.target)) return;
+    handleCenterTap();
 });
 window.addEventListener('resize', () => {
     clearTimeout(readerResizeTimer);
@@ -1644,7 +1648,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.8 Mobile UI</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.8.1 Mobile UI</p>
             </div>
         </div>
         <div class="controls">
