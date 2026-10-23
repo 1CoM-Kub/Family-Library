@@ -13,7 +13,7 @@
 } catch (e) {} })();
     </script>
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.1 Mobile Reader Fix</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.2 Safe HTML</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -395,7 +395,9 @@ let rootFolderSubItems = [];
 const pdfjsLib = window.pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null, canvas, ctx, currentFileId = null;
-const escapeHtml = (text) => { const d = document.createElement('div'); d.textContent = text ?? ''; return d.innerHTML; };
+const escapeHtml = (text) => String(text ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
 const CAT_STORAGE_KEY = 'familyLibrary_categories_v1';
 const MAP_STORAGE_KEY = 'familyLibrary_folderCategoryMap_v1';
 const DEFAULT_CATEGORIES = [
@@ -531,7 +533,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.9.1 Mobile Reader Fix)");
+    console.group("📚 Category Engine Debug (V7.9.2 Safe HTML)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1739,7 +1741,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.9.1 Mobile Reader Fix</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.9.2 Safe HTML</p>
             </div>
         </div>
         <div class="controls">
