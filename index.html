@@ -13,7 +13,7 @@
 } catch (e) {} })();
     </script>
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9 Dark Mode</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.1 Mobile Reader Fix</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -531,7 +531,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.9 Dark Mode)");
+    console.group("📚 Category Engine Debug (V7.9.1 Mobile Reader Fix)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1639,47 +1639,59 @@ function cycleTheme() {
 try { const mq = window.matchMedia('(prefers-color-scheme: dark)'); const onChange = () => { if (getThemeMode() === 'auto') applyTheme(); }; if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange); } catch (e) {}
 // ===== V7.8 Mobile UI: ปัดพลิกหน้า, แตะกลางจอซ่อน/แสดงแถบ, วาดใหม่เมื่อหมุนจอ, กันจอดับระหว่างอ่าน =====
 const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
+const canUseMobileReaderControls = () => isMobileView() || navigator.maxTouchPoints > 0;
 const readerIsOpenPdf = () => { const m = document.getElementById('reader-modal'), c = document.getElementById('pdf-canvas'); return !!(m && m.style.display === 'flex' && c && c.style.display !== 'none' && pdfDoc); };
-let swipeStart = null, tapStart = null, pointerTapStart = null, pointerTapAt = 0, centerTapTimer = null, suppressClickUntil = 0, readerResizeTimer = null, wakeLock = null;
-const isCenterTarget = (el) => !!(el && el.closest && el.closest('.reader-content') && !el.closest('.tap-zone') && !el.closest('.mobile-nav-overlay'));
+let swipeStart = null, tapStart = null, pointerTapStart = null, pointerTapAt = 0, touchTapAt = 0, centerTapTimer = null, suppressClickUntil = 0, readerResizeTimer = null, wakeLock = null;
+const isReaderPoint = (x, y) => {
+    const area = document.querySelector('.reader-content')?.getBoundingClientRect();
+    return !!area && x >= area.left && x <= area.right && y >= area.top && y <= area.bottom;
+};
+const isCenterPoint = (x, y) => {
+    const area = document.querySelector('.reader-content')?.getBoundingClientRect();
+    return isReaderPoint(x, y) && x >= area.left + area.width * 0.3 && x <= area.right - area.width * 0.3;
+};
 function handleCenterTap() {
     if (centerTapTimer) { clearTimeout(centerTapTimer); centerTapTimer = null; return; }   // แตะสองครั้ง (ซูม) ไม่นับเป็นการสลับแถบ
     centerTapTimer = setTimeout(() => { centerTapTimer = null; const m = document.getElementById('reader-modal'); if (m) m.classList.toggle('reader-immersive'); }, 280);
 }
 document.addEventListener('pointerdown', (e) => {
     pointerTapStart = null;
-    if (e.pointerType !== 'touch' || !e.isPrimary || !readerIsOpenPdf() || !isMobileView() || !isCenterTarget(e.target)) return;
+    if (e.pointerType !== 'touch' || !e.isPrimary || !readerIsOpenPdf() || !canUseMobileReaderControls() || !isCenterPoint(e.clientX, e.clientY)) return;
     if (window.visualViewport && window.visualViewport.scale > 1.02) return;
     pointerTapStart = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId };
-}, { passive: true });
+}, { capture: true, passive: true });
 document.addEventListener('pointerup', (e) => {
     const start = pointerTapStart; pointerTapStart = null;
-    if (!start || e.pointerId !== start.id || Date.now() - start.t > 600 || Math.abs(e.clientX - start.x) >= 14 || Math.abs(e.clientY - start.y) >= 14) return;
+    if (!start || e.pointerId !== start.id || Date.now() - start.t > 600 || Math.abs(e.clientX - start.x) >= 14 || Math.abs(e.clientY - start.y) >= 14 || !isCenterPoint(e.clientX, e.clientY)) return;
+    if (Date.now() - touchTapAt < 700) return;
     pointerTapAt = Date.now(); suppressClickUntil = pointerTapAt + 700;
     handleCenterTap();
-}, { passive: true });
-document.addEventListener('pointercancel', () => { pointerTapStart = null; }, { passive: true });
+}, { capture: true, passive: true });
+document.addEventListener('pointercancel', () => { pointerTapStart = null; }, { capture: true, passive: true });
 document.addEventListener('touchstart', (e) => {
     swipeStart = null; tapStart = null;
-    if (e.touches.length !== 1 || !readerIsOpenPdf() || !isCenterTarget(e.target) && !(e.target.closest && e.target.closest('.reader-content'))) return;
+    if (e.touches.length !== 1 || !readerIsOpenPdf()) return;
     const t = e.touches[0], zoomed = !!(window.visualViewport && window.visualViewport.scale > 1.02);
-    if (!zoomed) { swipeStart = { x: t.clientX, y: t.clientY, t: Date.now() }; if (isCenterTarget(e.target)) tapStart = swipeStart; }   // ซูมด้วยนิ้วอยู่: ไม่พลิกหน้า/ไม่สลับแถบ
-}, { passive: true });
+    if (!isReaderPoint(t.clientX, t.clientY)) return;
+    if (!zoomed) { swipeStart = { x: t.clientX, y: t.clientY, t: Date.now() }; if (isCenterPoint(t.clientX, t.clientY)) tapStart = swipeStart; }   // ซูมด้วยนิ้วอยู่: ไม่พลิกหน้า/ไม่สลับแถบ
+}, { capture: true, passive: true });
 document.addEventListener('touchend', (e) => {
     const s = swipeStart, ts = tapStart; swipeStart = null; tapStart = null;
     if (!s) return;
     const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y, dt = Date.now() - s.t;
-    if (ts && dt < 600 && Math.abs(dx) < 14 && Math.abs(dy) < 14 && isMobileView()) {
-        if (Date.now() - pointerTapAt > 700) { suppressClickUntil = Date.now() + 700; handleCenterTap(); }
+    if (ts && dt < 600 && Math.abs(dx) < 14 && Math.abs(dy) < 14 && isCenterPoint(t.clientX, t.clientY)) {
+        if (Date.now() - pointerTapAt > 700) {
+            touchTapAt = Date.now(); suppressClickUntil = touchTapAt + 700; handleCenterTap();
+        }
         return;
     }
     if (dt > 800 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     if (dx < 0) onNextPage(); else onPrevPage();
-}, { passive: true });
+}, { capture: true, passive: true });
 document.addEventListener('click', (e) => {   // เมาส์/เบราว์เซอร์ที่ส่ง click ปกติ (ข้ามถ้าเพิ่งจัดการจาก touch ไปแล้ว)
-    if (Date.now() < suppressClickUntil || !isMobileView() || !readerIsOpenPdf() || !isCenterTarget(e.target)) return;
+    if (Date.now() < suppressClickUntil || !canUseMobileReaderControls() || !readerIsOpenPdf() || !isCenterPoint(e.clientX, e.clientY)) return;
     handleCenterTap();
-});
+}, true);
 window.addEventListener('resize', () => {
     clearTimeout(readerResizeTimer);
     readerResizeTimer = setTimeout(() => {
@@ -1727,7 +1739,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.9 Dark Mode</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.9.1 Mobile Reader Fix</p>
             </div>
         </div>
         <div class="controls">
