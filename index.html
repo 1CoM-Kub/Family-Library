@@ -13,7 +13,7 @@
 } catch (e) {} })();
     </script>
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.3 Category Cleanup</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.4 Signout Cleanup</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -533,7 +533,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.9.3 Category Cleanup)");
+    console.group("📚 Category Engine Debug (V7.9.4 Signout Cleanup)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -598,6 +598,7 @@ function checkExistingToken() {
 }
 function handleAuthClick() { tokenClient.requestAccessToken({ prompt: 'select_account' }); }
 function handleSignoutClick() {
+    closeCategoryModal();
     driveLoadRequestId++; readerLoadId++; resetAdminState();
     driveConfig = null; rootAccessReport = null; rootMetaLoaded = false;
     searchBuildId++; searchRunId++; searchIdx = null; searchOwner = null; searchBuildPromise = null; searchProgress = null; searchScopeOverride = null;
@@ -1743,7 +1744,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.9.3 Category Cleanup</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.9.4 Signout Cleanup</p>
             </div>
         </div>
         <div class="controls">
