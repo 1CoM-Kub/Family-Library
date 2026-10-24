@@ -13,7 +13,7 @@
 } catch (e) {} })();
     </script>
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.2 Safe HTML</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.3 Category Cleanup</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -533,7 +533,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.9.2 Safe HTML)");
+    console.group("📚 Category Engine Debug (V7.9.3 Category Cleanup)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -971,10 +971,12 @@ function deleteCategory(catId) {
     if (!requireAdmin()) return;
     if (catId === 'uncategorized') return;
     if (!confirm('ต้องการลบหมวดหมู่นี้หรือไม่? แฟ้มที่อยู่ในหมวดนี้จะถูกย้ายไปที่ "ยังไม่ได้จัดหมวด"')) return;
+    const map = getFolderCategoryMap();
+    Object.keys(map).forEach(folderId => {
+        if (map[folderId] === catId) delete map[folderId];
+    });
     saveCategories(getCategories().filter(c => c.id !== catId));
-    const map = getFolderCategoryMap(), ids = Object.keys(map).filter(k => map[k] === catId);
-    ids.forEach(k => delete map[k]);
-    if (ids.length) saveFolderCategoryMap(map);
+    saveFolderCategoryMap(map);
     renderCategoryManagementUI();
 }
 function renderCategoryFolderView(catId) {
@@ -1741,7 +1743,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.9.2 Safe HTML</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.9.3 Category Cleanup</p>
             </div>
         </div>
         <div class="controls">
