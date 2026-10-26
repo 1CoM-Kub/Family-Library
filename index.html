@@ -13,7 +13,7 @@
 } catch (e) {} })();
     </script>
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.4 Signout Cleanup</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.5 Admin Check Notice</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -189,7 +189,7 @@ button.btn-logout:hover { background: var(--surface-sunken); color: var(--danger
 .reader-content { flex-grow: 1; display: flex; justify-content: center; overflow: auto; position: relative; background: var(--reader-black); min-height: 0 }
 #pdf-canvas { display: block; margin: 0 auto; box-shadow: 0 0 25px rgba(0,0,0,0.8); max-width: 100% }
 .reader-frame { width: 100%; height: 100%; border: none; background: white; display: none }
-#toast-message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 25px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(4px) }
+#toast-message { position: fixed; top: calc(20px + var(--safe-top)); left: 50%; transform: translateX(-50%); background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 25px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; z-index: 30000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(4px); max-width: calc(100vw - 32px); box-sizing: border-box; text-align: center }
 .tap-zone { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 50; cursor: pointer }
 .tap-zone.left { left: 0 }
 .tap-zone.right { right: 0 }
@@ -435,7 +435,10 @@ async function verifyAdminAccess() {
         currentUserEmail = email; userEmailVerified = true;
         return isAdmin();
     } catch (e) {
-        if (checkId === adminCheckId) { currentUserEmail = null; userEmailVerified = false; }
+        if (checkId === adminCheckId) {
+            currentUserEmail = null; userEmailVerified = false;
+            if (e?.message === 'timeout') showToast('ตรวจสอบสิทธิ์ผู้ดูแลไม่ทันเวลา กำลังใช้งานในสิทธิ์สมาชิกชั่วคราว กรุณารีเฟรชหน้าเพื่อลองอีกครั้ง');
+        }
         return false;
     }
 }
@@ -533,7 +536,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.9.4 Signout Cleanup)");
+    console.group("📚 Category Engine Debug (V7.9.5 Admin Check Notice)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1433,7 +1436,14 @@ async function getFolderCover(folderId, folderName = '') {
 }
 const saveBookmark = (id, page) => localStorage.setItem(`familyComic:lastPage:${id}`, page);
 const getBookmark = (id) => parseInt(localStorage.getItem(`familyComic:lastPage:${id}`)) || 1;
-const showToast = (msg) => { const t = document.getElementById('toast-message'); if(t){ t.innerHTML=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',3500); } };
+const showToast = (msg) => {
+    const t = document.getElementById('toast-message');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(t.hideTimeout);
+    t.hideTimeout = setTimeout(() => { t.style.display = 'none'; }, 3500);
+};
 // ===== V7.5 Continue Reading (ใช้ key ใหม่ familyComic:recent_v1 ไม่แตะ familyComic:lastPage:*) =====
 const RECENT_KEY = 'familyComic:recent_v1', RECENT_MAX = 6;
 let currentReaderMeta = null, readerFromHome = false;
@@ -1744,7 +1754,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.9.4 Signout Cleanup</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.9.5 Admin Check Notice</p>
             </div>
         </div>
         <div class="controls">
@@ -1807,8 +1817,8 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             </div>
         </div>
     </div>
+    <div id="toast-message" role="status" aria-live="polite"></div>
     <div id="reader-modal" class="reader-modal">
-        <div id="toast-message"></div>
         <div id="immersive-page" class="immersive-page"></div>
         <div class="reader-header">
             <button class="btn-reader btn-back" onclick="closeReader()"><i class="fas fa-arrow-left"></i> <span class="btn-text">ปิดหนังสือ</span></button>
