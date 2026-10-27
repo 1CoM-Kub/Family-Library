@@ -13,7 +13,7 @@
 } catch (e) {} })();
     </script>
     <meta name="referrer" content="no-referrer">
-    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.5 Admin Check Notice</title>
+    <title>บ้านการ์ตูนของเรา | Family Comic Library V7.9.6 Image Search</title>
     <script src="config.js?v=1"></script>
     <script>
 (function () {
@@ -536,7 +536,7 @@ const getUncategorizedFolderIds = (fIds) => {
 const getVisibleCategories = () => getCategories().filter(c => c.visible);
 const sortCategories = (cats) => [...cats].sort((a, b) => a.order - b.order);
 window.debugCategories = () => {
-    console.group("📚 Category Engine Debug (V7.9.5 Admin Check Notice)");
+    console.group("📚 Category Engine Debug (V7.9.6 Image Search)");
     console.log("Categories:", getCategories());
     console.log("Folder Category Map:", getFolderCategoryMap());
     console.log("Admin:", { configured: !!normalizeEmail(ADMIN_EMAIL), emailVerified: userEmailVerified, isAdmin: isAdmin() });
@@ -1048,8 +1048,9 @@ const findSeriesCover = (seriesName, coverFiles) => {
     return cover?.thumbnailLink ? cover.thumbnailLink.split('=')[0] + '=s800' : null;
 };
 // ===== V7.7 Global Search: ดัชนีชื่อฝั่งเบราว์เซอร์ (ไล่อ่านโฟลเดอร์จาก ROOT_FOLDER_IDS ด้วย files.list เดิม ไม่แก้ OAuth/SCOPES) =====
-const SEARCH_DB = 'familyComic_searchIndex_v1', SEARCH_TTL_MS = 24 * 3600 * 1000;
+const SEARCH_DB = 'familyComic_searchIndex_v1', SEARCH_INDEX_VERSION = 2, SEARCH_TTL_MS = 24 * 3600 * 1000;
 const SEARCH_MAX_ENTRIES = 50000, SEARCH_MAX_FOLDERS = 5000, SEARCH_MAX_DEPTH = 12, SEARCH_CONCURRENCY = 4, SEARCH_PAGE = 100;
+const SEARCH_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const escapeRegExp = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const normQ = (t) => String(t ?? '').normalize('NFC').toLowerCase().trim();
@@ -1076,7 +1077,12 @@ function setSearchScope(mode) {
 }
 const buildIndexView = (rows) => {
     const entries = [], byId = new Map();
-    rows.forEach(r => { if (!Array.isArray(r) || !isDriveId(r[0]) || typeof r[1] !== 'string' || !isDriveId(r[3])) return; const e = { id: r[0], name: r[1].slice(0, 300), n: normQ(r[1]), k: r[2] === 0 ? 'folder' : 'pdf', p: r[3], mt: String(r[4] || '') }; entries.push(e); byId.set(e.id, e); });
+    rows.forEach(r => {
+        if (!Array.isArray(r) || !isDriveId(r[0]) || typeof r[1] !== 'string' || !isDriveId(r[3])) return;
+        const k = r[2] === 0 ? 'folder' : r[2] === 2 ? 'image' : 'pdf';
+        const e = { id: r[0], name: r[1].slice(0, 300), n: normQ(r[1]), k, p: r[3], mt: String(r[4] || ''), mime: typeof r[5] === 'string' ? r[5] : (k === 'image' ? 'image/jpeg' : k === 'folder' ? 'application/vnd.google-apps.folder' : 'application/pdf') };
+        entries.push(e); byId.set(e.id, e);
+    });
     return { entries, byId };
 };
 async function getSearchOwner() {
@@ -1089,13 +1095,14 @@ async function loadStoredIndex() {
         const owner = await getSearchOwner();
         if (!owner) return null;
         const rec = await idbGet('main');
-        if (!rec || rec.v !== 1 || rec.owner !== owner || rec.roots !== rootsSig() || !Array.isArray(rec.rows) || !Number.isFinite(rec.builtAt)) return null;
+        if (!rec || rec.v !== SEARCH_INDEX_VERSION || rec.owner !== owner || rec.roots !== rootsSig() || !Array.isArray(rec.rows) || !Number.isFinite(rec.builtAt)) return null;
         const view = buildIndexView(rec.rows);
         return { ...view, builtAt: rec.builtAt, truncated: !!rec.truncated };
     } catch (e) { return null; }
 }
 async function listFolderPage(folderId, pageToken) {
-    const q = `'${folderId}' in parents and trashed = false and (mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf')`;
+    const imageMimeQuery = SEARCH_IMAGE_MIMES.map(mime => `mimeType = '${mime}'`).join(' or ');
+    const q = `'${folderId}' in parents and trashed = false and (mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/pdf' or ${imageMimeQuery})`;
     for (let attempt = 0; ; attempt++) {
         try {
             const res = await gapi.client.drive.files.list({ q, fields: 'nextPageToken, files(id, name, mimeType, modifiedTime)', pageSize: 1000, pageToken });
@@ -1130,7 +1137,8 @@ function buildSearchIndex() {
                     for (const f of (res.files || [])) {
                         if (!isDriveId(f.id) || rows.length >= SEARCH_MAX_ENTRIES) { if (rows.length >= SEARCH_MAX_ENTRIES) truncated = true; continue; }
                         const isFolder = f.mimeType === 'application/vnd.google-apps.folder';
-                        rows.push([f.id, f.name || 'ไม่มีชื่อ', isFolder ? 0 : 1, job.id, f.modifiedTime || '']);
+                        const mimeType = typeof f.mimeType === 'string' ? f.mimeType : '';
+                        rows.push([f.id, f.name || 'ไม่มีชื่อ', isFolder ? 0 : mimeType.startsWith('image/') ? 2 : 1, job.id, f.modifiedTime || '', mimeType]);
                         if (isFolder && !seen.has(f.id)) {
                             if (job.depth + 1 > SEARCH_MAX_DEPTH || seen.size >= SEARCH_MAX_FOLDERS) truncated = true;
                             else { seen.add(f.id); queue.push({ id: f.id, depth: job.depth + 1 }); }
@@ -1151,7 +1159,7 @@ function buildSearchIndex() {
             const view = buildIndexView(rows);
             searchIdx = { ...view, builtAt: Date.now(), truncated, skipped };
             const owner = await getSearchOwner();
-            if (owner) { try { await idbSet('main', { v: 1, owner, roots: rootsSig(), builtAt: searchIdx.builtAt, truncated, rows }); } catch (e) {} }
+            if (owner) { try { await idbSet('main', { v: SEARCH_INDEX_VERSION, owner, roots: rootsSig(), builtAt: searchIdx.builtAt, truncated, rows }); } catch (e) {} }
             return searchIdx;
         } finally { if (myBuild === searchBuildId) { searchBuildPromise = null; searchProgress = null; } }
     })();
@@ -1208,7 +1216,8 @@ function renderGlobalResults(query, more = false) {
     const meta = `พบ ${hits.length} รายการ · ดัชนีอัปเดต ${agoText(Date.now() - searchIdx.builtAt)}${searchProgress ? ' (กำลังอัปเดตเบื้องหลัง)' : ''}${searchIdx.truncated ? ' · ห้องสมุดใหญ่เกินเพดาน อาจแสดงไม่ครบ' : ''}`;
     const rows = shown.map(e => {
         const folder = e.k === 'folder', path = searchPathOf(e);
-        return `<div class="search-row" role="button" tabindex="0" onclick="openSearchResult('${e.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSearchResult('${e.id}')}"><div class="search-ico${folder ? ' is-folder' : ''}"><i class="fas ${folder ? 'fa-folder' : 'fa-book'}"></i></div><div class="search-info"><div class="search-name">${highlightName(e.name, terms)}</div>${path ? `<div class="search-path">${escapeHtml(path)}</div>` : ''}</div><div class="search-tag">${folder ? 'แฟ้ม' : 'PDF'}</div></div>`;
+        const image = e.k === 'image';
+        return `<div class="search-row" role="button" tabindex="0" onclick="openSearchResult('${e.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSearchResult('${e.id}')}"><div class="search-ico${folder ? ' is-folder' : ''}"><i class="fas ${folder ? 'fa-folder' : image ? 'fa-image' : 'fa-book'}"></i></div><div class="search-info"><div class="search-name">${highlightName(e.name, terms)}</div>${path ? `<div class="search-path">${escapeHtml(path)}</div>` : ''}</div><div class="search-tag">${folder ? 'แฟ้ม' : image ? 'รูปภาพ' : 'PDF'}</div></div>`;
     }).join('');
     const empty = hits.length === 0 ? '<div class="state-container"><div class="state-icon">🔎</div><div class="state-title">ไม่พบรายการที่ตรงกับคำค้นหา</div><div class="state-desc">ลองใช้คำสั้นลง หรือกด "รีเฟรชดัชนี" ถ้าเพิ่งเพิ่มไฟล์ใหม่ใน Drive</div></div>' : '';
     const moreBtn = hits.length > shown.length ? `<button class="fav-more" onclick="showMoreSearch()">แสดงเพิ่ม (${hits.length - shown.length})</button>` : '';
@@ -1235,7 +1244,7 @@ function onSearchInput(immediate = false) {
 function openSearchResult(id) {
     const e = searchIdx?.byId.get(id);
     if (!e) return;
-    if (e.k === 'pdf') { readerFromSearch = true; openReader(e.id, e.name, 'application/pdf'); return; }
+    if (e.k !== 'folder') { readerFromSearch = true; openReader(e.id, e.name, e.mime); return; }
     const chain = []; let cur = searchIdx.byId.get(e.p), g = 0;
     while (cur && g++ < 20) { chain.unshift({ id: cur.id, name: cur.name }); cur = searchIdx.byId.get(cur.p); }
     searchRunId++;
@@ -1754,7 +1763,7 @@ function toggleFullScreen() { if (!document.fullscreenElement) document.getEleme
             <div class="logo-icon-wrapper"><i class="fas fa-book-open"></i></div>
             <div class="logo-text">
                 <h1 class="logo">บ้านการ์ตูนของเรา</h1>
-                <p class="logo-sub">FAMILY LIBRARY V7.9.5 Admin Check Notice</p>
+                <p class="logo-sub">FAMILY LIBRARY V7.9.6 Image Search</p>
             </div>
         </div>
         <div class="controls">
